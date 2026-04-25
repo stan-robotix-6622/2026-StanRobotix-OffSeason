@@ -8,17 +8,21 @@ Dépôt officiel de l'équipe [Stan Robotix 6622](https://stanrobotix6622.com/) 
   - Code utile mais non-spécifique : `src/stanbrairy/`
 
 ## Pour ajouter un projet
-1. Clone le dépot: 
+1. Cloner le dépot :
 ```
 git clone https://github.com/stan-robotix-6622/2026-StanRobotix-OffSeason.git
 ```
-2. Créé un nouveau projet avec le créateur le projet WPILib:
+2. Créer une nouvelle branche pour le projet :
+```
+git switch -c NOM_DU_PROJET
+```
+3. Créer un nouveau projet avec le créateur le projet WPILib :
     - Ouvrir le dépot dans VS Code WPILib
-    - Entrer dans la barre en haut de l'application:
+    - Entrer dans la barre en haut de l'application :
     ```
     >WPILib: Create a new project
     ```
-3. Ajouter les fichiers pour wpiformat depuis le [dépot template](https://github.com/stan-robotix-6622/Template-StanRobotix-WPILib/tree/main/wpiformat) dans le fichier du projet
+2. Ajouter les fichiers pour wpiformat depuis le [dépot template](https://github.com/stan-robotix-6622/Template-StanRobotix-WPILib/tree/main/wpiformat) dans le fichier du projet
 
 ## Les conventions de code
 - Programmer en anglais
