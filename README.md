@@ -2,16 +2,23 @@
 Dépôt officiel de l'équipe [Stan Robotix 6622](https://stanrobotix6622.com/) pour la hors saison 2026
 
 ## Conventions de structure
-- Branches :`Projet-Nom de Mécanisme/Commande-(Fonctionnalité)`
-- Arborescence :
+- Branches : `Projet-Nom de Mécanisme/Commande-(Fonctionnalité)`
+- Arborescence d'un projet :
   - Code spécifique au projet : `src/main/`
   - Code utile mais non-spécifique : `src/stanbrairy/`
 
 ## Pour ajouter un projet
-1. Clone le dépot
-2. L'ouvrir dans VS Code WPILib
-3. Créé un nouveau projet avec le créateur le projet WPILib
-4. Ajouter les fichiers pour wpiformat depuis le [dépot template](https://github.com/stan-robotix-6622/Template-StanRobotix-WPILib/tree/main/wpiformat) dans le fichier du projet
+1. Clone le dépot: 
+```
+git clone https://github.com/stan-robotix-6622/2026-StanRobotix-OffSeason.git
+```
+2. Créé un nouveau projet avec le créateur le projet WPILib:
+  - Ouvrir le dépot dans VS Code WPILib
+  - Entrer dans la barre en haut de l'application:
+   ```
+  >WPILib: Create a new project
+  ```
+3. Ajouter les fichiers pour wpiformat depuis le [dépot template](https://github.com/stan-robotix-6622/Template-StanRobotix-WPILib/tree/main/wpiformat) dans le fichier du projet
 
 ## Les conventions de code
 - Programmer en anglais
