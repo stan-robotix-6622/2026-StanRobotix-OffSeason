@@ -13,11 +13,11 @@ Dépôt officiel de l'équipe [Stan Robotix 6622](https://stanrobotix6622.com/) 
 git clone https://github.com/stan-robotix-6622/2026-StanRobotix-OffSeason.git
 ```
 2. Créé un nouveau projet avec le créateur le projet WPILib:
-  - Ouvrir le dépot dans VS Code WPILib
-  - Entrer dans la barre en haut de l'application:
-   ```
-  >WPILib: Create a new project
-  ```
+    - Ouvrir le dépot dans VS Code WPILib
+    - Entrer dans la barre en haut de l'application:
+    ```
+    >WPILib: Create a new project
+    ```
 3. Ajouter les fichiers pour wpiformat depuis le [dépot template](https://github.com/stan-robotix-6622/Template-StanRobotix-WPILib/tree/main/wpiformat) dans le fichier du projet
 
 ## Les conventions de code
