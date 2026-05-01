@@ -14,3 +14,7 @@ modifiableFileExclude {
    gradle/*
    .json$
 }
+licenseUpdateExclude {
+   src/stanbrairy/*
+	src/main/include/Configs.h$
+}
