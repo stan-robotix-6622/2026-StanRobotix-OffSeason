@@ -1,6 +1,6 @@
 #include "LED.h"
 
-#include <frc/RobotBase.h>
+// #include <frc/RobotBase.h>
 
 LED::LED()
 {
@@ -10,8 +10,9 @@ LED::LED()
   // if (frc::RobotBase::IsSimulation())
   // {
   //   mRobotIsSimulated = true;
-  //   mLedSim.SetLength(LEDsConstants::kLength);
   //   mLedSim.SetRunning(true);
+  //   mLedSim.SetInitialized(true);
+  //   mLedSim.SetLength(LEDsConstants::kLength);
   // }
   
   m_RedBlueGradiant = new std::vector<frc::Color>{};
@@ -51,13 +52,19 @@ void LED::setWhite()
 {
   for (int i = 0; i < LEDsConstants::kLength; i++)
   {
-    m_ledBuffer[i].SetRGB(255, 50, 0);
+    m_ledBuffer[i].SetRGB(255, 255, 255);
   }
-  m_ledBuffer[20].SetRGB(255, 255, 255);
   m_led.SetData(m_ledBuffer);
 
   // if (mRobotIsSimulated) {
-  //   mLedSim.SetData(m_ledBuffer.begin(), m_ledBuffer.size());
+  //   // printf("Simulating");
+  //   std::vector<HAL_AddressableLEDData*> wData; 
+  //   for (unsigned int i = 0; i < m_ledBuffer.size(); i++)
+  //   {
+  //     wData.emplace_back(new HAL_AddressableLEDData{m_ledBuffer[i].b, m_ledBuffer[i].g, m_ledBuffer[i].r, m_ledBuffer[i].padding});
+  //     std::cout << m_ledBuffer[i].b << " " <<m_ledBuffer[i].g << " " <<m_ledBuffer[i].r << " " <<m_ledBuffer[i].padding << "\n";
+  //   }
+  //   mLedSim.SetData(wData.front(), wData.size());
   // }
 }
 
