@@ -10,6 +10,8 @@ Robot::Robot() {}
 
 void Robot::RobotPeriodic() {
   frc2::CommandScheduler::GetInstance().Run();
+ 
+  
 }
 
 void Robot::DisabledInit() {}
@@ -36,7 +38,9 @@ void Robot::TeleopInit() {
   }
 }
 
-void Robot::TeleopPeriodic() {}
+void Robot::TeleopPeriodic() {
+  m_container.setLED();
+}
 
 void Robot::TeleopExit() {}
 

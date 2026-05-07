@@ -2,6 +2,7 @@
 #include <iostream>
 #include <array>
 #include <frc/AddressableLED.h>
+// #include <frc/simulation/AddressableLEDSim.h>
 #include <frc/LEDPattern.h>
 #include <chrono>
 #include <frc/Timer.h>
@@ -23,8 +24,6 @@ class LED {
 
     void addGradiant(frc::Color iStartingColor, frc::Color iEndingColor, int iVectorSize, std::vector<frc::Color> * iModifiedVector);
 
-    void setMouthLEDs(int iMouthSize);
-
     void pulseLEDs(frc::Color iPulseColor);
 
     void setWhite();
@@ -33,8 +32,6 @@ class LED {
 
     bool isImmobile = false;
     bool isMoving = false;
-    bool isWaving = false;
-    bool isTalking = false;
 
  private:
     // PWM port 9
@@ -45,6 +42,7 @@ class LED {
     std::array<frc::AddressableLED::LEDData, LEDsConstants::kLength> m_ledBuffer;  // Reuse the buffer
     // Store what the last hue of the first pixel is
     int firstPixelHue = 0;
-    int m_MouthSize = 0;
-    bool m_MouthSizeIncreasing = true;
+
+    // frc::sim::AddressableLEDSim mLedSim{m_led};
+    // bool mRobotIsSimulated = false;
 };
