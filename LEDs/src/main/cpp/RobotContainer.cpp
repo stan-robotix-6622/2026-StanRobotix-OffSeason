@@ -33,17 +33,20 @@ void RobotContainer::setLED()
     if (!mLED.isMoving)
     {
       std::cout << "moving" << std::endl;
-      mLED.setMode(mLED.moving);
     }
+    mLED.setMode(mLED.moving);
   }
 
-  else if (m_joystick->GetRawButtonPressed(4))
+  else if (m_joystick->GetRawButton(4))
   {
-    std::cout << "immobile" << std::endl;
+    if (!mLED.isImmobile)
+    {
+      std::cout << "immobile" << std::endl;
+    }
     mLED.setMode(mLED.immobile);
   }
 
-  else if (m_joystick->GetRawButtonPressed(6))
+  else if (m_joystick->GetRawButton(6))
   {
     std::cout << "test" << std::endl;
     mLED.setMode(mLED.test);

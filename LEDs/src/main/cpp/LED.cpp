@@ -15,37 +15,38 @@ LED::LED()
   //   mLedSim.SetLength(LEDsConstants::kLength);
   // }
   
-  m_RedBlueGradiant = new std::vector<frc::Color>{};
   addGradiant(frc::Color("#ff0000"), frc::Color("#000000"), 9, m_RedBlueGradiant);
   addGradiant(frc::Color("#0000ff"), frc::Color("#000000"), 9, m_RedBlueGradiant);
-  m_RedBlueLEDPattern = new frc::LEDPattern{frc::LEDPattern::Gradient(frc::LEDPattern::kContinuous, *m_RedBlueGradiant).ScrollAtAbsoluteSpeed(0.5_mps, LEDsConstants::kLedSpacing)};
+  m_RedBlueLEDPattern = frc::LEDPattern::Gradient(frc::LEDPattern::kContinuous, m_RedBlueGradiant).ScrollAtAbsoluteSpeed(0.5_mps, LEDsConstants::kLedSpacing);
+
+  m_OrangePulseLEDPattern = getPulseLEDsPattern(frc::Color("#FFA500"));
 }
 
-void LED::addGradiant(frc::Color iStartingColor, frc::Color iEndingColor, int iVectorSize, std::vector<frc::Color> * iModifiedVector)
+void LED::addGradiant(frc::Color iStartingColor, frc::Color iEndingColor, int iNumberOfSteps, std::vector<frc::Color>& iModifiedVector)
 {
-  int startingR = iStartingColor.red;
-  int startingG = iStartingColor.green;
-  int startingB = iStartingColor.blue;
-  int endingR = iEndingColor.red;
-  int endingG = iEndingColor.green;
-  int endingB = iEndingColor.blue;
-  for (int i = 0; i <= iVectorSize; i++)
+  float startingR = iStartingColor.red;
+  float startingG = iStartingColor.green;
+  float startingB = iStartingColor.blue;
+  float endingR = iEndingColor.red;
+  float endingG = iEndingColor.green;
+  float endingB = iEndingColor.blue;
+  for (int i = 0; i <= iNumberOfSteps; i++)
   {
-    iModifiedVector->emplace_back(frc::Color(startingR - (startingR - endingR) / iVectorSize * i,
-                                              startingG - (startingG - endingG) / iVectorSize * i,
-                                              startingB - (startingB - endingB) / iVectorSize * i));
+    iModifiedVector.emplace_back(frc::Color(startingR - (startingR - endingR) / iNumberOfSteps * i,
+                                              startingG - (startingG - endingG) / iNumberOfSteps * i,
+                                              startingB - (startingB - endingB) / iNumberOfSteps * i));
   }
 }
 
 
-void LED::pulseLEDs(frc::Color iPulseColor)
+frc::LEDPattern LED::getPulseLEDsPattern(frc::Color iPulseColor)
 {
-  std::vector<frc::Color> * m_PulseGradiant = new std::vector<frc::Color>{};
+  std::vector<frc::Color> m_PulseGradiant;
   addGradiant(frc::Color("#000000"), iPulseColor, 9, m_PulseGradiant);
   addGradiant(iPulseColor, frc::Color("#000000"), 9, m_PulseGradiant);
-  frc::LEDPattern * m_PulseLEDPattern = new frc::LEDPattern{frc::LEDPattern::Gradient(frc::LEDPattern::kDiscontinuous, *m_PulseGradiant).ScrollAtAbsoluteSpeed(0.5_mps, LEDsConstants::kLedSpacing)};
+  frc::LEDPattern m_PulseLEDPattern{frc::LEDPattern::Gradient(frc::LEDPattern::kDiscontinuous, m_PulseGradiant).ScrollAtAbsoluteSpeed(0.5_mps, LEDsConstants::kLedSpacing)};
 
-  m_PulseLEDPattern->ApplyTo(m_ledBuffer);
+  return m_PulseLEDPattern;
 }
 
 void LED::setWhite()
@@ -54,38 +55,29 @@ void LED::setWhite()
   {
     m_ledBuffer[i].SetRGB(255, 255, 255);
   }
-  m_led.SetData(m_ledBuffer);
-
-  // if (mRobotIsSimulated) {
-  //   // printf("Simulating");
-  //   std::vector<HAL_AddressableLEDData*> wData; 
-  //   for (unsigned int i = 0; i < m_ledBuffer.size(); i++)
-  //   {
-  //     wData.emplace_back(new HAL_AddressableLEDData{m_ledBuffer[i].b, m_ledBuffer[i].g, m_ledBuffer[i].r, m_ledBuffer[i].padding});
-  //     std::cout << m_ledBuffer[i].b << " " <<m_ledBuffer[i].g << " " <<m_ledBuffer[i].r << " " <<m_ledBuffer[i].padding << "\n";
-  //   }
-  //   mLedSim.SetData(wData.front(), wData.size());
-  // }
 }
 
 void LED::setMode(Mode iMode){
   switch (iMode)
   {
     case immobile:
-      isImmobile = true; 
+      isImmobile = true;
       isMoving = false;
-      pulseLEDs(frc::Color("#FFA500"));
+      m_OrangePulseLEDPattern.ApplyTo(m_ledBuffer);
       break;
     case moving:
-      isImmobile = false; 
+      isImmobile = false;
       isMoving = true;
-      m_RedBlueLEDPattern->ApplyTo(m_ledBuffer);
-
+      m_RedBlueLEDPattern.ApplyTo(m_ledBuffer);
       break;
     case test:
-      isImmobile = false; 
+      isImmobile = false;
       isMoving = false;
       setWhite();
   };
+  for (unsigned int i = 0; i < m_ledBuffer.size(); i++)
+  {
+    std::cout << "LED no" << i << ": r = "<< (int)m_ledBuffer[i].r << " g = " << (int)m_ledBuffer[i].g << " b = " << (int)m_ledBuffer[i].b << "\n";
+  }
   m_led.SetData(m_ledBuffer);
 }
