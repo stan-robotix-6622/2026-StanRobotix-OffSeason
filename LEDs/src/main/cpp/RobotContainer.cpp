@@ -4,8 +4,9 @@
 
 #include "RobotContainer.h"
 
-#include <frc2/command/Commands.h>
+#include <iostream>
 
+#include <frc2/command/Commands.h>
 #include <frc2/command/button/JoystickButton.h>
 #include <frc2/command/button/Trigger.h>
 
