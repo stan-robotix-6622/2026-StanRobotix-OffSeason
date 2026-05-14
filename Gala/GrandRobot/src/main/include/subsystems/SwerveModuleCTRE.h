@@ -12,6 +12,8 @@
 #include <frc/system/plant/DCMotor.h>
 #include <frc/controller/PIDController.h>
 #include <ctre/phoenix6/CANcoder.hpp>
+#include <ctre/phoenix6/sim/TalonFXSimState.hpp>
+
 // #include <rev/sim/SparkMaxSim.h>
 // #include <rev/SparkAbsoluteEncoder.h>
 // #include <rev/SparkClosedLoopController.h>
@@ -33,6 +35,7 @@ class SwerveModule : public wpi::Sendable {
 
 	frc::SwerveModulePosition getModulePosition();
 	frc::SwerveModuleState getModuleState();
+	
 
 	units::radians_per_second_t getTurningVelocity();
 
@@ -64,6 +67,9 @@ class SwerveModule : public wpi::Sendable {
 	frc::DCMotor * mTurningGearBox;
 	// rev::spark::SparkMaxSim* mDrivingMotorSim;
 	// rev::spark::SparkMaxSim* mTurningMotorSim;
+	
+	ctre::phoenix6::sim::TalonFXSimState* mDrivingMotorSim;
+	ctre::phoenix6::sim::TalonFXSimState* mTurningMotorSim;
 
 	frc::Rotation2d mTurningCurrentAngle;
 

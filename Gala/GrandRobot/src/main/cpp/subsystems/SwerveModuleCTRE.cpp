@@ -7,6 +7,7 @@
 #include <frc/RobotBase.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
+
 SwerveModule::SwerveModule(int iDrivingMotorID, int iTurningMotorID, int iTurningCANcoderID, bool iDrivingInverted, bool iTurningInverted)
 {
 	mDrivingMotor = new ctre::phoenix6::hardware::TalonFX{iDrivingMotorID};
@@ -15,10 +16,12 @@ SwerveModule::SwerveModule(int iDrivingMotorID, int iTurningMotorID, int iTurnin
 	// Simulation
 	if (frc::RobotBase::IsSimulation()) {
 		mRobotIsSimulated = true;
-		mTurningGearBox = new frc::DCMotor{frc::DCMotor::NEO550()};
-		mDrivingGearBox = new frc::DCMotor{frc::DCMotor::NEO()};
+		mTurningGearBox = new frc::DCMotor{frc::DCMotor::KrakenX60()};
+		mDrivingGearBox = new frc::DCMotor{frc::DCMotor::KrakenX60()};
 		// mTurningMotorSim = new rev::spark::SparkMaxSim{mTurningMotor, mTurningGearBox};
 		// mDrivingMotorSim = new rev::spark::SparkMaxSim{mDrivingMotor, mDrivingGearBox};
+		mTurningMotorSim = new ctre::phoenix6::sim::TalonFXSimState{iTurningMotorID};
+		mDrivingMotorSim = new ctre::phoenix6::sim::TalonFXSimState{iDrivingMotorID};
 	}
 
 	// mDrivingMotor->Configure(Configs::SwerveModule::DrivingConfig(iDrivingInverted),
