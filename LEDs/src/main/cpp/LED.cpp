@@ -18,12 +18,12 @@ LED::LED()
 
 void LED::addGradiant(frc::Color iStartingColor, frc::Color iEndingColor, int iNumberOfSteps, std::vector<frc::Color>& iModifiedVector)
 {
-	float startingR = iStartingColor.red;
-	float startingG = iStartingColor.green;
-	float startingB = iStartingColor.blue;
-	float endingR = iEndingColor.red;
-	float endingG = iEndingColor.green;
-	float endingB = iEndingColor.blue;
+	double startingR = iStartingColor.red;
+	double startingG = iStartingColor.green;
+	double startingB = iStartingColor.blue;
+	double endingR = iEndingColor.red;
+	double endingG = iEndingColor.green;
+	double endingB = iEndingColor.blue;
 	for (int i = 0; i <= iNumberOfSteps; i++) {
 		iModifiedVector.emplace_back(frc::Color(startingR - (startingR - endingR) / iNumberOfSteps * i,
 		                                        startingG - (startingG - endingG) / iNumberOfSteps * i,
