@@ -6,9 +6,9 @@
 
 SubDrivetrain::SubDrivetrain()
 {
-  mLeftMotorController = new rev::spark::SparkMax{CanIDConstants::kLeftCanID, rev::spark::SparkLowLevel::MotorType::kBrushless};
-  mRightMotorController = new rev::spark::SparkMax{CanIDConstants::kRightCanID, rev::spark::SparkLowLevel::MotorType::kBrushless};
-  mDifferentialDrive = new frc::DifferentialDrive{*mLeftMotorController, *mRightMotorController};
+  // mLeftMotorController = new rev::spark::SparkMax{CanIDConstants::kLeftCanID, rev::spark::SparkLowLevel::MotorType::kBrushless};
+  // mRightMotorController = new rev::spark::SparkMax{CanIDConstants::kRightCanID, rev::spark::SparkLowLevel::MotorType::kBrushless};
+  // mDifferentialDrive = new frc::DifferentialDrive{*mLeftMotorController, *mRightMotorController};
 }
 // This method will be called once per scheduler run
 void SubDrivetrain::Periodic() {}
