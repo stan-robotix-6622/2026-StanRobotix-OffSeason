@@ -6,7 +6,7 @@
 
 Drive::Drive(SubDrivetrain* iDrivetrain) {
   // Use addRequirements() here to declare subsystem dependencies.
-  mDrivetrain = new SubDrivetrain;
+  mDrivetrain = iDrivetrain;
   mPIDController = new frc::PIDController{PIDConstants::kP, PIDConstants::kI, PIDConstants::kD};
   AddRequirements(mDrivetrain);
 }
