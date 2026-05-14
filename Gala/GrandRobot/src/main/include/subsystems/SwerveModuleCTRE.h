@@ -4,26 +4,32 @@
 
 #pragma once
 
+#include <Constants.h>
+
 #include <frc/geometry/Rotation2d.h>
 #include <frc/kinematics/SwerveModulePosition.h>
 #include <frc/kinematics/SwerveModuleState.h>
 #include <frc/system/plant/DCMotor.h>
+#include <frc/controller/PIDController.h>
+#include <ctre/phoenix6/CANcoder.hpp>
 // #include <rev/sim/SparkMaxSim.h>
 // #include <rev/SparkAbsoluteEncoder.h>
 // #include <rev/SparkClosedLoopController.h>
 // #include <rev/SparkMax.h>
 // #include <rev/SparkRelativeEncoder.h>
-#include <wpi/sendable/Sendable.h>
-#include <wpi/sendable/SendableBuilder.h>
+// #include <wpi/sendable/Sendable.h>
+// #include <wpi/sendable/SendableBuilder.h>
 
 #include <units/angle.h>
 #include <units/angular_velocity.h>
 #include <units/velocity.h>
 #include <units/voltage.h>
 
+#include <ctre/phoenix6/TalonFX.hpp>
+
 class SwerveModule : public wpi::Sendable {
  public:
-	SwerveModule(int iDrivingMotorID, int iTurningMotorID, bool iDrivingInveryed = false, bool iTurningInverted = true);
+	SwerveModule(int iDrivingMotorID, int iTurningMotorID, int iTurningCANcoderID, bool iDrivingInveryed = false, bool iTurningInverted = true);
 
 	frc::SwerveModulePosition getModulePosition();
 	frc::SwerveModuleState getModuleState();
@@ -44,18 +50,18 @@ class SwerveModule : public wpi::Sendable {
  private:
 	// rev::spark::SparkMax* mDrivingMotor;
 	// rev::spark::SparkMax* mTurningMotor;
+	ctre::phoenix6::hardware::TalonFX * mDrivingMotor;
+	ctre::phoenix6::hardware::TalonFX * mTurningMotor;
 
 	// rev::spark::SparkClosedLoopController* mDrivingClosedLoopController;
-	// rev::spark::SparkClosedLoopController* mTurningClosedLoopController;
+	frc::PIDController * mTurningPIDController;
 
-	// rev::spark::SparkRelativeEncoder* mDrivingEncoder;
-	// rev::spark::SparkRelativeEncoder* mTurningEncoder;
-	// rev::spark::SparkAbsoluteEncoder* mTurningAbsoluteEncoder;
+	ctre::phoenix6::hardware::CANcoder * mTurningCANcoder;
 
 	// For simulation
 	bool mRobotIsSimulated = false;
-	frc::DCMotor* mDrivingGearBox;
-	frc::DCMotor* mTurningGearBox;
+	frc::DCMotor * mDrivingGearBox;
+	frc::DCMotor * mTurningGearBox;
 	// rev::spark::SparkMaxSim* mDrivingMotorSim;
 	// rev::spark::SparkMaxSim* mTurningMotorSim;
 
