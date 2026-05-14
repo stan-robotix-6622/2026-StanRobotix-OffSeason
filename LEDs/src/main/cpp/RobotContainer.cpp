@@ -29,21 +29,23 @@ void RobotContainer::setLED()
 {
 	mLED.setWhite();
 	if (abs(m_joystick->GetX()) > 0.2 || abs(m_joystick->GetY()) > 0.2 || abs(m_joystick->GetZ()) > 0.2) {
-		if (!mLED.isMoving) {
+		if (!mLED.mMode == LED::Mode::moving) {
 			std::cout << "moving" << std::endl;
 		}
 		mLED.setMode(mLED.moving);
 	}
 
 	else if (m_joystick->GetRawButton(4)) {
-		if (!mLED.isImmobile) {
+		if (!mLED.mMode == LED::Mode::immobile) {
 			std::cout << "immobile" << std::endl;
 		}
 		mLED.setMode(mLED.immobile);
 	}
 
 	else if (m_joystick->GetRawButton(6)) {
-		std::cout << "test" << std::endl;
+		if (!mLED.mMode == LED::Mode::test) {
+			std::cout << "test" << std::endl;
+		}
 		mLED.setMode(mLED.test);
 	}
 }

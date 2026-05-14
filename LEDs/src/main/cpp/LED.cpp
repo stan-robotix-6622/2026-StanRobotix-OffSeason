@@ -50,20 +50,15 @@ void LED::setWhite()
 
 void LED::setMode(Mode iMode)
 {
+	mMode = iMode;
 	switch (iMode) {
 		case immobile:
-			isImmobile = true;
-			isMoving = false;
 			m_OrangePulseLEDPattern.ApplyTo(m_ledBuffer);
 			break;
 		case moving:
-			isImmobile = false;
-			isMoving = true;
 			m_RedBlueLEDPattern.ApplyTo(m_ledBuffer);
 			break;
 		case test:
-			isImmobile = false;
-			isMoving = false;
 			setWhite();
 	};
 	m_led.SetData(m_ledBuffer);

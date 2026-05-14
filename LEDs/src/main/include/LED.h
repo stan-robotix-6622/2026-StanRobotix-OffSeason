@@ -31,8 +31,7 @@ class LED {
 
 	void setMode(Mode iMode);
 
-	bool isImmobile = false;
-	bool isMoving = false;
+	Mode mMode;
 
  private:
 	// Must be a PWM header, not MXP or DIO
