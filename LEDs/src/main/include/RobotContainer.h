@@ -4,30 +4,28 @@
 
 #pragma once
 
-#include <frc2/command/CommandPtr.h>
-
-#include <frc2/command/button/JoystickButton.h>
-#include <frc2/command/button/CommandXboxController.h>
 #include <frc/Joystick.h>
 #include <frc2/command/button/CommandJoystick.h>
+#include <frc2/command/button/CommandXboxController.h>
+#include <frc2/command/button/JoystickButton.h>
+#include <frc2/command/CommandPtr.h>
 
 #include "LED.h"
 
-
 class RobotContainer {
  public:
-  RobotContainer();
+	RobotContainer();
 
-  frc2::CommandPtr GetAutonomousCommand();
-  void setLED();
+	frc2::CommandPtr GetAutonomousCommand();
+	void setLED();
 
  private:
-  void ConfigureBindings();
+	void ConfigureBindings();
 
-  frc2::CommandXboxController m_driverController{
-      OperatorConstants::kDriverControllerPort};
+	frc2::CommandXboxController m_driverController{
+		OperatorConstants::kDriverControllerPort};
 
-  LED mLED;
-  frc2::CommandJoystick * m_commandJoystick;
-  frc::Joystick * m_joystick;
+	LED mLED;
+	frc2::CommandJoystick* m_commandJoystick;
+	frc::Joystick* m_joystick;
 };
