@@ -52,6 +52,6 @@ namespace DriveConstants
 
 namespace CanIDConstants
 {
-  constexpr int kLeftCanID = 0; // to determine
-  constexpr int kRightCanID = 1; // to determine
+  constexpr int kLeftCanID = 14; // to determine
+  constexpr int kRightCanID = 12; // to determine
 }
