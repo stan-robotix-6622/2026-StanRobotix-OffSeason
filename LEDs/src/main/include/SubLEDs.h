@@ -6,12 +6,13 @@
 
 #include <frc/AddressableLED.h>
 #include <frc/LEDPattern.h>
+#include <frc2/command/SubsystemBase.h>
 
 #include <array>
 
 #include "Constants.h"
 
-class LED {
+class SubLEDs : public frc2::SubsystemBase {
  public:
 	enum Mode {
 		immobile,
@@ -21,7 +22,7 @@ class LED {
 		test
 	};
 
-	LED();
+	SubLEDs();
 
 	void addGradiant(frc::Color iStartingColor, frc::Color iEndingColor, int iNumberOfSteps, std::vector<frc::Color>& iModifiedVector);
 
@@ -32,6 +33,8 @@ class LED {
 	void setMode(Mode iMode);
 
 	Mode mMode;
+
+	void Periodic() override;
 
  private:
 	// Must be a PWM header, not MXP or DIO

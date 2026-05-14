@@ -10,14 +10,13 @@
 #include <frc2/command/button/JoystickButton.h>
 #include <frc2/command/CommandPtr.h>
 
-#include "LED.h"
+#include "SubLEDs.h"
 
 class RobotContainer {
  public:
 	RobotContainer();
 
 	frc2::CommandPtr GetAutonomousCommand();
-	void setLED();
 
  private:
 	void ConfigureBindings();
@@ -25,7 +24,7 @@ class RobotContainer {
 	frc2::CommandXboxController m_driverController{
 		OperatorConstants::kDriverControllerPort};
 
-	LED mLED;
+	SubLEDs mLED;
 	frc2::CommandJoystick* m_commandJoystick;
 	frc::Joystick* m_joystick;
 };

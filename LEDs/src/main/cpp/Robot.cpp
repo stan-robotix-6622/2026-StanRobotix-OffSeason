@@ -39,10 +39,7 @@ void Robot::TeleopInit()
 	}
 }
 
-void Robot::TeleopPeriodic()
-{
-	m_container.setLED();
-}
+void Robot::TeleopPeriodic() {}
 
 void Robot::TeleopExit() {}
 

@@ -2,11 +2,14 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-#include "LED.h"
+#include "SubLEDs.h"
 
-LED::LED()
+#include <iostream>
+
+SubLEDs::SubLEDs()
 {
 	m_led.SetLength(LEDsConstants::kLength);
+	m_led.SetData(m_ledBuffer);
 	m_led.Start();
 
 	addGradiant(frc::Color("#ff0000"), frc::Color("#000000"), 9, m_RedBlueGradiant);
@@ -16,7 +19,16 @@ LED::LED()
 	m_OrangePulseLEDPattern = getPulseLEDsPattern(frc::Color("#FFA500"));
 }
 
-void LED::addGradiant(frc::Color iStartingColor, frc::Color iEndingColor, int iNumberOfSteps, std::vector<frc::Color>& iModifiedVector)
+void SubLEDs::Periodic()
+{
+	for (unsigned int i = 0; i < m_ledBuffer.size(); i++)
+	{
+		std::cout << "LED no" << i << ": r = " << (int)m_ledBuffer[i].r << " g = " << (int)m_ledBuffer[i].g << " b = " << (int)m_ledBuffer[i].b << "\n";
+	}
+	m_led.SetData(m_ledBuffer);
+}
+
+void SubLEDs::addGradiant(frc::Color iStartingColor, frc::Color iEndingColor, int iNumberOfSteps, std::vector<frc::Color>& iModifiedVector)
 {
 	double startingR = iStartingColor.red;
 	double startingG = iStartingColor.green;
@@ -31,7 +43,7 @@ void LED::addGradiant(frc::Color iStartingColor, frc::Color iEndingColor, int iN
 	}
 }
 
-frc::LEDPattern LED::getPulseLEDsPattern(frc::Color iPulseColor)
+frc::LEDPattern SubLEDs::getPulseLEDsPattern(frc::Color iPulseColor)
 {
 	std::vector<frc::Color> m_PulseGradiant;
 	addGradiant(frc::Color("#000000"), iPulseColor, 9, m_PulseGradiant);
@@ -41,14 +53,14 @@ frc::LEDPattern LED::getPulseLEDsPattern(frc::Color iPulseColor)
 	return m_PulseLEDPattern;
 }
 
-void LED::setWhite()
+void SubLEDs::setWhite()
 {
 	for (int i = 0; i < LEDsConstants::kLength; i++) {
 		m_ledBuffer[i].SetRGB(255, 255, 255);
 	}
 }
 
-void LED::setMode(Mode iMode)
+void SubLEDs::setMode(Mode iMode)
 {
 	mMode = iMode;
 	switch (iMode) {
@@ -60,6 +72,9 @@ void LED::setMode(Mode iMode)
 			break;
 		case test:
 			setWhite();
+			break;
+		default:
+			setWhite();
+			break;
 	};
-	m_led.SetData(m_ledBuffer);
 }
