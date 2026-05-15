@@ -6,6 +6,7 @@
 
 #include <frc2/command/button/Trigger.h>
 #include <frc2/command/Commands.h>
+#include <iostream>
 
 #include "commands/Autos.h"
 #include "commands/ExampleCommand.h"
@@ -31,6 +32,7 @@ void RobotContainer::ConfigureBindings() {
           -m_XboxController.GetLeftY() * DriveConstants::kSpeed,
           -m_XboxController.GetRightY() * DriveConstants::kSpeed
         );
+        std::cout << "Robot work" << std::endl;
 			},
 			{m_Drivetrain}));
 
