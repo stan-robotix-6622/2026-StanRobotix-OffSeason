@@ -5,6 +5,11 @@
 #pragma once
 
 #include <frc2/command/CommandPtr.h>
+#include "subsystems/SubDrivetrain.h"
+#include "Constants.h"
+#include "subsystems/IMU.h"
+#include "subsystems/Limelight.h"
+#include <frc2/command/button/CommandXboxController.h>
 
 class RobotContainer {
  public:
@@ -13,5 +18,8 @@ class RobotContainer {
   frc2::CommandPtr GetAutonomousCommand();
 
  private:
+  frc2::CommandXboxController m_driverController;
   void ConfigureBindings();
+  SubDrivetrain* mSubDriveTrain = nullptr;
+  IMU* mSubIMU = nullptr;
 };

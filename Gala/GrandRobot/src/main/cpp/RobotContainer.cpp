@@ -8,9 +8,15 @@
 
 RobotContainer::RobotContainer() {
   ConfigureBindings();
+  mSubDriveTrain = new SubDrivetrain;
+  mSubIMU = new IMU;
 }
 
-void RobotContainer::ConfigureBindings() {}
+void RobotContainer::ConfigureBindings() {
+  mSubDriveTrain->SetDefaultCommand(frc2::cmd::Run([this]{mSubDriveTrain->driveRobotRelative(0)};));
+  frc2::Trigger([this]);
+}
+
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
   return frc2::cmd::Print("No autonomous command configured");
