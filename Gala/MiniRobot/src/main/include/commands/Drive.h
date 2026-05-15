@@ -23,7 +23,7 @@ class Drive
   /* You should consider using the more terse Command factories API instead
    * https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands
    */
-  Drive(SubDrivetrain* iDrivetrain);
+  Drive(SubDrivetrain* iDrivetrain, double iTargetDistance);
 
   void Initialize() override;
 
@@ -37,4 +37,5 @@ class Drive
 
   SubDrivetrain* mDrivetrain;
   frc::PIDController* mPIDController;
+  double mTargetDistance;
 };

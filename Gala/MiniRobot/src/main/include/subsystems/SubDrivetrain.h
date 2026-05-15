@@ -22,7 +22,13 @@ class SubDrivetrain : public frc2::SubsystemBase {
   void Periodic() override;
   // void setSpeed();
   // units::meters_per_second_t getSpeed();
-  void Drive(double iLSpeed, double iRSpeed);
+  void DriveRobot(double iLSpeed, double iRSpeed);
+
+  double GetEncoderPosition();
+  
+  void ResetEncoders();
+
+  void Stop();
 
  private:
   // Components (e.g. motor controllers and sensors) should generally be
