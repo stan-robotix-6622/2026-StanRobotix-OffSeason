@@ -11,6 +11,7 @@
 #include <frc/kinematics/SwerveModuleState.h>
 #include <frc/system/plant/DCMotor.h>
 #include <frc/controller/PIDController.h>
+#include <frc/controller/SimpleMotorFeedforward.h>
 #include <ctre/phoenix6/CANcoder.hpp>
 #include <ctre/phoenix6/sim/TalonFXSimState.hpp>
 
@@ -57,6 +58,7 @@ class SwerveModule : public wpi::Sendable {
 	ctre::phoenix6::hardware::TalonFX * mTurningMotor;
 
 	// rev::spark::SparkClosedLoopController* mDrivingClosedLoopController;
+	frc::SimpleMotorFeedforward<units::meter>* mDrivingFeedforward;
 	frc::PIDController * mTurningPIDController;
 
 	ctre::phoenix6::hardware::CANcoder * mTurningCANcoder;

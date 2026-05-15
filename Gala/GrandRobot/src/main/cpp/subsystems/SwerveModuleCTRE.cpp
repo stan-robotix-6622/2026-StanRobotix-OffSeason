@@ -33,7 +33,10 @@ SwerveModule::SwerveModule(int iDrivingMotorID, int iTurningMotorID, int iTurnin
 
 	// Initialization of the motors' ClosedLoopController
 	// mDrivingClosedLoopController = new rev::spark::SparkClosedLoopController{mDrivingMotor->GetClosedLoopController()};
+	mDrivingFeedforward = new frc::SimpleMotorFeedforward<units::meter>{0_V, ModuleConstants::kNominalVoltage / ModuleConstants::kDriveWheelMaxFreeSpeed};
 	mTurningPIDController = new frc::PIDController{ModuleConstants::kTurningP, ModuleConstants::kTurningI, ModuleConstants::kTurningD};
+	mTurningPIDController->SetTolerance(ModuleConstants::Config::kTurningClosedLoopTolerance);
+	mTurningPIDController->EnableContinuousInput(ModuleConstants::Config::kTurningClosedLoopMinInput, ModuleConstants::Config::kTurningClosedLoopMaxInput);
 
 	mTurningCANcoder = new ctre::phoenix6::hardware::CANcoder{iTurningCANcoderID};
 
