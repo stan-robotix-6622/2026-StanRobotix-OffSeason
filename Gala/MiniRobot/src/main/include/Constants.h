@@ -45,7 +45,7 @@ namespace PIDConstants
 
 namespace DriveConstants
 {
-  constexpr double kSpeed = 0.35;
+  constexpr double kSpeed = 0.5;
   constexpr double kRotationRate = 0.45;
 
 }
