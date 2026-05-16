@@ -18,7 +18,7 @@ class RobotContainer {
   frc2::CommandPtr GetAutonomousCommand();
 
  private:
-  frc2::CommandXboxController m_driverController;
+  frc2::CommandXboxController m_driverController{OperatorConstants::kDriverControllerPort};
   void ConfigureBindings();
   SubDrivetrain* mSubDriveTrain = nullptr;
   IMU* mSubIMU = nullptr;

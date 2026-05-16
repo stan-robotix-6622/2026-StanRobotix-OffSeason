@@ -6,15 +6,20 @@
 
 #include <frc2/command/Commands.h>
 
-RobotContainer::RobotContainer() {
-  ConfigureBindings();
+RobotContainer::RobotContainer() 
+{
   mSubDriveTrain = new SubDrivetrain;
   mSubIMU = new IMU;
+  ConfigureBindings();
 }
 
 void RobotContainer::ConfigureBindings() {
-  mSubDriveTrain->SetDefaultCommand(frc2::cmd::Run([this]{mSubDriveTrain->driveRobotRelative(0)};));
-  frc2::Trigger([this]);
+  mSubDriveTrain->SetDefaultCommand(frc2::cmd::Run
+    ([this]{mSubDriveTrain->driveFieldRelative
+      ( mSubDriveTrain->getPose().X().value(),
+        mSubDriveTrain->getPose().Y().value(),
+        mSubDriveTrain->getIMU()->getRotation2d().Degrees().value(),
+        mSubDriveTrain->getIMU()->getYawRate().value());})); //speed modulation to fix
 }
 
 
