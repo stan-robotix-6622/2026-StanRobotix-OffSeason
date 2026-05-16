@@ -26,9 +26,9 @@ void SubDrivetrain::Periodic() {}
 
 // }
 
-void SubDrivetrain::DriveRobot(double iLSpeed, double iRSpeed)
+void SubDrivetrain::DriveRobot(double iSpeed, double iRotation)
 {
-  mDifferentialDrive->TankDrive(iLSpeed, iRSpeed, true);
+  mDifferentialDrive->ArcadeDrive(iSpeed, iRotation, true);
 }
 
 double SubDrivetrain::GetEncoderPosition()
@@ -44,5 +44,5 @@ void SubDrivetrain::ResetEncoders()
 
 void SubDrivetrain::Stop()
 {
-  mDifferentialDrive->TankDrive(0.0, 0.0);
+  mDifferentialDrive->ArcadeDrive(0.0, 0.0);
 }

@@ -29,10 +29,9 @@ void RobotContainer::ConfigureBindings() {
   m_Drivetrain->SetDefaultCommand(frc2::cmd::Run(
 			[this] {
 				m_Drivetrain->DriveRobot(
-          -m_XboxController.GetLeftY() * DriveConstants::kSpeed,
-          -m_XboxController.GetRightY() * DriveConstants::kSpeed
+          -(m_XboxController.GetLeftY() * DriveConstants::kSpeed * (1.2 -m_XboxController.GetRightTriggerAxis())),
+          -(m_XboxController.GetRightX() * DriveConstants::kRotationRate * (1.2 - m_XboxController.GetRightTriggerAxis()))
         );
-        std::cout << "Robot work" << std::endl;
 			},
 			{m_Drivetrain}));
 
