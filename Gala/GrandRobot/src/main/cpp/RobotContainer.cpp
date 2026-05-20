@@ -13,15 +13,16 @@ RobotContainer::RobotContainer()
   ConfigureBindings();
 }
 
-void RobotContainer::ConfigureBindings() {
+void RobotContainer::ConfigureBindings() 
+{
   mSubDriveTrain->SetDefaultCommand(mSubDriveTrain->Run
     ([this]{mSubDriveTrain->driveFieldRelative
-      ( mSubDriveTrain->getPose().X().value(),
-        mSubDriveTrain->getPose().Y().value(),
-        mSubDriveTrain->getIMU()->getRotation2d().Degrees().value(),
-        mSubDriveTrain->getIMU()->getYawRate().value());})); //speed modulation to fix
+      ( -m_driverController.GetLeftX(),
+        -m_driverController.GetLeftY(),
+        -m_driverController.GetRightX(),
+        (0.6 + (m_driverController.GetRightTriggerAxis() / 4))); //speed modulation to fix
+      })); 
 }
-
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
   return frc2::cmd::Print("No autonomous command configured");
