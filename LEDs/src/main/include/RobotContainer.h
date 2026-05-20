@@ -5,7 +5,6 @@
 #pragma once
 
 #include <frc/Joystick.h>
-#include <frc2/command/button/CommandJoystick.h>
 #include <frc2/command/button/CommandXboxController.h>
 #include <frc2/command/button/JoystickButton.h>
 #include <frc2/command/CommandPtr.h>
@@ -21,10 +20,7 @@ class RobotContainer {
  private:
 	void ConfigureBindings();
 
-	frc2::CommandXboxController m_driverController{
-		OperatorConstants::kDriverControllerPort};
-
 	SubLEDs mLED;
-	frc2::CommandJoystick* m_commandJoystick;
-	frc::Joystick* m_joystick;
+	frc2::CommandXboxController* mCommandXboxController;
+	frc::Joystick* mJoystick;
 };
