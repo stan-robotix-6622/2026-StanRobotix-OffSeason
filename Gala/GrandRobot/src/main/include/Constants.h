@@ -199,8 +199,8 @@ namespace CANid
   
 	inline constexpr int kIMUPigeonID = 0;
 
-	inline constexpr int kFrontRightCANcoderID = 0;
-	inline constexpr int kFrontLeftCANcoderID = 0;
-	inline constexpr int BackRightCANcoderID = 0;
-	inline constexpr int kBackLeftCANcoderID = 0;
+	inline constexpr int kFrontRightCANcoderID = 9;
+	inline constexpr int kFrontLeftCANcoderID = 10;
+	inline constexpr int BackRightCANcoderID = 11;
+	inline constexpr int kBackLeftCANcoderID = 12;
 } // namespace CANid
