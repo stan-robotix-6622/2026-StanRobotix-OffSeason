@@ -14,7 +14,7 @@ RobotContainer::RobotContainer()
 }
 
 void RobotContainer::ConfigureBindings() {
-  mSubDriveTrain->SetDefaultCommand(frc2::cmd::Run
+  mSubDriveTrain->SetDefaultCommand(mSubDriveTrain->Run
     ([this]{mSubDriveTrain->driveFieldRelative
       ( mSubDriveTrain->getPose().X().value(),
         mSubDriveTrain->getPose().Y().value(),
