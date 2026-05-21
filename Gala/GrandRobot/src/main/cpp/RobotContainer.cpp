@@ -15,15 +15,17 @@ RobotContainer::RobotContainer()
 
 void RobotContainer::ConfigureBindings() 
 {
-  mSubDriveTrain->SetDefaultCommand(mSubDriveTrain->Run
+  mSubDriveTrain->SetDefaultCommand(frc2::cmd::Run
     ([this]{mSubDriveTrain->driveFieldRelative
       ( -m_driverController.GetLeftX(),
         -m_driverController.GetLeftY(),
         -m_driverController.GetRightX(),
         (0.6 + (m_driverController.GetRightTriggerAxis() / 4))); //speed modulation to fix
-      })); 
+      },
+      {mSubDriveTrain})); 
 }
 
-frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
+frc2::CommandPtr RobotContainer::GetAutonomousCommand() 
+{
   return frc2::cmd::Print("No autonomous command configured");
 }
