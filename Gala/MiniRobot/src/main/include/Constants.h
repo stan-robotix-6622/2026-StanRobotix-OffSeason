@@ -48,6 +48,7 @@ namespace DriveConstants
   constexpr double kSpeed = 0.55;
   constexpr double kRotationRate = 0.6;
   constexpr double kSmooth = 0.2;
+	//constexpr units::second_t kSpeedRampRate = 3_s;
 
 }
 

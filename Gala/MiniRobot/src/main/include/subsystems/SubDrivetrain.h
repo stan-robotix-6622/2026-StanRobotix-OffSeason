@@ -22,7 +22,7 @@ class SubDrivetrain : public frc2::SubsystemBase {
   void Periodic() override;
   // void setSpeed();
   // units::meters_per_second_t getSpeed();
-  void DriveRobot(double iLSpeed, double iRSpeed);
+  void DriveRobot(double iLSpeed, double iRotation);
 
   double GetEncoderPosition();
   
@@ -36,6 +36,6 @@ class SubDrivetrain : public frc2::SubsystemBase {
   rev::spark::SparkMax* mLeftMotorController;
   rev::spark::SparkMax* mRightMotorController;
   frc::DifferentialDrive* mDifferentialDrive;
-  
+  //rev::spark::SparkBaseConfig* mSparkBaseConfig;
 
 };

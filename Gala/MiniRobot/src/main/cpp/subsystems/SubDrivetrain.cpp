@@ -10,8 +10,11 @@ SubDrivetrain::SubDrivetrain()
   mRightMotorController = new rev::spark::SparkMax{CanIDConstants::kRightCanID, rev::spark::SparkLowLevel::MotorType::kBrushless};
 
   mRightMotorController->SetInverted(true);
+
+  //mSparkBaseConfig = new rev::spark::SparkBaseConfig;
   
   mDifferentialDrive = new frc::DifferentialDrive{*mLeftMotorController, *mRightMotorController};
+
 }
 // This method will be called once per scheduler run
 void SubDrivetrain::Periodic() {}
@@ -29,7 +32,9 @@ void SubDrivetrain::Periodic() {}
 void SubDrivetrain::DriveRobot(double iSpeed, double iRotation)
 {
   mDifferentialDrive->ArcadeDrive(iSpeed, iRotation, true);
+  //mSparkBaseConfig->OpenLoopRampRate(DriveConstants::kSpeedRampRate);
 }
+
 
 double SubDrivetrain::GetEncoderPosition()
 {
