@@ -32,5 +32,9 @@ class RobotContainer {
   ExampleSubsystem m_subsystem;
   SubDrivetrain* m_Drivetrain;
 
+
+  double m_currentSpeed = 0.0;
+  double m_currentRotation = 0.0;
+  
   void ConfigureBindings();
 };

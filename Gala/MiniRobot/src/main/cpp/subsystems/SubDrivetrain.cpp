@@ -10,7 +10,7 @@ SubDrivetrain::SubDrivetrain()
   mRightMotorController = new rev::spark::SparkMax{CanIDConstants::kRightCanID, rev::spark::SparkLowLevel::MotorType::kBrushless};
 
   mRightMotorController->SetInverted(true);
-
+  
   mDifferentialDrive = new frc::DifferentialDrive{*mLeftMotorController, *mRightMotorController};
 }
 // This method will be called once per scheduler run

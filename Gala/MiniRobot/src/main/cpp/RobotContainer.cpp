@@ -28,9 +28,15 @@ void RobotContainer::ConfigureBindings() {
 
   m_Drivetrain->SetDefaultCommand(frc2::cmd::Run(
 			[this] {
+        double targetSpeed = m_XboxController.GetLeftY();
+        double targetRotation = m_XboxController.GetRightX();
+
+        m_currentSpeed += (targetSpeed - m_currentSpeed) * DriveConstants::kSmooth;
+        m_currentRotation += (targetRotation - m_currentRotation) * DriveConstants::kSmooth;
+
 				m_Drivetrain->DriveRobot(
-          -(m_XboxController.GetLeftY() * DriveConstants::kSpeed * (1.2 -m_XboxController.GetRightTriggerAxis())),
-          -(m_XboxController.GetRightX() * DriveConstants::kRotationRate * (1.2 - m_XboxController.GetRightTriggerAxis()))
+          -(m_currentSpeed * DriveConstants::kSpeed * (1.2 -m_XboxController.GetRightTriggerAxis())),
+          -(m_currentRotation * DriveConstants::kRotationRate * (1.2 - m_XboxController.GetRightTriggerAxis()))
         );
 			},
 			{m_Drivetrain}));
