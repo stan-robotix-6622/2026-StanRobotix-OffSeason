@@ -9,6 +9,9 @@
 #include <frc/controller/PIDController.h>
 #include <frc/motorcontrol/MotorControllerGroup.h>
 #include <frc/drive/DifferentialDrive.h>
+#include <rev/sim/SparkMaxSim.h>
+#include <frc/system/plant/DCMotor.h>
+#include <frc/simulation/DifferentialDrivetrainSim.h>
 
 #include "Constants.h"
 
@@ -36,6 +39,12 @@ class SubDrivetrain : public frc2::SubsystemBase {
   rev::spark::SparkMax* mLeftMotorController;
   rev::spark::SparkMax* mRightMotorController;
   frc::DifferentialDrive* mDifferentialDrive;
+  frc::DCMotor* mGearBoxL;
+  frc::DCMotor* mGearBoxR;
+  rev::spark::SparkMaxSim* mLeftMotorControllerSim;
+  rev::spark::SparkMaxSim* mRightMotorControllerSim;
+  frc::sim::DifferentialDrivetrainSim* mDrivetrainSim;
+
   //rev::spark::SparkBaseConfig* mSparkBaseConfig;
 
 };

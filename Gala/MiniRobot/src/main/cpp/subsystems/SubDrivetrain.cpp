@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 #include "subsystems/SubDrivetrain.h"
+#include <frc/system/plant/LinearSystemId.h>
 
 SubDrivetrain::SubDrivetrain()
 {
@@ -14,6 +15,12 @@ SubDrivetrain::SubDrivetrain()
   //mSparkBaseConfig = new rev::spark::SparkBaseConfig;
   
   mDifferentialDrive = new frc::DifferentialDrive{*mLeftMotorController, *mRightMotorController};
+  mGearBoxL = new frc::DCMotor{frc::DCMotor::NEO()};
+  mGearBoxR = new frc::DCMotor{frc::DCMotor::NEO()};
+  mRightMotorControllerSim = new rev::spark::SparkMaxSim{mRightMotorController, mGearBoxR};
+  mLeftMotorControllerSim = new rev::spark::SparkMaxSim{mLeftMotorController, mGearBoxL};
+  
+  mDrivetrainSim = new frc::sim::DifferentialDrivetrainSim{frc::LinearSystemId::DrivetrainVelocitySystem(frc::DCMotor::NEO(2), 20_kg, 2_in, 20_cm, (20_kg * 15_in * 14_in) / 12, 1), 19_in, frc::DCMotor::NEO(2), 1, 2_in, {0, 0, 0, 0, 0, 0, 0}};
 
 }
 // This method will be called once per scheduler run
