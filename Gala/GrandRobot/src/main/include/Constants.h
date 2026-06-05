@@ -186,6 +186,14 @@ namespace LimelightConstants
 	inline constexpr double kPoseEstimatorStandardDeviationYaw = 999999; // Default/Recommended values
 } // namespace LimelightConstants
 
+namespace LEDsConstants{
+    static constexpr int kLength = 40;
+    constexpr units::meter_t kLedSpacing = 0.03_m;
+    constexpr int kMouthCenter = 20;
+    constexpr int kMaxMouthSize = 10;
+    constexpr int kLEDPort = 8;
+}
+
 namespace CANid
 {
 	inline constexpr int kBackRightMotorID = 8;
