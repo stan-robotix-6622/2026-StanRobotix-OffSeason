@@ -15,7 +15,7 @@ Dépôt officiel de l'équipe [Stan Robotix 6622](https://stanrobotix6622.com/) 
 
 1. Cloner le dépot :
 ```
-git clone https://github.com/stan-robotix-6622/2026-StanRobotix-OffSeason.git
+git clone --recurse-submodules https://github.com/stan-robotix-6622/2026-StanRobotix-OffSeason.git
 ```
 2. Créer une nouvelle branche pour le projet :
 ```
