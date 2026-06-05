@@ -4,12 +4,14 @@
 
 #include "subsystems/SubDrivetrain.h"
 
+#include <rev/config/SparkMaxConfig.h>
+
 SubDrivetrain::SubDrivetrain()
 {
   mLeftMotorController = new rev::spark::SparkMax{CanIDConstants::kLeftCanID, rev::spark::SparkLowLevel::MotorType::kBrushless};
   mRightMotorController = new rev::spark::SparkMax{CanIDConstants::kRightCanID, rev::spark::SparkLowLevel::MotorType::kBrushless};
 
-  mRightMotorController->SetInverted(true);
+  mRightMotorController->Configure(rev::spark::SparkMaxConfig{}.Inverted(true), rev::ResetMode::kNoResetSafeParameters, rev::PersistMode::kNoPersistParameters);
 
   mDifferentialDrive = new frc::DifferentialDrive{*mLeftMotorController, *mRightMotorController};
 }

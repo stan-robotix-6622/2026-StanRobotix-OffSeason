@@ -26,6 +26,8 @@ void RobotContainer::ConfigureBindings() {
     return m_subsystem.ExampleCondition();
   }).OnTrue(ExampleCommand(&m_subsystem).ToPtr());
 
+  std::cout << "Test\n";
+
   m_Drivetrain->SetDefaultCommand(frc2::cmd::Run(
 			[this] {
 				m_Drivetrain->DriveRobot(
