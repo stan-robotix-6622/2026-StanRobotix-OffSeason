@@ -8,6 +8,7 @@
 
 #include <frc/TimedRobot.h>
 #include <frc2/command/CommandPtr.h>
+#include <ctre/phoenix6/HootAutoReplay.hpp>
 
 #include "RobotContainer.h"
 
@@ -32,4 +33,9 @@ class Robot : public frc::TimedRobot {
   std::optional<frc2::CommandPtr> m_autonomousCommand;
 
   RobotContainer m_container;
+
+  /* log and replay timestamp and joystick data */
+  ctre::phoenix6::HootAutoReplay m_timeAndJoystickReplay = ctre::phoenix6::HootAutoReplay{}
+      .WithTimestampReplay()
+      .WithJoystickReplay();
 };
