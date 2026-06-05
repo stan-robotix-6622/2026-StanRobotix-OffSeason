@@ -6,6 +6,7 @@
 
 #include <frc2/command/button/Trigger.h>
 #include <frc2/command/Commands.h>
+#include <frc2/command/button/JoystickButton.h>
 #include <iostream>
 
 #include "commands/Autos.h"
@@ -14,8 +15,38 @@
 RobotContainer::RobotContainer() {
   // Initialize all of your commands and subsystems here
   m_Drivetrain = new SubDrivetrain;
+
+  mJoystick = new frc::Joystick{OperatorConstants::kDriverJoystickPort};
   // Configure the button bindings
   ConfigureBindings();
+
+  	mLED.SetDefaultCommand(mLED.Run([this] {
+	if (abs(mJoystick->GetX()) > 0.2 || abs(mJoystick->GetY()) > 0.2 || abs(mJoystick->GetZ()) > 0.2) {
+	// if (abs(mCommandXboxController->GetLeftX()) > 0.2 || abs(mCommandXboxController->GetLeftY()) > 0.2 || abs(mCommandXboxController->GetRightX()) > 0.2) {
+		if (!(mLED.mMode == SubLEDs::Mode::moving)) {
+			std::cout << "moving\n";
+		}
+		mLED.setMode(SubLEDs::Mode::moving);
+	}
+
+	else if (mJoystick->GetRawButton(4)) {
+	// else if (mCommandXboxController->Button(4).Get()) {
+		if (!(mLED.mMode == SubLEDs::Mode::waving)) {
+			std::cout << "waving\n";
+		}
+		mLED.setMode(SubLEDs::Mode::waving);
+	}
+
+	else if (mJoystick->GetRawButton(6)) {
+	// else if (mCommandXboxController->Button(6).Get()) {
+		if (!(mLED.mMode == SubLEDs::Mode::test)) {
+			std::cout << "test\n";
+		}
+		mLED.setMode(SubLEDs::Mode::test);
+	}
+	else {
+		mLED.setMode(SubLEDs::Mode::immobile);
+	}}));
 }
 
 void RobotContainer::ConfigureBindings() {
