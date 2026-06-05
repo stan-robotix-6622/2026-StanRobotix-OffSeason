@@ -1,8 +1,11 @@
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
-
 #pragma once
+
+#include <frc/util/Color.h>
+
+#include <units/length.h>
 
 /**
  * The Constants header provides a convenient place for teams to hold robot-wide
@@ -17,6 +20,7 @@
 namespace OperatorConstants {
 
 inline constexpr int kDriverControllerPort = 0;
+inline constexpr int kDriverJoystickPort = 1;
 
 namespace Button
 	{
@@ -45,12 +49,23 @@ namespace PIDConstants
 
 namespace DriveConstants
 {
+<<<<<<< HEAD
   constexpr double kSpeed = 0.15;
   constexpr double kRotationRate = 0.1;
+=======
+  constexpr double kSpeed = 0.55;
+  constexpr double kRotationRate = 0.6;
+  constexpr double kSmooth = 0.2;
+>>>>>>> 3fa98dcb3c18c2ff0ca7f253b2c4af89ed8e7b64
 
 }
 
-
+namespace LEDsConstants
+{
+	static constexpr int kLength = 20;
+	constexpr units::meter_t kLedSpacing = 0.03_m;
+	constexpr int kLEDPort = 9;
+}
 
 namespace CanIDConstants
 {

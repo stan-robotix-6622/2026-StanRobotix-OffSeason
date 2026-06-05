@@ -6,6 +6,7 @@
 
 #include <frc2/command/button/Trigger.h>
 #include <frc2/command/Commands.h>
+#include <frc2/command/button/JoystickButton.h>
 #include <iostream>
 
 #include "commands/Autos.h"
@@ -14,8 +15,38 @@
 RobotContainer::RobotContainer() {
   // Initialize all of your commands and subsystems here
   m_Drivetrain = new SubDrivetrain;
+
+  // mJoystick = new frc::Joystick{OperatorConstants::kDriverJoystickPort};
   // Configure the button bindings
   ConfigureBindings();
+
+  	mLED.SetDefaultCommand(mLED.Run([this] {
+	// if (abs(mJoystick->GetX()) > 0.2 || abs(mJoystick->GetY()) > 0.2 || abs(mJoystick->GetZ()) > 0.2) {
+	if (abs(m_XboxController.GetLeftX()) > 0.2 || abs(m_XboxController.GetLeftY()) > 0.2 || abs(m_XboxController.GetRightX()) > 0.2) {
+		if (!(mLED.mMode == SubLEDs::Mode::moving)) {
+			std::cout << "moving\n";
+		}
+		mLED.setMode(SubLEDs::Mode::moving);
+	}
+
+	//else if (mJoystick->GetRawButton(4)) { // Bouton Y
+	else if (m_XboxController.Button(4).Get()) { // Bouton Y
+		if (!(mLED.mMode == SubLEDs::Mode::waving)) {
+			std::cout << "waving\n";
+		}
+		mLED.setMode(SubLEDs::Mode::waving);
+	}
+
+	// else if (mJoystick->GetRawButton(6)) { // Bouton RB
+	else if (m_XboxController.Button(6).Get()) { // Bouton RB
+		if (!(mLED.mMode == SubLEDs::Mode::test)) {
+			std::cout << "test\n";
+		}
+		mLED.setMode(SubLEDs::Mode::test);
+	}
+	else {
+		mLED.setMode(SubLEDs::Mode::immobile);
+	}}));
 }
 
 void RobotContainer::ConfigureBindings() {
@@ -30,9 +61,15 @@ void RobotContainer::ConfigureBindings() {
 
   m_Drivetrain->SetDefaultCommand(frc2::cmd::Run(
 			[this] {
+        double targetSpeed = m_XboxController.GetLeftY();
+        double targetRotation = m_XboxController.GetRightX();
+
+        m_currentSpeed += (targetSpeed - m_currentSpeed) * DriveConstants::kSmooth;
+        m_currentRotation += (targetRotation - m_currentRotation) * DriveConstants::kSmooth;
+
 				m_Drivetrain->DriveRobot(
-          -(m_XboxController.GetLeftY() * DriveConstants::kSpeed * (1.2 -m_XboxController.GetRightTriggerAxis())),
-          -(m_XboxController.GetRightX() * DriveConstants::kRotationRate * (1.2 - m_XboxController.GetRightTriggerAxis()))
+          -(m_currentSpeed * DriveConstants::kSpeed * (1.2 -m_XboxController.GetRightTriggerAxis())),
+          -(m_currentRotation * DriveConstants::kRotationRate * (1.2 - m_XboxController.GetRightTriggerAxis()))
         );
 			},
 			{m_Drivetrain}));
