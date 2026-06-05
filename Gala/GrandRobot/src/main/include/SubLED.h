@@ -29,35 +29,28 @@ class SubLED : public frc2::SubsystemBase {
   SubLED();
 
 
-  void addGradiant(frc::Color iStartingColor, frc::Color iEndingColor, int iVectorSize, std::vector<frc::Color> * iModifiedVector);
+  void addGradiant(frc::Color iStartingColor, frc::Color iEndingColor, int iNumberOfSteps, std::vector<frc::Color>& iModifiedVector);
 
-  void setMouthLEDs(int iMouthSize);
+	frc::LEDPattern getPulseLEDsPattern(frc::Color iPulseColor);
 
-  void pulseLEDs(frc::Color iPulseColor);
+	void setWhite();
 
-  void setWhite();
+	void setMode(Mode iMode);
 
-  void setMode(Mode iMode);
+	Mode mMode;
+
+    void Periodic();
   /**
    * Will be called periodically whenever the CommandScheduler runs.
    */
-  void Periodic() override;
-
-  bool isImmobile = false;
-  bool isMoving = false;
-  bool isWaving = false;
-  bool isTalking = false;
 
  private:
-
- frc::AddressableLED m_led{LEDsConstants::kLEDPort};  // Ce code est un code test, le port sur lequel se trouvera les LED est encore à changer.
-    frc::LEDPattern * m_RedBlueLEDPattern;
-    std::vector<frc::Color> * m_RedBlueGradiant;
-    std::array<frc::AddressableLED::LEDData, LEDsConstants::kLength> m_ledBuffer;  // Reuse the buffer
-    // Store what the last hue of the first pixel is
-    int firstPixelHue = 0;
-    int m_MouthSize = 0;
-    bool m_MouthSizeIncreasing = true;
   // Components (e.g. motor controllers and sensors) should generally be
   // declared private and exposed only through public methods.
+
+ frc::AddressableLED m_led{LEDsConstants::kLEDPort};
+	frc::LEDPattern m_RedBlueLEDPattern = frc::LEDPattern::Off();
+	frc::LEDPattern m_OrangePulseLEDPattern = frc::LEDPattern::Off();
+	std::vector<frc::Color> m_RedBlueGradiant;
+	std::array<frc::AddressableLED::LEDData, LEDsConstants::kLength> m_ledBuffer; // Reuse the buffer
 };

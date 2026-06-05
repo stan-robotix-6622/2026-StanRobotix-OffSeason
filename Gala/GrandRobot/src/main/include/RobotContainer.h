@@ -6,15 +6,22 @@
 
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/button/CommandXboxController.h>
+#include <iostream>
+#include <frc2/command/button/JoystickButton.h>
+#include <frc/Joystick.h>
+
 #include "Constants.h"
 #include "Telemetry.h"
 #include "subsystems/CommandSwerveDrivetrain.h"
+#include "SubLED.h"
 
 class RobotContainer {
  public:
   RobotContainer();
 
   frc2::CommandPtr GetAutonomousCommand();
+
+  void SetLEDs();
 
  private:
   units::meters_per_second_t MaxSpeed = 0.3 * TunerConstants::kSpeedAt12Volts; // kSpeedAt12Volts desired top speed
@@ -34,4 +41,12 @@ class RobotContainer {
   frc2::CommandXboxController* mDriverXboxController;
   void ConfigureBindings();
   subsystems::CommandSwerveDrivetrain* mDrivetrain;
+
+  SubLED mLED;
+
+  double m_currentSpeed = 0.0;
+  double m_currentRotation = 0.0;
+
+  frc::Joystick* mJoystick;
+  
 };

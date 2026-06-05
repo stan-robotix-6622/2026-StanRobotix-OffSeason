@@ -36,7 +36,8 @@ namespace TemplateUnits
 namespace OperatorConstants
 {
 	inline constexpr int kDriverControllerPort = 0;
-	inline constexpr int kCopilotControllerPort = 1;
+	//inline constexpr int kCopilotControllerPort = 1;
+	inline constexpr int kDriverJoystickPort = 1;
 
 	namespace Button
 	{
@@ -186,12 +187,13 @@ namespace LimelightConstants
 	inline constexpr double kPoseEstimatorStandardDeviationYaw = 999999; // Default/Recommended values
 } // namespace LimelightConstants
 
-namespace LEDsConstants{
+namespace LEDsConstants
+{
     static constexpr int kLength = 40;
     constexpr units::meter_t kLedSpacing = 0.03_m;
     constexpr int kMouthCenter = 20;
     constexpr int kMaxMouthSize = 10;
-    constexpr int kLEDPort = 8;
+    constexpr int kLEDPort = 9; //to determine
 }
 
 namespace CANid

@@ -11,7 +11,37 @@ RobotContainer::RobotContainer()
 {
   mDrivetrain = new subsystems::CommandSwerveDrivetrain{TunerConstants::CreateDrivetrain()};
   mDriverXboxController = new frc2::CommandXboxController{OperatorConstants::kDriverControllerPort};
+  mJoystick = new frc::Joystick{OperatorConstants::kDriverJoystickPort};
+
   ConfigureBindings();
+
+  mLED.SetDefaultCommand(mLED.Run([this] {
+	if (abs(mJoystick->GetX()) > 0.2 || abs(mJoystick->GetY()) > 0.2 || abs(mJoystick->GetZ()) > 0.2) {
+	// if (abs(mCommandXboxController->GetLeftX()) > 0.2 || abs(mCommandXboxController->GetLeftY()) > 0.2 || abs(mCommandXboxController->GetRightX()) > 0.2) {
+		if (!(mLED.mMode == SubLED::Mode::moving)) {
+			std::cout << "moving\n";
+		}
+		mLED.setMode(SubLED::Mode::moving);
+	}
+
+	else if (mJoystick->GetRawButton(4)) {
+	// else if (mCommandXboxController->Button(4).Get()) {
+		if (!(mLED.mMode == SubLED::Mode::waving)) {
+			std::cout << "waving\n";
+		}
+		mLED.setMode(SubLED::Mode::waving);
+	}
+
+	else if (mJoystick->GetRawButton(6)) {
+	// else if (mCommandXboxController->Button(6).Get()) {
+		if (!(mLED.mMode == SubLED::Mode::test)) {
+			std::cout << "test\n";
+		}
+		mLED.setMode(SubLED::Mode::test);
+	}
+	else {
+		mLED.setMode(SubLED::Mode::immobile);
+	}}));
 }
 
 void RobotContainer::ConfigureBindings() 
@@ -20,11 +50,14 @@ void RobotContainer::ConfigureBindings()
   // and Y is defined as to the left according to WPILib convention.
   mDrivetrain->SetDefaultCommand(
       // Drivetrain will execute this command periodically
+    
       mDrivetrain->ApplyRequest([this]() -> auto&& {
-          return drive.WithVelocityX(-mDriverXboxController->GetLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-              .WithVelocityY(-mDriverXboxController->GetLeftX() * MaxSpeed) // Drive left with negative X (left)
+          return drive.WithVelocityX(-mDriverXboxController->GetLeftY() * DrivetrainConstants::kMaxDesiredSpeed) // Drive forward with negative Y (forward)
+              .WithVelocityY(-mDriverXboxController->GetLeftX() * DrivetrainConstants::kMaxDesiredSpeed) // Drive left with negative X (left)
               .WithRotationalRate(-mDriverXboxController->GetRightX() * MaxAngularRate); // Drive counterclockwise with negative X (left)
       })
+      
+
   );
 
   // Idle while the robot is disabled. This ensures the configured
