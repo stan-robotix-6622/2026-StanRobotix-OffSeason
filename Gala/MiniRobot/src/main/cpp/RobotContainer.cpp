@@ -16,29 +16,29 @@ RobotContainer::RobotContainer() {
   // Initialize all of your commands and subsystems here
   m_Drivetrain = new SubDrivetrain;
 
-  mJoystick = new frc::Joystick{OperatorConstants::kDriverJoystickPort};
+  // mJoystick = new frc::Joystick{OperatorConstants::kDriverJoystickPort};
   // Configure the button bindings
   ConfigureBindings();
 
   	mLED.SetDefaultCommand(mLED.Run([this] {
-	if (abs(mJoystick->GetX()) > 0.2 || abs(mJoystick->GetY()) > 0.2 || abs(mJoystick->GetZ()) > 0.2) {
-	// if (abs(mCommandXboxController->GetLeftX()) > 0.2 || abs(mCommandXboxController->GetLeftY()) > 0.2 || abs(mCommandXboxController->GetRightX()) > 0.2) {
+	// if (abs(mJoystick->GetX()) > 0.2 || abs(mJoystick->GetY()) > 0.2 || abs(mJoystick->GetZ()) > 0.2) {
+	if (abs(m_XboxController.GetLeftX()) > 0.2 || abs(m_XboxController.GetLeftY()) > 0.2 || abs(m_XboxController.GetRightX()) > 0.2) {
 		if (!(mLED.mMode == SubLEDs::Mode::moving)) {
 			std::cout << "moving\n";
 		}
 		mLED.setMode(SubLEDs::Mode::moving);
 	}
 
-	else if (mJoystick->GetRawButton(4)) {
-	// else if (mCommandXboxController->Button(4).Get()) {
+	//else if (mJoystick->GetRawButton(4)) { // Bouton Y
+	else if (m_XboxController.Button(4).Get()) { // Bouton Y
 		if (!(mLED.mMode == SubLEDs::Mode::waving)) {
 			std::cout << "waving\n";
 		}
 		mLED.setMode(SubLEDs::Mode::waving);
 	}
 
-	else if (mJoystick->GetRawButton(6)) {
-	// else if (mCommandXboxController->Button(6).Get()) {
+	// else if (mJoystick->GetRawButton(6)) { // Bouton RB
+	else if (m_XboxController.Button(6).Get()) { // Bouton RB
 		if (!(mLED.mMode == SubLEDs::Mode::test)) {
 			std::cout << "test\n";
 		}
