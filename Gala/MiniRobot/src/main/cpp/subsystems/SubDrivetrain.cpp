@@ -12,8 +12,13 @@ SubDrivetrain::SubDrivetrain()
   mRightMotorController = new rev::spark::SparkMax{CanIDConstants::kRightCanID, rev::spark::SparkLowLevel::MotorType::kBrushless};
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   mRightMotorController->Configure(rev::spark::SparkMaxConfig{}.Inverted(true), rev::ResetMode::kNoResetSafeParameters, rev::PersistMode::kNoPersistParameters);
 
+=======
+  mRightMotorController->SetInverted(true);
+  
+>>>>>>> 3fa98dcb3c18c2ff0ca7f253b2c4af89ed8e7b64
 =======
   mRightMotorController->SetInverted(true);
   
