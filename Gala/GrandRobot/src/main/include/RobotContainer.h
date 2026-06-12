@@ -39,8 +39,9 @@ class RobotContainer {
   Telemetry logger{MaxSpeed};
 
   frc2::CommandXboxController* mDriverXboxController;
-  void ConfigureBindings();
   subsystems::CommandSwerveDrivetrain* mDrivetrain;
 
-  SubLED mLED;
+  SubLED* mSubLED;
+
+  void ConfigureBindings();
 };

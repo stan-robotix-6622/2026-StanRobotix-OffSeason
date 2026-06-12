@@ -11,35 +11,36 @@ RobotContainer::RobotContainer()
 {
   mDrivetrain = new subsystems::CommandSwerveDrivetrain{TunerConstants::CreateDrivetrain()};
   mDriverXboxController = new frc2::CommandXboxController{OperatorConstants::kDriverControllerPort};
+	mSubLED = new SubLED{};
 
   ConfigureBindings();
 
-  mLED.SetDefaultCommand(mLED.Run([this] {
+  mSubLED->SetDefaultCommand(mSubLED->Run([this] {
 	if (abs(mDriverXboxController->GetLeftX()) > 0.2 || abs(mDriverXboxController->GetLeftY()) > 0.2 || abs(mDriverXboxController->GetRightX()) > 0.2) {
 	// if (abs(mCommandXboxController->GetLeftX()) > 0.2 || abs(mCommandXboxController->GetLeftY()) > 0.2 || abs(mCommandXboxController->GetRightX()) > 0.2) {
-		if (!(mLED.mMode == SubLED::Mode::moving)) {
+		if (!(mSubLED->mMode == SubLED::Mode::moving)) {
 			std::cout << "moving\n";
 		}
-		mLED.setMode(SubLED::Mode::moving);
+		mSubLED->setMode(SubLED::Mode::moving);
 	}
 
 	else if (mDriverXboxController->GetHID().GetRawButton(OperatorConstants::Button::A)) {
 	// else if (mCommandXboxController->Button(4).Get()) {
-		if (!(mLED.mMode == SubLED::Mode::waving)) {
+		if (!(mSubLED->mMode == SubLED::Mode::waving)) {
 			std::cout << "waving\n";
 		}
-		mLED.setMode(SubLED::Mode::waving);
+		mSubLED->setMode(SubLED::Mode::waving);
 	}
 
 	else if (mDriverXboxController->GetHID().GetRawButton(OperatorConstants::Button::B)) {
 	// else if (mCommandXboxController->Button(6).Get()) {
-		if (!(mLED.mMode == SubLED::Mode::test)) {
+		if (!(mSubLED->mMode == SubLED::Mode::test)) {
 			std::cout << "test\n";
 		}
-		mLED.setMode(SubLED::Mode::test);
+		mSubLED->setMode(SubLED::Mode::test);
 	}
 	else {
-		mLED.setMode(SubLED::Mode::immobile);
+		mSubLED->setMode(SubLED::Mode::immobile);
 	}}));
 }
 
