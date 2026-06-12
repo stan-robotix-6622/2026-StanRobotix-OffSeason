@@ -43,10 +43,4 @@ class RobotContainer {
   subsystems::CommandSwerveDrivetrain* mDrivetrain;
 
   SubLED mLED;
-
-  double m_currentSpeed = 0.0;
-  double m_currentRotation = 0.0;
-
-  frc::Joystick* mJoystick;
-  
 };
