@@ -4,6 +4,8 @@
 
 #include "SubLED.h"
 
+// #include <iostream>
+
 SubLED::SubLED()
 {
     m_led.SetLength(LEDsConstants::kLength);
@@ -73,9 +75,9 @@ void SubLED::setMode(Mode iMode){
 // This method will be called once per scheduler run
 void SubLED::Periodic() 
 {
-    for (unsigned int i = 0; i < m_ledBuffer.size(); i++)
-	{
-		std::cout << "LED no " << i << " : r = " << (int)m_ledBuffer[i].r << " g = " << (int)m_ledBuffer[i].g << " b = " << (int)m_ledBuffer[i].b << "\n";
-	}
+  //   for (unsigned int i = 0; i < m_ledBuffer.size(); i++)
+	// {
+	// 	std::cout << "LED no " << i << " : r = " << (int)m_ledBuffer[i].r << " g = " << (int)m_ledBuffer[i].g << " b = " << (int)m_ledBuffer[i].b << "\n";
+	// }
 	m_led.SetData(m_ledBuffer);
 }

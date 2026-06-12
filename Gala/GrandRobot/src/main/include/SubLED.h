@@ -5,7 +5,6 @@
 #pragma once
 
 #include <frc2/command/SubsystemBase.h>
-#include <iostream>
 #include <array>
 #include <frc/AddressableLED.h>
 #include <frc/LEDPattern.h>
