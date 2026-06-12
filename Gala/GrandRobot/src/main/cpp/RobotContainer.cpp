@@ -4,6 +4,8 @@
 
 #include "RobotContainer.h"
 
+#include <iostream>
+
 #include <frc2/command/Commands.h>
 #include <frc2/command/button/RobotModeTriggers.h>
 
@@ -16,32 +18,28 @@ RobotContainer::RobotContainer()
   ConfigureBindings();
 
   mSubLED->SetDefaultCommand(mSubLED->Run([this] {
-	if (abs(mDriverXboxController->GetLeftX()) > 0.2 || abs(mDriverXboxController->GetLeftY()) > 0.2 || abs(mDriverXboxController->GetRightX()) > 0.2) {
-	// if (abs(mCommandXboxController->GetLeftX()) > 0.2 || abs(mCommandXboxController->GetLeftY()) > 0.2 || abs(mCommandXboxController->GetRightX()) > 0.2) {
-		if (!(mSubLED->mMode == SubLED::Mode::moving)) {
-			std::cout << "moving\n";
-		}
-		mSubLED->setMode(SubLED::Mode::moving);
-	}
-
-	else if (mDriverXboxController->GetHID().GetRawButton(OperatorConstants::Button::A)) {
-	// else if (mCommandXboxController->Button(4).Get()) {
-		if (!(mSubLED->mMode == SubLED::Mode::waving)) {
-			std::cout << "waving\n";
-		}
-		mSubLED->setMode(SubLED::Mode::waving);
-	}
-
-	else if (mDriverXboxController->GetHID().GetRawButton(OperatorConstants::Button::B)) {
-	// else if (mCommandXboxController->Button(6).Get()) {
-		if (!(mSubLED->mMode == SubLED::Mode::test)) {
-			std::cout << "test\n";
-		}
-		mSubLED->setMode(SubLED::Mode::test);
-	}
-	else {
-		mSubLED->setMode(SubLED::Mode::immobile);
-	}}));
+			if (abs(mDriverXboxController->GetLeftX()) > 0.2 || abs(mDriverXboxController->GetLeftY()) > 0.2 || abs(mDriverXboxController->GetRightX()) > 0.2) {
+				if (mSubLED->mMode != SubLED::moving) {
+					std::cout << "moving\n";
+				}
+				mSubLED->setMode(SubLED::moving);
+			}
+			else if (mDriverXboxController->Button(OperatorConstants::Button::A).Get()) {
+				if (mSubLED->mMode != SubLED::waving) {
+					std::cout << "waving\n";
+				}
+				mSubLED->setMode(SubLED::waving);
+			}
+			else if (mDriverXboxController->Button(OperatorConstants::Button::B).Get()) {
+				if (mSubLED->mMode != SubLED::test) {
+					std::cout << "test\n";
+				}
+				mSubLED->setMode(SubLED::test);
+			}
+			else {
+				mSubLED->setMode(SubLED::immobile);
+			}
+	}));
 }
 
 void RobotContainer::ConfigureBindings() 

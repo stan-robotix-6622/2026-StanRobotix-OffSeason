@@ -6,7 +6,6 @@
 
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/button/CommandXboxController.h>
-#include <iostream>
 #include <frc2/command/button/JoystickButton.h>
 #include <frc/Joystick.h>
 
