@@ -5,74 +5,49 @@
 #include "RobotContainer.h"
 
 #include <frc2/command/Commands.h>
-#include <frc2/command/button/RobotModeTriggers.h>
 
 RobotContainer::RobotContainer() 
 {
-  mDrivetrain = new subsystems::CommandSwerveDrivetrain{TunerConstants::CreateDrivetrain()};
   mDriverXboxController = new frc2::CommandXboxController{OperatorConstants::kDriverControllerPort};
-  mJoystick = new frc::Joystick{OperatorConstants::kDriverJoystickPort};
+  mDrivetrain = new SubDrivetrain{};
+  mSubLED = new SubLED{};
 
   ConfigureBindings();
 
-  mLED.SetDefaultCommand(mLED.Run([this] {
-	if (abs(mJoystick->GetX()) > 0.2 || abs(mJoystick->GetY()) > 0.2 || abs(mJoystick->GetZ()) > 0.2) {
-	// if (abs(mCommandXboxController->GetLeftX()) > 0.2 || abs(mCommandXboxController->GetLeftY()) > 0.2 || abs(mCommandXboxController->GetRightX()) > 0.2) {
-		if (!(mLED.mMode == SubLED::Mode::moving)) {
-			std::cout << "moving\n";
-		}
-		mLED.setMode(SubLED::Mode::moving);
-	}
+  mDrivetrain->SetDefaultCommand(mDrivetrain->driveFieldRelativeCommand(-mDriverXboxController->GetLeftY(), -mDriverXboxController->GetLeftX(), -mDriverXboxController->GetRightX(), 1));
 
-	else if (mJoystick->GetRawButton(4)) {
-	// else if (mCommandXboxController->Button(4).Get()) {
-		if (!(mLED.mMode == SubLED::Mode::waving)) {
-			std::cout << "waving\n";
-		}
-		mLED.setMode(SubLED::Mode::waving);
-	}
+  mSubLED->SetDefaultCommand(mSubLED->Run([this] {
+      if (abs(mDriverXboxController->GetLeftX()) > 0.2 || abs(mDriverXboxController->GetLeftY()) > 0.2 || abs(mDriverXboxController->GetRightX()) > 0.2) {
+      // if (abs(mCommandXboxController->GetLeftX()) > 0.2 || abs(mCommandXboxController->GetLeftY()) > 0.2 || abs(mCommandXboxController->GetRightX()) > 0.2) {
+        if (!(mSubLED->mMode == SubLED::Mode::moving)) {
+          std::cout << "moving\n";
+        }
+        mSubLED->setMode(SubLED::Mode::moving);
+      }
 
-	else if (mJoystick->GetRawButton(6)) {
-	// else if (mCommandXboxController->Button(6).Get()) {
-		if (!(mLED.mMode == SubLED::Mode::test)) {
-			std::cout << "test\n";
-		}
-		mLED.setMode(SubLED::Mode::test);
-	}
-	else {
-		mLED.setMode(SubLED::Mode::immobile);
-	}}));
+      else if (mDriverXboxController->GetHID().GetRawButton(OperatorConstants::Button::A)) {
+      // else if (mCommandXboxController->Button(4).Get()) {
+        if (!(mSubLED->mMode == SubLED::Mode::waving)) {
+          std::cout << "waving\n";
+        }
+        mSubLED->setMode(SubLED::Mode::waving);
+      }
+
+      else if (mDriverXboxController->GetHID().GetRawButton(OperatorConstants::Button::B)) {
+      // else if (mCommandXboxController->Button(6).Get()) {
+        if (!(mSubLED->mMode == SubLED::Mode::test)) {
+          std::cout << "test\n";
+        }
+        mSubLED->setMode(SubLED::Mode::test);
+      }
+      else {
+        mSubLED->setMode(SubLED::Mode::immobile);
+      }
+  }));
 }
 
 void RobotContainer::ConfigureBindings() 
 {
-  // Note that X is defined as forward according to WPILib convention,
-  // and Y is defined as to the left according to WPILib convention.
-  mDrivetrain->SetDefaultCommand(
-      // Drivetrain will execute this command periodically
-    
-      mDrivetrain->ApplyRequest([this]() -> auto&& {
-          return drive.WithVelocityX(-mDriverXboxController->GetLeftY() * DrivetrainConstants::kMaxDesiredSpeed) // Drive forward with negative Y (forward)
-              .WithVelocityY(-mDriverXboxController->GetLeftX() * DrivetrainConstants::kMaxDesiredSpeed) // Drive left with negative X (left)
-              .WithRotationalRate(-mDriverXboxController->GetRightX() * MaxAngularRate); // Drive counterclockwise with negative X (left)
-      })
-      
-
-  );
-
-  // Idle while the robot is disabled. This ensures the configured
-  // neutral mode is applied to the drive motors while disabled.
-  frc2::RobotModeTriggers::Disabled().WhileTrue(
-      mDrivetrain->ApplyRequest([] {
-          return swerve::requests::Idle{};
-      }).IgnoringDisable(true)
-  );
-
-  mDriverXboxController->A().WhileTrue(mDrivetrain->ApplyRequest([this]() -> auto&& { return brake; }));
-  mDriverXboxController->B().WhileTrue(mDrivetrain->ApplyRequest([this]() -> auto&& {
-      return point.WithModuleDirection(frc::Rotation2d{-mDriverXboxController->GetLeftY(), -mDriverXboxController->GetLeftX()});
-  }));
-
   // Run SysId routines when holding back/start and X/Y.
   // Note that each routine should be run exactly once in a single log.
   (mDriverXboxController->Back() && mDriverXboxController->Y()).WhileTrue(mDrivetrain->SysIdDynamic(frc2::sysid::Direction::kForward));
@@ -82,8 +57,6 @@ void RobotContainer::ConfigureBindings()
 
   // reset the field-centric heading on left bumper press
   mDriverXboxController->LeftBumper().OnTrue(mDrivetrain->RunOnce([this] { mDrivetrain->SeedFieldCentric(); }));
-
-  mDrivetrain->RegisterTelemetry([this](auto const &state) { logger.Telemeterize(state); });
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() 
