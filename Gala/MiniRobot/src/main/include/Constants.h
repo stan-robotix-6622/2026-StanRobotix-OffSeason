@@ -20,21 +20,20 @@
 namespace OperatorConstants {
 
 inline constexpr int kDriverControllerPort = 0;
-inline constexpr int kDriverJoystickPort = 1;
 
 namespace Button
-	{
-		inline constexpr int A = 1;
-		inline constexpr int B = 2;
-		inline constexpr int X = 3;
-		inline constexpr int Y = 4;
-		inline constexpr int LeftBumper = 5;
-		inline constexpr int RightBumper = 6;
-		inline constexpr int Back = 7;
-		inline constexpr int Start = 8;
-		inline constexpr int LeftJoystick = 9;
-		inline constexpr int RightJoystick = 10;
-	} // namespace Button
+  {
+    inline constexpr int A = 1;
+    inline constexpr int B = 2;
+    inline constexpr int X = 3;
+    inline constexpr int Y = 4;
+    inline constexpr int LeftBumper = 5;
+    inline constexpr int RightBumper = 6;
+    inline constexpr int Back = 7;
+    inline constexpr int Start = 8;
+    inline constexpr int LeftJoystick = 9;
+    inline constexpr int RightJoystick = 10;
+  } // namespace Button
 
 
 }  // namespace OperatorConstants
@@ -50,20 +49,24 @@ namespace PIDConstants
 namespace DriveConstants
 {
   constexpr double kSpeed = 0.55;
-  constexpr double kRotationRate = 0.6;
-  constexpr double kSmooth = 0.2;
+  constexpr double kRotationRate = 0.5;
+  constexpr double kSmooth = 0.09;
+  //constexpr units::second_t kSpeedRampRate = 3_s;
 
 }
 
-namespace LEDsConstants
-{
-	static constexpr int kLength = 40;
-	constexpr units::meter_t kLedSpacing = 0.03_m;
-	constexpr int kLEDPort = 9;
-}
+
 
 namespace CanIDConstants
 {
   constexpr int kLeftCanID = 14; // to determine
   constexpr int kRightCanID = 12; // to determine
+}
+
+
+namespace LEDsConstants
+{
+	static constexpr int kLength = 100;
+	constexpr units::meter_t kLedSpacing = 0.03_m;
+	constexpr int kLEDPort = 9;
 }
