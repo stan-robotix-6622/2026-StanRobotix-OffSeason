@@ -6,16 +6,17 @@
 #include <frc/util/Color.h>
 
 #include <units/length.h>
+#include <units/velocity.h>
 
-namespace OperatorConstants {
-
-inline constexpr int kDriverControllerPort = 0;
-
+namespace OperatorConstants
+{
+	inline constexpr int kDriverControllerPort = 0;
 }
 
 namespace LEDsConstants
 {
-	static constexpr int kLength = 130;
-	constexpr units::meter_t kLedSpacing = 0.03_m;
-	constexpr int kLEDPort = 9;
+	inline constexpr int kLength = 130;
+	inline constexpr units::meter_t kLedSpacing = 17_mm;
+	inline constexpr units::meters_per_second_t kScrollingSpeed = 0.5_mps;
+	inline constexpr int kLEDPort = 9;
 }

@@ -31,9 +31,13 @@ RobotContainer::RobotContainer()
 
 	mLEDs->SetDefaultCommand(mLEDs->Run([this] {
 	if (abs(mDriverXboxController->GetLeftX()) > 0.2 || abs(mDriverXboxController->GetLeftY()) > 0.2 || abs(mDriverXboxController->GetRightX()) > 0.2) {
-		if (mLEDs->getMode() != SubLEDs::Mode::moving) {
+		if (mLEDs->getMode() != SubLEDs::Mode::moving && mToggleFastDrivetrain) {
 			std::cout << "moving\n";
 			mLEDs->setMode(SubLEDs::Mode::moving);
+		}
+		else if (mLEDs->getMode() != SubLEDs::Mode::movingWithSmallRobot && !mToggleFastDrivetrain) {
+			std::cout << "moving with the small robot\n";
+			mLEDs->setMode(SubLEDs::Mode::movingWithSmallRobot);
 		}
 	}
 

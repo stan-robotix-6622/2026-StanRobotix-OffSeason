@@ -17,17 +17,14 @@ class SubLEDs : public frc2::SubsystemBase {
 	enum Mode {
 		immobile,
 		moving,
+		movingWithSmallRobot,
 		deploying,
-		talking,
 		test
 	};
 
 	SubLEDs();
 
 	void addGradiant(frc::Color iStartingColor, frc::Color iEndingColor, int iNumberOfSteps, std::vector<frc::Color>& iModifiedVector);
-
-	frc::LEDPattern getPulseLEDsPattern(frc::Color iPulseColor);
-
 	void setWhite();
 
 	void setMode(Mode iMode);
@@ -38,8 +35,11 @@ class SubLEDs : public frc2::SubsystemBase {
 	private:
 	// Must be a PWM header, not MXP or DIO
 	frc::AddressableLED mLed{LEDsConstants::kLEDPort};
+	frc::LEDPattern mWhiteLEDPattern = frc::LEDPattern::Solid(frc::Color("#FFFFFF")).AtBrightness(0.5);
 	frc::LEDPattern mRedBlueLEDPattern = frc::LEDPattern::Off();
 	frc::LEDPattern mOrangePulseLEDPattern = frc::LEDPattern::Off();
+	frc::LEDPattern mOrangeBlinkingLEDPattern = frc::LEDPattern::Off();
+	std::vector<frc::Color> mOrangePulseGradiant;
 	std::vector<frc::Color> mRedBlueGradiant;
 	std::array<frc::AddressableLED::LEDData, LEDsConstants::kLength> mLedBuffer; // Reuse the buffer
 
