@@ -19,7 +19,7 @@ namespace robotixLib
 
 		units::meter_t GetDistanceToTarget(frc::Translation2d iCurrentTranslation, frc::Translation2d iTargetTranslation);
 	} // namespace odometryUtils
-	
+
 	namespace pathplannerUtils
 	{
 		frc::Pose2d getStartingPoseOfAuto(std::string iAutoName);
@@ -40,7 +40,7 @@ namespace robotixLib
 			inline constexpr int LeftJoystick = 9;
 			inline constexpr int RightJoystick = 10;
 		} // namespace Button
-	
+
 		namespace Axis
 		{
 			inline constexpr int LeftX = 0;
@@ -52,4 +52,3 @@ namespace robotixLib
 		} // namespace Axis
 	} // namespace Xbox
 } // namespace robotixLib
-

@@ -9,6 +9,7 @@
 #include <frc2/command/SubsystemBase.h>
 
 #include <array>
+#include <vector>
 
 #include "Constants.h"
 
@@ -31,8 +32,8 @@ class SubLEDs : public frc2::SubsystemBase {
 	Mode getMode();
 
 	void Periodic() override;
-	
-	private:
+
+ private:
 	// Must be a PWM header, not MXP or DIO
 	frc::AddressableLED mLed{LEDsConstants::kLEDPort};
 	frc::LEDPattern mWhiteLEDPattern = frc::LEDPattern::Solid(frc::Color("#FFFFFF")).AtBrightness(0.5);

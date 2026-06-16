@@ -4,12 +4,11 @@
 
 #include "RobotContainer.h"
 
-#include <iostream>
-
-#include <frc2/command/button/Trigger.h>
-
-#include <frc2/command/Commands.h>
 #include <frc2/command/button/RobotModeTriggers.h>
+#include <frc2/command/button/Trigger.h>
+#include <frc2/command/Commands.h>
+
+#include <iostream>
 
 #include "RobotixLib.hpp"
 
@@ -22,12 +21,12 @@ RobotContainer::RobotContainer()
 
 	ConfigureBindings();
 
-  mDrivetrain->SetDefaultCommand(mDrivetrain->driveFieldRelativeCommand(
-      [this] { return robotixLib::deadband(-mDriverXboxController->GetLeftY(), 0.05); },
-      [this] { return robotixLib::deadband(-mDriverXboxController->GetLeftX(), 0.05); },
-      [this] { return robotixLib::deadband(-mDriverXboxController->GetRightX(), 0.05); },
-      [this] { return mToggleFastDrivetrain ? 1.0 : 0.2;} // This boolean is toggled by a button on the controller
-  ));
+	mDrivetrain->SetDefaultCommand(mDrivetrain->driveFieldRelativeCommand(
+			[this] { return robotixLib::deadband(-mDriverXboxController->GetLeftY(), 0.05); },
+			[this] { return robotixLib::deadband(-mDriverXboxController->GetLeftX(), 0.05); },
+			[this] { return robotixLib::deadband(-mDriverXboxController->GetRightX(), 0.05); },
+			[this] { return mToggleFastDrivetrain ? 1.0 : 0.2; } // This boolean is toggled by a button on the controller
+			));
 
 	mLEDs->SetDefaultCommand(mLEDs->Run([this] {
 	if (abs(mDriverXboxController->GetLeftX()) > 0.2 || abs(mDriverXboxController->GetLeftY()) > 0.2 || abs(mDriverXboxController->GetRightX()) > 0.2) {
@@ -59,28 +58,29 @@ RobotContainer::RobotContainer()
 			std::cout << "immobile\n";
 			mLEDs->setMode(SubLEDs::Mode::immobile);
 		}
-	}}));
+	} }));
 }
 
 void RobotContainer::ConfigureBindings()
 {
-    // Run SysId routines when holding back/start and X/Y.
-    // Note that each routine should be run exactly once in a single log.
-    (mDriverXboxController->Back() && mDriverXboxController->Y()).WhileTrue(mDrivetrain->SysIdDynamic(frc2::sysid::Direction::kForward));
-    (mDriverXboxController->Back() && mDriverXboxController->X()).WhileTrue(mDrivetrain->SysIdDynamic(frc2::sysid::Direction::kReverse));
-    (mDriverXboxController->Start() && mDriverXboxController->Y()).WhileTrue(mDrivetrain->SysIdQuasistatic(frc2::sysid::Direction::kForward));
-    (mDriverXboxController->Start() && mDriverXboxController->X()).WhileTrue(mDrivetrain->SysIdQuasistatic(frc2::sysid::Direction::kReverse));
+	// Run SysId routines when holding back/start and X/Y.
+	// Note that each routine should be run exactly once in a single log.
+	(mDriverXboxController->Back() && mDriverXboxController->Y()).WhileTrue(mDrivetrain->SysIdDynamic(frc2::sysid::Direction::kForward));
+	(mDriverXboxController->Back() && mDriverXboxController->X()).WhileTrue(mDrivetrain->SysIdDynamic(frc2::sysid::Direction::kReverse));
+	(mDriverXboxController->Start() && mDriverXboxController->Y()).WhileTrue(mDrivetrain->SysIdQuasistatic(frc2::sysid::Direction::kForward));
+	(mDriverXboxController->Start() && mDriverXboxController->X()).WhileTrue(mDrivetrain->SysIdQuasistatic(frc2::sysid::Direction::kReverse));
 
-    // reset the field-centric heading on left bumper press
-    mDriverXboxController->LeftBumper().OnTrue(mDrivetrain->RunOnce([this] { mDrivetrain->SeedFieldCentric(); }));
+	// reset the field-centric heading on left bumper press
+	mDriverXboxController->LeftBumper().OnTrue(mDrivetrain->RunOnce([this] { mDrivetrain->SeedFieldCentric(); }));
 
-		mDriverXboxController->Button(robotixLib::Xbox::Button::LeftBumper).OnTrue(frc2::cmd::RunOnce([this] {
-			mToggleFastDrivetrain = !mToggleFastDrivetrain;
-		}, {}));
+	mDriverXboxController->Button(robotixLib::Xbox::Button::LeftBumper).OnTrue(frc2::cmd::RunOnce([this] {
+		mToggleFastDrivetrain = !mToggleFastDrivetrain;
+	},
+	                                                                                              {}));
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand()
 {
-    // Simple drive forward auton
-    return frc2::cmd::Print("There is no configured autonomous command");
+	// Simple drive forward auton
+	return frc2::cmd::Print("There is no configured autonomous command");
 }
