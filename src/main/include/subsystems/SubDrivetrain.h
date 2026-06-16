@@ -6,6 +6,7 @@
 
 #include <frc2/command/SubsystemBase.h>
 #include <frc2/command/Commands.h>
+#include <functional>
 
 #include "Telemetry.h"
 #include "generated/CommandSwerveDrivetrain.h"
@@ -14,7 +15,7 @@ class SubDrivetrain : public frc2::SubsystemBase {
  public:
   SubDrivetrain();
 
-  frc2::CommandPtr driveFieldRelativeCommand(float iX, float iY, float i0, double iSpeedModulation);
+  frc2::CommandPtr driveFieldRelativeCommand(std::function<double()> iX, std::function<double()> iY, std::function<double()> i0, double iSpeedModulation);
 
   void SeedFieldCentric();
 

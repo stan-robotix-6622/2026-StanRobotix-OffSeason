@@ -139,10 +139,6 @@ $RECYCLE.BIN/
 .gradle
 /build/
 
-### Gradle in any subdirectory ###
-.gradle/
-build/
-
 # Ignore Gradle GUI config
 gradle-app.setting
 
@@ -182,9 +178,6 @@ logs/
 
 # Folder that has CTRE Phoenix Sim device config storage
 ctre_sim/
-
-# REV simulation log files
-/*.revlog
 
 # clangd
 /.cache

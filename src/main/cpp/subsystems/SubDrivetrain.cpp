@@ -28,12 +28,12 @@ SubDrivetrain::SubDrivetrain()
 // This method will be called once per scheduler run
 void SubDrivetrain::Periodic() {}
 
-frc2::CommandPtr SubDrivetrain::driveFieldRelativeCommand(float iX, float iY, float i0, double iSpeedModulation)
+frc2::CommandPtr SubDrivetrain::driveFieldRelativeCommand(std::function<double()> iX, std::function<double()> iY, std::function<double()> i0, double iSpeedModulation)
 {
   frc2::CommandPtr mRequestedCommand = mCommandSwerveDrivetrain->ApplyRequest([this, iX, iY, i0]() -> auto&& {
-      return drive.WithVelocityX(iX * DrivetrainConstants::kMaxDesiredSpeed) // Drive forward with negative Y (forward)
-          .WithVelocityY(iY * DrivetrainConstants::kMaxDesiredSpeed) // Drive left with negative X (left)
-          .WithRotationalRate(i0 * MaxAngularRate); // Drive counterclockwise with negative X (left)
+      return drive.WithVelocityX(iX() * DrivetrainConstants::kMaxDesiredSpeed)
+          .WithVelocityY(iY() * DrivetrainConstants::kMaxDesiredSpeed)
+          .WithRotationalRate(i0() * MaxAngularRate);
   });
   mRequestedCommand.get()->AddRequirements(this);
   return mRequestedCommand;

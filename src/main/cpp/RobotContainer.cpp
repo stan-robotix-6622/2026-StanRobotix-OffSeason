@@ -16,7 +16,12 @@ RobotContainer::RobotContainer()
 
   ConfigureBindings();
 
-  mDrivetrain->SetDefaultCommand(mDrivetrain->driveFieldRelativeCommand(-mDriverXboxController->GetLeftY(), -mDriverXboxController->GetLeftX(), -mDriverXboxController->GetRightX(), 1));
+  mDrivetrain->SetDefaultCommand(mDrivetrain->driveFieldRelativeCommand(
+      [this] { return -mDriverXboxController->GetLeftY(); },
+      [this] { return -mDriverXboxController->GetLeftX(); },
+      [this] { return -mDriverXboxController->GetRightX(); },
+      1.0
+  ));
 
   mSubLED->SetDefaultCommand(mSubLED->Run([this] {
 			if (abs(mDriverXboxController->GetLeftX()) > 0.2 || abs(mDriverXboxController->GetLeftY()) > 0.2 || abs(mDriverXboxController->GetRightX()) > 0.2) {
