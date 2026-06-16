@@ -16,7 +16,7 @@ namespace OperatorConstants
 
 namespace LEDsConstants
 {
-	inline constexpr int kLength = 130;
+	inline constexpr int kLength = 150;
 	inline constexpr units::meter_t kLedSpacing = 17_mm;
 	inline constexpr units::meters_per_second_t kScrollingSpeed = 0.5_mps;
 	inline constexpr int kLEDPort = 9;

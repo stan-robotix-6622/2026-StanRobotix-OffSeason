@@ -10,15 +10,24 @@ SubLEDs::SubLEDs()
 	mLed.SetData(mLedBuffer);
 	mLed.Start();
 
-	addGradiant(frc::Color("#ff0000"), frc::Color("#000000"), int(LEDsConstants::kLength / 2), mRedBlueGradiant);
-	addGradiant(frc::Color("#0000ff"), frc::Color("#000000"), int(LEDsConstants::kLength / 2), mRedBlueGradiant);
+	addGradiant(frc::Color("#000000"), frc::Color("#ff0000"), int(LEDsConstants::kLength * 3 / 8), mRedBlueGradiant);
+	addGradiant(frc::Color("#ff0000"), frc::Color("#000000"), int(LEDsConstants::kLength / 8), mRedBlueGradiant);
+	addGradiant(frc::Color("#000000"), frc::Color("#0000ff"), int(LEDsConstants::kLength * 3 / 8), mRedBlueGradiant);
+	addGradiant(frc::Color("#0000ff"), frc::Color("#000000"), int(LEDsConstants::kLength / 8), mRedBlueGradiant);
 	mRedBlueLEDPattern = frc::LEDPattern::Gradient(frc::LEDPattern::kContinuous, mRedBlueGradiant).ScrollAtAbsoluteSpeed(LEDsConstants::kScrollingSpeed, LEDsConstants::kLedSpacing);
+
+	addGradiant(frc::Color("#000000"), frc::Color("#ff0000"), int(LEDsConstants::kLength * 3 / 8), mRedGradiant);
+	addGradiant(frc::Color("#ff0000"), frc::Color("#000000"), int(LEDsConstants::kLength / 8), mRedGradiant);
+	addGradiant(frc::Color("#000000"), frc::Color("#0000ff"), int(LEDsConstants::kLength * 3 / 8), mBlueGradiant);
+	addGradiant(frc::Color("#0000ff"), frc::Color("#000000"), int(LEDsConstants::kLength / 8), mBlueGradiant);
+	mRedFromMiddleLEDPattern = frc::LEDPattern::Gradient(frc::LEDPattern::kContinuous, mRedGradiant).ScrollAtAbsoluteSpeed(LEDsConstants::kScrollingSpeed * 2, LEDsConstants::kLedSpacing).OffsetBy(int(LEDsConstants::kLength / 2));
+	mBlueFromMiddleLEDPattern = frc::LEDPattern::Gradient(frc::LEDPattern::kContinuous, mBlueGradiant).ScrollAtAbsoluteSpeed(LEDsConstants::kScrollingSpeed * 2, LEDsConstants::kLedSpacing).Reversed();
 
 	addGradiant(frc::Color("#000000"), frc::Color("#FFA500"), int(LEDsConstants::kLength / 2), mOrangePulseGradiant);
 	addGradiant(frc::Color("#FFA500"), frc::Color("#000000"), int(LEDsConstants::kLength / 2), mOrangePulseGradiant);
 	mOrangePulseLEDPattern = frc::LEDPattern::Gradient(frc::LEDPattern::kContinuous, mOrangePulseGradiant).ScrollAtAbsoluteSpeed(LEDsConstants::kScrollingSpeed, LEDsConstants::kLedSpacing);
 
-	mOrangeBlinkingLEDPattern = frc::LEDPattern::Solid(frc::Color("#FFA500")).Blink(1_s);
+	mOrangeBlinkingLEDPattern = frc::LEDPattern::Solid(frc::Color("#FFA500")).Blink(0.5_s);
 }
 
 void SubLEDs::Periodic()
@@ -32,6 +41,10 @@ void SubLEDs::Periodic()
 			break;
 		case movingWithSmallRobot:
 			mOrangeBlinkingLEDPattern.ApplyTo(mLedBuffer);
+			break;
+		case deploying:
+			mRedFromMiddleLEDPattern.ApplyTo(mLeft);
+			mBlueFromMiddleLEDPattern.ApplyTo(mRight);
 			break;
 		case test:
 			mWhiteLEDPattern.ApplyTo(mLedBuffer);
