@@ -17,7 +17,7 @@ class SubLEDs : public frc2::SubsystemBase {
 	enum Mode {
 		immobile,
 		moving,
-		waving,
+		deploying,
 		talking,
 		test
 	};
@@ -31,16 +31,17 @@ class SubLEDs : public frc2::SubsystemBase {
 	void setWhite();
 
 	void setMode(Mode iMode);
-
-	Mode mMode;
+	Mode getMode();
 
 	void Periodic() override;
-
- private:
+	
+	private:
 	// Must be a PWM header, not MXP or DIO
 	frc::AddressableLED m_led{LEDsConstants::kLEDPort};
 	frc::LEDPattern m_RedBlueLEDPattern = frc::LEDPattern::Off();
 	frc::LEDPattern m_OrangePulseLEDPattern = frc::LEDPattern::Off();
 	std::vector<frc::Color> m_RedBlueGradiant;
 	std::array<frc::AddressableLED::LEDData, LEDsConstants::kLength> m_ledBuffer; // Reuse the buffer
+
+	Mode mMode;
 };

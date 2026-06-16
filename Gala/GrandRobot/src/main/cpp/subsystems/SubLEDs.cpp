@@ -4,8 +4,6 @@
 
 #include "subsystems/SubLEDs.h"
 
-// #include <iostream>
-
 SubLEDs::SubLEDs()
 {
 	m_led.SetLength(LEDsConstants::kLength);
@@ -21,10 +19,20 @@ SubLEDs::SubLEDs()
 
 void SubLEDs::Periodic()
 {
-	// for (unsigned int i = 0; i < m_ledBuffer.size(); i++)
-	// {
-	// 	std::cout << "LED no " << i << " : r = " << (int)m_ledBuffer[i].r << " g = " << (int)m_ledBuffer[i].g << " b = " << (int)m_ledBuffer[i].b << "\n";
-	// }
+	switch (mMode) {
+		case immobile:
+			m_OrangePulseLEDPattern.ApplyTo(m_ledBuffer);
+			break;
+		case moving:
+			m_RedBlueLEDPattern.ApplyTo(m_ledBuffer);
+			break;
+		case test:
+			setWhite();
+			break;
+		default:
+			setWhite();
+			break;
+	};
 	m_led.SetData(m_ledBuffer);
 }
 
@@ -37,9 +45,9 @@ void SubLEDs::addGradiant(frc::Color iStartingColor, frc::Color iEndingColor, in
 	double endingG = iEndingColor.green;
 	double endingB = iEndingColor.blue;
 	for (int i = 0; i <= iNumberOfSteps; i++) {
-		iModifiedVector.emplace_back(frc::Color(startingR - (startingR - endingR) / iNumberOfSteps * i,
-		                                        startingG - (startingG - endingG) / iNumberOfSteps * i,
-		                                        startingB - (startingB - endingB) / iNumberOfSteps * i));
+		iModifiedVector.emplace_back(frc::Color(startingR - (startingR - endingR) / (iNumberOfSteps - 1) * i,
+		                                        startingG - (startingG - endingG) / (iNumberOfSteps - 1) * i,
+		                                        startingB - (startingB - endingB) / (iNumberOfSteps - 1) * i));
 	}
 }
 
@@ -63,18 +71,9 @@ void SubLEDs::setWhite()
 void SubLEDs::setMode(Mode iMode)
 {
 	mMode = iMode;
-	switch (iMode) {
-		case immobile:
-			m_OrangePulseLEDPattern.ApplyTo(m_ledBuffer);
-			break;
-		case moving:
-			m_RedBlueLEDPattern.ApplyTo(m_ledBuffer);
-			break;
-		case test:
-			setWhite();
-			break;
-		default:
-			setWhite();
-			break;
-	};
+}
+
+SubLEDs::Mode SubLEDs::getMode()
+{
+	return mMode;
 }

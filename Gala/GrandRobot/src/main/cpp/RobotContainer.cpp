@@ -4,6 +4,8 @@
 
 #include "RobotContainer.h"
 
+#include <iostream>
+
 #include <frc2/command/button/Trigger.h>
 
 #include <frc2/command/Commands.h>
@@ -27,30 +29,33 @@ RobotContainer::RobotContainer()
       1.0
   ));
 
-	// mLEDs->SetDefaultCommand(mLEDs->Run([this] {
-	// if (abs(mDriverXboxController->GetLeftX()) > 0.2 || abs(mDriverXboxController->GetLeftY()) > 0.2 || abs(mDriverXboxController->GetRightX()) > 0.2) {
-	// 	if (mLEDs->mMode != SubLEDs::Mode::moving) {
-	// 	//	std::cout << "moving\n";
-	// 	}
-	// 	mLEDs->setMode(SubLEDs::Mode::moving);
-	// }
+	mLEDs->SetDefaultCommand(mLEDs->Run([this] {
+	if (abs(mDriverXboxController->GetLeftX()) > 0.2 || abs(mDriverXboxController->GetLeftY()) > 0.2 || abs(mDriverXboxController->GetRightX()) > 0.2) {
+		if (mLEDs->getMode() != SubLEDs::Mode::moving) {
+			std::cout << "moving\n";
+			mLEDs->setMode(SubLEDs::Mode::moving);
+		}
+	}
 
-	// else if (mDriverXboxController->Button(robotixLib::Xbox::Button::Y).Get()) {
-	// 	if (mLEDs->mMode != SubLEDs::Mode::waving) {
-	// 	//	std::cout << "waving\n";
-	// 	}
-	// 	mLEDs->setMode(SubLEDs::Mode::waving);
-	// }
+	else if (mDriverXboxController->Button(robotixLib::Xbox::Button::Y).Get()) {
+		if (mLEDs->getMode() != SubLEDs::Mode::deploying) {
+			std::cout << "deploying\n";
+			mLEDs->setMode(SubLEDs::Mode::deploying);
+		}
+	}
 
-	// else if (mDriverXboxController->Button(robotixLib::Xbox::Button::RightBumper).Get()) {
-	// 	if (mLEDs->mMode != SubLEDs::Mode::test) {
-	// 		//std::cout << "test\n";
-	// 	}
-	// 	mLEDs->setMode(SubLEDs::Mode::test);
-	// }
-	// else {
-	// 	mLEDs->setMode(SubLEDs::Mode::immobile);
-	// }}));
+	else if (mDriverXboxController->Button(robotixLib::Xbox::Button::RightBumper).Get()) {
+		if (mLEDs->getMode() != SubLEDs::Mode::test) {
+			std::cout << "test\n";
+			mLEDs->setMode(SubLEDs::Mode::test);
+		}
+	}
+	else {
+		if (mLEDs->getMode() != SubLEDs::Mode::immobile) {
+			std::cout << "immobile\n";
+			mLEDs->setMode(SubLEDs::Mode::immobile);
+		}
+	}}));
 }
 
 void RobotContainer::ConfigureBindings()
