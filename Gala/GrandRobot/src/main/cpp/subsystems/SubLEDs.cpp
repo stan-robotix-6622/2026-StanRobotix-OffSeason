@@ -5,7 +5,7 @@
 #include "subsystems/SubLEDs.h"
 
 SubLEDs::SubLEDs()
-{
+{                                             
 	mLed.SetLength(LEDsConstants::kLength);
 	mLed.SetData(mLedBuffer);
 	mLed.Start();
@@ -44,7 +44,7 @@ void SubLEDs::addGradiant(frc::Color iStartingColor, frc::Color iEndingColor, in
 	double endingR = iEndingColor.red;
 	double endingG = iEndingColor.green;
 	double endingB = iEndingColor.blue;
-	for (int i = 0; i <= iNumberOfSteps; i++) {
+	for (int i = 0; i < iNumberOfSteps; i++) {
 		iModifiedVector.emplace_back(frc::Color(startingR - (startingR - endingR) / (iNumberOfSteps - 1) * i,
 		                                        startingG - (startingG - endingG) / (iNumberOfSteps - 1) * i,
 		                                        startingB - (startingB - endingB) / (iNumberOfSteps - 1) * i));

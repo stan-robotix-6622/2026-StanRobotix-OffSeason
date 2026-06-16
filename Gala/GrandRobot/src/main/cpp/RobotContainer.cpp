@@ -26,7 +26,11 @@ RobotContainer::RobotContainer()
       [this] { return robotixLib::deadband(-mDriverXboxController->GetLeftY(), 0.05); },
       [this] { return robotixLib::deadband(-mDriverXboxController->GetLeftX(), 0.05); },
       [this] { return robotixLib::deadband(-mDriverXboxController->GetRightX(), 0.05); },
-      1.0
+      [this] {
+					if (mDriverXboxController->GetHID().GetRawButtonPressed(robotixLib::Xbox::Button::LeftBumper)) {
+						mToggleFastDrivetrain = !mToggleFastDrivetrain;
+					} 
+					return mToggleFastDrivetrain ? 1.0 : 0.2;}
   ));
 
 	mLEDs->SetDefaultCommand(mLEDs->Run([this] {
