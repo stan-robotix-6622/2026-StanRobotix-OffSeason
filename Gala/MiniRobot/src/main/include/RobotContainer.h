@@ -24,12 +24,12 @@ class RobotContainer {
 
  private:
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  frc2::CommandXboxController m_XboxController{OperatorConstants::kDriverControllerPort};
+  frc2::CommandXboxController mXboxController{OperatorConstants::kDriverControllerPort};
 
-  SubDrivetrain* m_Drivetrain;
+  SubDrivetrain* mDrivetrain;
 
-  double m_currentSpeed = 0.0;
-  double m_currentRotation = 0.0;
+  double mCurrentSpeed = 0.0;
+  double mCurrentRotation = 0.0;
   
   void ConfigureBindings();
 };
