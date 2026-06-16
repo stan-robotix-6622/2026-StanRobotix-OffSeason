@@ -18,6 +18,8 @@ public:
     frc2::CommandPtr GetAutonomousCommand();
 
 private:
+	bool mToggleFastDrivetrain = false;
+
 		frc2::CommandXboxController* mDriverXboxController;
 		SubDrivetrain* mDrivetrain;
 		SubLEDs* mLEDs;

@@ -15,7 +15,7 @@ class SubDrivetrain : public frc2::SubsystemBase {
  public:
   SubDrivetrain();
 
-  frc2::CommandPtr driveFieldRelativeCommand(std::function<double()> iX, std::function<double()> iY, std::function<double()> i0, double iSpeedModulation);
+  frc2::CommandPtr driveFieldRelativeCommand(std::function<double()> iX, std::function<double()> iY, std::function<double()> i0, std::function<double()> iSpeedModulation);
 
   void SeedFieldCentric();
 

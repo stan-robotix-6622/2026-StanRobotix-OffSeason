@@ -26,11 +26,7 @@ RobotContainer::RobotContainer()
       [this] { return robotixLib::deadband(-mDriverXboxController->GetLeftY(), 0.05); },
       [this] { return robotixLib::deadband(-mDriverXboxController->GetLeftX(), 0.05); },
       [this] { return robotixLib::deadband(-mDriverXboxController->GetRightX(), 0.05); },
-      [this] {
-					if (mDriverXboxController->GetHID().GetRawButtonPressed(robotixLib::Xbox::Button::LeftBumper)) {
-						mToggleFastDrivetrain = !mToggleFastDrivetrain;
-					} 
-					return mToggleFastDrivetrain ? 1.0 : 0.2;}
+      [this] { return mToggleFastDrivetrain ? 1.0 : 0.2;} // This boolean is toggled by a button on the controller
   ));
 
 	mLEDs->SetDefaultCommand(mLEDs->Run([this] {
@@ -73,6 +69,10 @@ void RobotContainer::ConfigureBindings()
 
     // reset the field-centric heading on left bumper press
     mDriverXboxController->LeftBumper().OnTrue(mDrivetrain->RunOnce([this] { mDrivetrain->SeedFieldCentric(); }));
+
+		mDriverXboxController->Button(robotixLib::Xbox::Button::LeftBumper).OnTrue(frc2::cmd::RunOnce([this] {
+			mToggleFastDrivetrain = !mToggleFastDrivetrain;
+		}, {}));
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand()
