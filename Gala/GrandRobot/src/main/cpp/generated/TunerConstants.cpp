@@ -1,5 +1,5 @@
 #include "generated/TunerConstants.h"
-#include "generated/CommandSwerveDrivetrain.h"
+#include "subsystems/CommandSwerveDrivetrain.h"
 
 subsystems::CommandSwerveDrivetrain TunerConstants::CreateDrivetrain()
 {

@@ -4,31 +4,27 @@
 
 #pragma once
 
-#include <frc2/command/SubsystemBase.h>
-#include <array>
 #include <frc/AddressableLED.h>
 #include <frc/LEDPattern.h>
-#include <chrono>
-#include <frc/Timer.h>
+#include <frc2/command/SubsystemBase.h>
+
+#include <array>
 
 #include "Constants.h"
 
-class SubLED : public frc2::SubsystemBase {
+class SubLEDs : public frc2::SubsystemBase {
  public:
+	enum Mode {
+		immobile,
+		moving,
+		waving,
+		talking,
+		test
+	};
 
- enum Mode
-    {
-        immobile,
-        moving,
-        waving,
-        talking,
-        test
-    };
+	SubLEDs();
 
-  SubLED();
-
-
-  void addGradiant(frc::Color iStartingColor, frc::Color iEndingColor, int iNumberOfSteps, std::vector<frc::Color>& iModifiedVector);
+	void addGradiant(frc::Color iStartingColor, frc::Color iEndingColor, int iNumberOfSteps, std::vector<frc::Color>& iModifiedVector);
 
 	frc::LEDPattern getPulseLEDsPattern(frc::Color iPulseColor);
 
@@ -38,16 +34,11 @@ class SubLED : public frc2::SubsystemBase {
 
 	Mode mMode;
 
-    void Periodic();
-  /**
-   * Will be called periodically whenever the CommandScheduler runs.
-   */
+	void Periodic() override;
 
  private:
-  // Components (e.g. motor controllers and sensors) should generally be
-  // declared private and exposed only through public methods.
-
- frc::AddressableLED m_led{LEDsConstants::kLEDPort};
+	// Must be a PWM header, not MXP or DIO
+	frc::AddressableLED m_led{LEDsConstants::kLEDPort};
 	frc::LEDPattern m_RedBlueLEDPattern = frc::LEDPattern::Off();
 	frc::LEDPattern m_OrangePulseLEDPattern = frc::LEDPattern::Off();
 	std::vector<frc::Color> m_RedBlueGradiant;

@@ -4,38 +4,38 @@
 
 #pragma once
 
-#include <optional>
+#include "ctre/phoenix6/HootAutoReplay.hpp"
 
 #include <frc/TimedRobot.h>
 #include <frc2/command/CommandPtr.h>
-#include <ctre/phoenix6/HootAutoReplay.hpp>
+#include <optional>
 
 #include "RobotContainer.h"
 
 class Robot : public frc::TimedRobot {
- public:
-  Robot();
-  void RobotPeriodic() override;
-  void DisabledInit() override;
-  void DisabledPeriodic() override;
-  void DisabledExit() override;
-  void AutonomousInit() override;
-  void AutonomousPeriodic() override;
-  void AutonomousExit() override;
-  void TeleopInit() override;
-  void TeleopPeriodic() override;
-  void TeleopExit() override;
-  void TestInit() override;
-  void TestPeriodic() override;
-  void TestExit() override;
+public:
+    Robot();
+    void RobotPeriodic() override;
+    void DisabledInit() override;
+    void DisabledPeriodic() override;
+    void DisabledExit() override;
+    void AutonomousInit() override;
+    void AutonomousPeriodic() override;
+    void AutonomousExit() override;
+    void TeleopInit() override;
+    void TeleopPeriodic() override;
+    void TeleopExit() override;
+    void TestInit() override;
+    void TestPeriodic() override;
+    void TestExit() override;
 
- private:
-  std::optional<frc2::CommandPtr> m_autonomousCommand;
+private:
+    std::optional<frc2::CommandPtr> m_autonomousCommand;
 
-  RobotContainer m_container;
+    RobotContainer m_container;
 
-  /* log and replay timestamp and joystick data */
-  ctre::phoenix6::HootAutoReplay m_timeAndJoystickReplay = ctre::phoenix6::HootAutoReplay{}
-      .WithTimestampReplay()
-      .WithJoystickReplay();
+    /* log and replay timestamp and joystick data */
+    ctre::phoenix6::HootAutoReplay m_timeAndJoystickReplay = ctre::phoenix6::HootAutoReplay{}
+        .WithTimestampReplay()
+        .WithJoystickReplay();
 };
