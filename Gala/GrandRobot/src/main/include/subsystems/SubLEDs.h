@@ -37,11 +37,11 @@ class SubLEDs : public frc2::SubsystemBase {
 	
 	private:
 	// Must be a PWM header, not MXP or DIO
-	frc::AddressableLED m_led{LEDsConstants::kLEDPort};
-	frc::LEDPattern m_RedBlueLEDPattern = frc::LEDPattern::Off();
-	frc::LEDPattern m_OrangePulseLEDPattern = frc::LEDPattern::Off();
-	std::vector<frc::Color> m_RedBlueGradiant;
-	std::array<frc::AddressableLED::LEDData, LEDsConstants::kLength> m_ledBuffer; // Reuse the buffer
+	frc::AddressableLED mLed{LEDsConstants::kLEDPort};
+	frc::LEDPattern mRedBlueLEDPattern = frc::LEDPattern::Off();
+	frc::LEDPattern mOrangePulseLEDPattern = frc::LEDPattern::Off();
+	std::vector<frc::Color> mRedBlueGradiant;
+	std::array<frc::AddressableLED::LEDData, LEDsConstants::kLength> mLedBuffer; // Reuse the buffer
 
 	Mode mMode;
 };
