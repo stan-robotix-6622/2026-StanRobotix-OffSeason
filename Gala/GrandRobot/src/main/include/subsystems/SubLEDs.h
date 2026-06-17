@@ -21,7 +21,8 @@ class SubLEDs : public frc2::SubsystemBase {
 		moving,
 		movingWithSmallRobot,
 		deploying,
-		test
+		test,
+		off
 	};
 
 	SubLEDs();
@@ -43,15 +44,16 @@ class SubLEDs : public frc2::SubsystemBase {
 	frc::LEDPattern mBlueFromMiddleLEDPattern = frc::LEDPattern::Off();
 	frc::LEDPattern mOrangePulseLEDPattern = frc::LEDPattern::Off();
 	frc::LEDPattern mOrangeBlinkingLEDPattern = frc::LEDPattern::Off();
+	frc::LEDPattern mOffLEDPattern = frc::LEDPattern::Off();
 	std::vector<frc::Color> mOrangePulseGradiant;
 	std::vector<frc::Color> mRedBlueGradiant;
 	std::vector<frc::Color> mRedGradiant;
 	std::vector<frc::Color> mBlueGradiant;
 	std::array<frc::AddressableLED::LEDData, LEDsConstants::kLength> mLedBuffer; // Reuse the buffer
 	std::ranges::drop_view<std::ranges::ref_view<std::array<frc::AddressableLED::LEDData, LEDsConstants::kLength>>> mLeft =
-					std::ranges::drop_view(mLedBuffer, int(LEDsConstants::kLength / 2));
+					std::ranges::drop_view(mLedBuffer, int(LEDsConstants::kLength / 2) - 3);
 	std::ranges::take_view<std::ranges::ref_view<std::array<frc::AddressableLED::LEDData, LEDsConstants::kLength>>> mRight =
-					std::ranges::take_view(mLedBuffer, int(LEDsConstants::kLength / 2));
+					std::ranges::take_view(mLedBuffer, int(LEDsConstants::kLength / 2) - 3);
 
 	Mode mMode;
 };

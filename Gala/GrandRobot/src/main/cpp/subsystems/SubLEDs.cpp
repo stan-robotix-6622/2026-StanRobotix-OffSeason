@@ -16,12 +16,12 @@ SubLEDs::SubLEDs()
 	addGradiant(frc::Color("#0000ff"), frc::Color("#000000"), int(LEDsConstants::kLength / 8), mRedBlueGradiant);
 	mRedBlueLEDPattern = frc::LEDPattern::Gradient(frc::LEDPattern::kContinuous, mRedBlueGradiant).ScrollAtAbsoluteSpeed(LEDsConstants::kScrollingSpeed, LEDsConstants::kLedSpacing);
 
-	addGradiant(frc::Color("#000000"), frc::Color("#ff0000"), int(LEDsConstants::kLength * 3 / 8), mRedGradiant);
-	addGradiant(frc::Color("#ff0000"), frc::Color("#000000"), int(LEDsConstants::kLength / 8), mRedGradiant);
-	addGradiant(frc::Color("#000000"), frc::Color("#0000ff"), int(LEDsConstants::kLength * 3 / 8), mBlueGradiant);
-	addGradiant(frc::Color("#0000ff"), frc::Color("#000000"), int(LEDsConstants::kLength / 8), mBlueGradiant);
-	mRedFromMiddleLEDPattern = frc::LEDPattern::Gradient(frc::LEDPattern::kContinuous, mRedGradiant).ScrollAtAbsoluteSpeed(LEDsConstants::kScrollingSpeed * 2, LEDsConstants::kLedSpacing).OffsetBy(int(LEDsConstants::kLength / 2));
-	mBlueFromMiddleLEDPattern = frc::LEDPattern::Gradient(frc::LEDPattern::kContinuous, mBlueGradiant).ScrollAtAbsoluteSpeed(LEDsConstants::kScrollingSpeed * 2, LEDsConstants::kLedSpacing).Reversed();
+	addGradiant(frc::Color("#000000"), frc::Color("#ff0000"), int(LEDsConstants::kLength * 3 / 8) + 2, mRedGradiant);
+	addGradiant(frc::Color("#ff0000"), frc::Color("#000000"), int(LEDsConstants::kLength / 8) + 1, mRedGradiant);
+	addGradiant(frc::Color("#000000"), frc::Color("#0000ff"), int(LEDsConstants::kLength * 3 / 8) - 2, mBlueGradiant);
+	addGradiant(frc::Color("#0000ff"), frc::Color("#000000"), int(LEDsConstants::kLength / 8) - 1, mBlueGradiant);
+	mRedFromMiddleLEDPattern = frc::LEDPattern::Gradient(frc::LEDPattern::kContinuous, mRedGradiant).ScrollAtAbsoluteSpeed(LEDsConstants::kScrollingSpeed * 3, LEDsConstants::kLedSpacing).OffsetBy(int(LEDsConstants::kLength / 2));
+	mBlueFromMiddleLEDPattern = frc::LEDPattern::Gradient(frc::LEDPattern::kContinuous, mBlueGradiant).ScrollAtAbsoluteSpeed(LEDsConstants::kScrollingSpeed * 3, LEDsConstants::kLedSpacing).Reversed();
 
 	addGradiant(frc::Color("#000000"), frc::Color("#FFA500"), int(LEDsConstants::kLength / 2), mOrangePulseGradiant);
 	addGradiant(frc::Color("#FFA500"), frc::Color("#000000"), int(LEDsConstants::kLength / 2), mOrangePulseGradiant);
@@ -49,8 +49,11 @@ void SubLEDs::Periodic()
 		case test:
 			mWhiteLEDPattern.ApplyTo(mLedBuffer);
 			break;
+		case off:
+			mOffLEDPattern.ApplyTo(mLedBuffer);
+			break;
 		default:
-			mWhiteLEDPattern.ApplyTo(mLedBuffer);
+			mOffLEDPattern.ApplyTo(mLedBuffer);
 			break;
 	};
 	mLed.SetData(mLedBuffer);

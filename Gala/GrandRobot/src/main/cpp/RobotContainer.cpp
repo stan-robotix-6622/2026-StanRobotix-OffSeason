@@ -25,11 +25,11 @@ RobotContainer::RobotContainer()
 			[this] { return robotixLib::deadband(-mDriverXboxController->GetLeftY(), 0.05); },
 			[this] { return robotixLib::deadband(-mDriverXboxController->GetLeftX(), 0.05); },
 			[this] { return robotixLib::deadband(-mDriverXboxController->GetRightX(), 0.05); },
-			[this] { return mToggleFastDrivetrain ? 1.0 : 0.2; } // This boolean is toggled by a button on the controller
+			[this] { return mToggleFastDrivetrain ? 0.6 : 0.2; } // This boolean is toggled by a button on the controller
 			));
 
 	mLEDs->SetDefaultCommand(mLEDs->Run([this] {
-	if (abs(mDriverXboxController->GetLeftX()) > 0.2 || abs(mDriverXboxController->GetLeftY()) > 0.2 || abs(mDriverXboxController->GetRightX()) > 0.2) {
+	if (std::abs(mDriverXboxController->GetLeftX()) > 0.1 || std::abs(mDriverXboxController->GetLeftY()) > 0.1 || std::abs(mDriverXboxController->GetRightX()) > 0.1) {
 		if (mLEDs->getMode() != SubLEDs::Mode::moving && mToggleFastDrivetrain) {
 			std::cout << "moving\n";
 			mLEDs->setMode(SubLEDs::Mode::moving);
@@ -47,7 +47,7 @@ RobotContainer::RobotContainer()
 		}
 	}
 
-	else if (mDriverXboxController->Button(robotixLib::Xbox::Button::RightBumper).Get()) {
+	else if (mDriverXboxController->Button(robotixLib::Xbox::Button::B).Get()) {
 		if (mLEDs->getMode() != SubLEDs::Mode::test) {
 			std::cout << "test\n";
 			mLEDs->setMode(SubLEDs::Mode::test);
@@ -71,12 +71,15 @@ void RobotContainer::ConfigureBindings()
 	(mDriverXboxController->Start() && mDriverXboxController->X()).WhileTrue(mDrivetrain->SysIdQuasistatic(frc2::sysid::Direction::kReverse));
 
 	// reset the field-centric heading on left bumper press
-	mDriverXboxController->LeftBumper().OnTrue(mDrivetrain->RunOnce([this] { mDrivetrain->SeedFieldCentric(); }));
+	mDriverXboxController->Button(robotixLib::Xbox::Button::RightBumper).OnTrue(mDrivetrain->RunOnce([this] { mDrivetrain->SeedFieldCentric(); }));
 
 	mDriverXboxController->Button(robotixLib::Xbox::Button::LeftBumper).OnTrue(frc2::cmd::RunOnce([this] {
 		mToggleFastDrivetrain = !mToggleFastDrivetrain;
-	},
-	                                                                                              {}));
+	}, {}));
+
+	(frc2::RobotModeTriggers::Disabled() || mDriverXboxController->Button(robotixLib::Xbox::Button::A)).WhileTrue(
+			mLEDs->Run([this] {mLEDs->setMode(SubLEDs::Mode::off);})
+					.IgnoringDisable(true));
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand()
