@@ -21,11 +21,11 @@ class DriftR
   /* You should consider using the more terse Command factories API instead
    * https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands
    */
-  DriftR(SubDrivetrain* iDriveTrain);
+  DriftR(SubDrivetrain* iDriveTrain, std::function<double()> iSpeed);
 
   void Initialize() override;
 
-  void Execute(float iSpeed);
+  void Execute();
 
   void End(bool interrupted) override;
 
@@ -34,4 +34,5 @@ class DriftR
   private:
 
   SubDrivetrain* mDrivetrain;
+  std::function<double()> mSpeed;
 };

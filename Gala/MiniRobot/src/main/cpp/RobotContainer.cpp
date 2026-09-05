@@ -68,7 +68,8 @@ void RobotContainer::ConfigureBindings() {
           -(mCurrentSpeed * DriveConstants::kSpeed * (1.2 -mXboxController.GetRightTriggerAxis())),
           -(mCurrentRotation * DriveConstants::kRotationRate * (1.2 - mXboxController.GetRightTriggerAxis()))
         );
-			},
+
+      },
 			{mDrivetrain}));
 
   mXboxController.A().WhileTrue(frc2::cmd::Run(
@@ -77,8 +78,8 @@ void RobotContainer::ConfigureBindings() {
     },
     {mDrivetrain}));
 
-  mXboxController.LeftBumper().WhileTrue(DriftL(mDrivetrain).ToPtr());
-  mXboxController.RightBumper().WhileTrue(DriftR(mDrivetrain).ToPtr());
+  mXboxController.LeftBumper().WhileTrue(DriftL(mDrivetrain, [this] {return -(mCurrentSpeed * DriveConstants::kSpeed * (1.2 -mXboxController.GetRightTriggerAxis()));}).ToPtr());
+  mXboxController.RightBumper().WhileTrue(DriftR(mDrivetrain, [this] {return -(mCurrentSpeed * DriveConstants::kSpeed * (1.2 -mXboxController.GetRightTriggerAxis()));}).ToPtr());
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {

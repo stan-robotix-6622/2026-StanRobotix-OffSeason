@@ -4,22 +4,20 @@
 
 #include "commands/DriftR.h"
 
-DriftR::DriftR(SubDrivetrain* iDriveTrain) {
+DriftR::DriftR(SubDrivetrain* iDriveTrain, std::function<double()> iSpeed) {
   // Use addRequirements() here to declare subsystem dependencies.
   mDrivetrain = iDriveTrain;
   AddRequirements(mDrivetrain);
+  mSpeed = iSpeed;
 }
 
 // Called when the command is initially scheduled.
 void DriftR::Initialize() {}
 
 // Called repeatedly when this Command is scheduled to run
-void DriftR::Execute(float iSpeed) 
+void DriftR::Execute() 
 {
-  // if(iSpeed >= DriveConstants::kSpeedMin)
-  // {
-    mDrivetrain->DriveRobot(0, iSpeed);
-  // }
+  mDrivetrain->DriveRobot(mSpeed(), 0.03);
 }
 
 // Called once the command ends or is interrupted.
