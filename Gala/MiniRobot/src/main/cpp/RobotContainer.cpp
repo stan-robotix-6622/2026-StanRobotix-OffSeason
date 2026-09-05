@@ -6,17 +6,24 @@
 
 #include <frc2/command/button/Trigger.h>
 #include <frc2/command/Commands.h>
+<<<<<<< HEAD
 #include <frc2/command/button/JoystickButton.h>
 #include <iostream>
+=======
+>>>>>>> fc0c6ed111b17d4e621f6d159f8195a26afc2d1d
 
-#include "commands/Autos.h"
-#include "commands/ExampleCommand.h"
+#include "commands/Drive.h"
 
 RobotContainer::RobotContainer() {
+<<<<<<< HEAD
   // Initialize all of your commands and subsystems here
   m_Drivetrain = new SubDrivetrain;
 
   // mJoystick = new frc::Joystick{OperatorConstants::kDriverJoystickPort};
+=======
+  mDrivetrain = new SubDrivetrain;
+
+>>>>>>> fc0c6ed111b17d4e621f6d159f8195a26afc2d1d
   // Configure the button bindings
   ConfigureBindings();
 
@@ -52,6 +59,7 @@ RobotContainer::RobotContainer() {
 void RobotContainer::ConfigureBindings() {
   // Configure your trigger bindings here
 
+<<<<<<< HEAD
   // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
   frc2::Trigger([this] {
     return m_subsystem.ExampleCondition();
@@ -74,14 +82,28 @@ void RobotContainer::ConfigureBindings() {
 				m_Drivetrain->DriveRobot(
           -(m_currentSpeed * DriveConstants::kSpeed * (1.2 -m_XboxController.GetRightTriggerAxis())),
           -(m_currentRotation * DriveConstants::kRotationRate * (1.2 - m_XboxController.GetRightTriggerAxis()))
+=======
+  mDrivetrain->SetDefaultCommand(frc2::cmd::Run(
+			[this] {
+        double targetSpeed = mXboxController.GetLeftY();
+        double targetRotation = mXboxController.GetRightX();
+
+        mCurrentSpeed += (targetSpeed - mCurrentSpeed) * DriveConstants::kSmooth;
+        mCurrentRotation += (targetRotation - mCurrentRotation) * DriveConstants::kSmooth;
+
+				mDrivetrain->DriveRobot(
+          -(mCurrentSpeed * DriveConstants::kSpeed * (1.2 -mXboxController.GetRightTriggerAxis())),
+          -(mCurrentRotation * DriveConstants::kRotationRate * (1.2 - mXboxController.GetRightTriggerAxis()))
+>>>>>>> fc0c6ed111b17d4e621f6d159f8195a26afc2d1d
         );
 			},
-			{m_Drivetrain}));
+			{mDrivetrain}));
 
-  m_XboxController.A().WhileTrue(frc2::cmd::Run(
+  mXboxController.A().WhileTrue(frc2::cmd::Run(
     [this] {
-      m_Drivetrain->Stop();
+      mDrivetrain->Stop();
     },
+<<<<<<< HEAD
     {m_Drivetrain}));
 
   // Schedule `ExampleMethodCommand` when the Xbox controller's B button is
@@ -90,9 +112,12 @@ void RobotContainer::ConfigureBindings() {
 
   m_XboxController.LeftBumper().WhileTrue(DriftL(m_Drivetrain).ToPtr());
   m_XboxController.RightBumper().WhileTrue(DriftR(m_Drivetrain).ToPtr());
+=======
+    {mDrivetrain}));
+>>>>>>> fc0c6ed111b17d4e621f6d159f8195a26afc2d1d
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
   // An example command will be run in autonomous
-  return autos::ExampleAuto(&m_subsystem);
+  return frc2::cmd::Print("There is no autonomous command configured");
 }
