@@ -64,6 +64,10 @@ void RobotContainer::ConfigureBindings() {
         double targetSpeed = m_XboxController.GetLeftY();
         double targetRotation = m_XboxController.GetRightX();
 
+        std::cout << "Left Y : " << targetSpeed << std::endl;
+        std::cout << "Right X : " << targetRotation << std::endl;
+                
+
         m_currentSpeed += (targetSpeed - m_currentSpeed) * DriveConstants::kSmooth;
         m_currentRotation += (targetRotation - m_currentRotation) * DriveConstants::kSmooth;
 
@@ -83,6 +87,9 @@ void RobotContainer::ConfigureBindings() {
   // Schedule `ExampleMethodCommand` when the Xbox controller's B button is
   // pressed, cancelling on release.
   m_XboxController.B().WhileTrue(m_subsystem.ExampleMethodCommand());
+
+  m_XboxController.LeftBumper().WhileTrue(DriftL(m_Drivetrain).ToPtr());
+  m_XboxController.RightBumper().WhileTrue(DriftR(m_Drivetrain).ToPtr());
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {

@@ -23,7 +23,7 @@ void SubLEDs::Periodic()
 {
 	for (unsigned int i = 0; i < m_ledBuffer.size(); i++)
 	{
-		std::cout << "LED no " << i << " : r = " << (int)m_ledBuffer[i].r << " g = " << (int)m_ledBuffer[i].g << " b = " << (int)m_ledBuffer[i].b << "\n";
+		// std::cout << "LED no " << i << " : r = " << (int)m_ledBuffer[i].r << " g = " << (int)m_ledBuffer[i].g << " b = " << (int)m_ledBuffer[i].b << "\n";
 	}
 	m_led.SetData(m_ledBuffer);
 }

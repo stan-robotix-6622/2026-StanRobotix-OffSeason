@@ -49,20 +49,11 @@ namespace PIDConstants
 
 namespace DriveConstants
 {
-<<<<<<< HEAD
-<<<<<<< HEAD
-  constexpr double kSpeed = 0.15;
-  constexpr double kRotationRate = 0.1;
-=======
-  constexpr double kSpeed = 0.55;
-  constexpr double kRotationRate = 0.6;
+
+  constexpr double kSpeed = 0.50;
+  constexpr double kRotationRate = 0.55;
   constexpr double kSmooth = 0.2;
->>>>>>> 3fa98dcb3c18c2ff0ca7f253b2c4af89ed8e7b64
-=======
-  constexpr double kSpeed = 0.55;
-  constexpr double kRotationRate = 0.6;
-  constexpr double kSmooth = 0.2;
->>>>>>> 3fa98dcb3c18c2ff0ca7f253b2c4af89ed8e7b64
+	constexpr double kSpeedMin = 0.5;
 
 }
 

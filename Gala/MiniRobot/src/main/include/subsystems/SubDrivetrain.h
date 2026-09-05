@@ -36,6 +36,4 @@ class SubDrivetrain : public frc2::SubsystemBase {
   rev::spark::SparkMax* mLeftMotorController;
   rev::spark::SparkMax* mRightMotorController;
   frc::DifferentialDrive* mDifferentialDrive;
-  
-
 };
