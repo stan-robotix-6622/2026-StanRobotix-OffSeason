@@ -17,7 +17,10 @@ void DriftL::Initialize() {}
 // Called repeatedly when this Command is scheduled to run
 void DriftL::Execute() 
 {
-  mDrivetrain->DriveRobot(mSpeed(), -0.03);
+	for (float i = 0; i < 0.1; i+= 0.01)
+	{
+		mDrivetrain->DriveRobot(mSpeed(), -i);
+	}
 }
 
 // Called once the command ends or is interrupted.

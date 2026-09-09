@@ -8,6 +8,7 @@
 #include <frc2/command/button/CommandXboxController.h>
 #include <frc2/command/button/JoystickButton.h>
 #include <frc/Joystick.h>
+#include <frc2/command/SequentialCommandGroup.h>
 
 #include "Constants.h"
 #include "subsystems/SubDrivetrain.h"

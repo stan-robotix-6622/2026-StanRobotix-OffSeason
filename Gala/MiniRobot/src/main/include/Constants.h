@@ -62,6 +62,8 @@ namespace LEDsConstants
 
 namespace CanIDConstants
 {
-  constexpr int kLeftCanID = 14; // to determine
-  constexpr int kRightCanID = 12; // to determine
+  constexpr int kLeftCanID = 14; 
+  constexpr int kRightCanID = 12;
+	constexpr int kIMUCanID = 1; //to determine
+
 }
