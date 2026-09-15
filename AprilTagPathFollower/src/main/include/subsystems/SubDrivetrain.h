@@ -59,12 +59,6 @@ class SubDrivetrain : public frc2::SubsystemBase {
 	void resetIMU(units::degree_t iAngle);
 	IMU* getIMU();
 
-	static frc::Pose2d standardizePose(frc::Pose2d iPose);
-	frc::Pose2d getClosestPoseAtDistanceFromHub(units::meter_t iDesiredDistance);
-	frc2::CommandPtr getGoToDistanceFromHubCommand(units::meter_t iDesiredDistance);
-	bool isTowardsHub();
-	bool isInAllianceZone();
-
  private:
 	frc::Translation2d* mFrontLeftLocation;
 	frc::Translation2d* mFrontRightLocation;

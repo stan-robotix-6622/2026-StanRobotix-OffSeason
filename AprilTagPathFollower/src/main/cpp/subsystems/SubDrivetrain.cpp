@@ -71,8 +71,6 @@ SubDrivetrain::SubDrivetrain()
 void SubDrivetrain::Periodic()
 {
 	refreshSwerveModules();
-	frc::SmartDashboard::PutBoolean("drivetrain/isTowardsHub", isTowardsHub());
-	frc::SmartDashboard::PutBoolean("drivetrain/isInAllianceZone", isInAllianceZone());
 	mCurrentRotation2d = mIMU->getRotation2d();
 	mPoseEstimator->Update(mCurrentRotation2d, getSwerveModulePositions());
 	mField2d->SetRobotPose(getPose());
@@ -87,8 +85,6 @@ void SubDrivetrain::Periodic()
 	mCurrentModuleStatesPublisher.Set(getSwerveModuleStates());
 	mRotation2dPublisher.Set(mCurrentRotation2d.Degrees());
 	mCurrentPose2dPublisher.Set(mPoseEstimator->GetEstimatedPosition());
-	mTranslationToHubPublisher.Set(getPose().Translation() + getTranslationToHub());
-	mRotationToHubPublisher.Set(getTranslationToHub().Angle());
 }
 
 void SubDrivetrain::switchDriveType()
@@ -278,97 +274,6 @@ frc2::CommandPtr SubDrivetrain::getFollowPathCommand(std::string iPathName)
 	auto wPath = pathplanner::PathPlannerPath::fromPathFile(iPathName);
 
 	return pathplanner::AutoBuilder::followPath(wPath);
-}
-
-frc::Pose2d SubDrivetrain::standardizePose(frc::Pose2d iPose)
-{
-	// mAlliance is of type std::optional<frc::DriverStation::Alliance>
-	auto mAlliance = frc::DriverStation::GetAlliance();
-	if (mAlliance && mAlliance.value() == frc::DriverStation::kRed) {
-		return iPose.RotateAround(FieldConstants::kFieldCenterTranslation2d, 180_deg);
-	}
-	return iPose;
-}
-
-frc::Translation2d SubDrivetrain::getTranslationToHub()
-{
-	// mAlliance is of type std::optional<frc::DriverStation::Alliance>
-	auto mAlliance = frc::DriverStation::GetAlliance();
-	if (mAlliance && mAlliance.value() == frc::DriverStation::kRed) {
-		return standardizePose(getPose()).Translation() - FieldConstants::kHubCenterTranslation2d;
-	}
-	return FieldConstants::kHubCenterTranslation2d - standardizePose(getPose()).Translation();
-}
-
-frc::Pose2d SubDrivetrain::getClosestPoseAtDistanceFromHub(units::meter_t iHubtoRobotDistance)
-{
-	frc::Translation2d wRobotToHubTranslation = getTranslationToHub();
-
-	if (!isInAllianceZone()) {
-		return mPoseEstimator->GetEstimatedPosition();
-	}
-
-	frc::Translation2d wRobotToTargetTranslation = frc::Translation2d{
-		wRobotToHubTranslation.Norm() - iHubtoRobotDistance,
-		wRobotToHubTranslation.Angle()};
-
-	frc::Translation2d wOriginToTargetTranslation = getPose().Translation() + wRobotToTargetTranslation;
-	frc::Pose2d oOriginToTargetPose = frc::Pose2d{wOriginToTargetTranslation, wRobotToHubTranslation.Angle()};
-	mTargetPose2dPublisher.Set(oOriginToTargetPose);
-	return oOriginToTargetPose;
-}
-
-frc2::CommandPtr SubDrivetrain::getGoToDistanceFromHubCommand(units::meter_t iHubtoRobotDistance)
-{
-	frc::Pose2d wDesiredPose = getClosestPoseAtDistanceFromHub(iHubtoRobotDistance);
-
-	std::vector<frc::Pose2d> wPoses{
-		mPoseEstimator->GetEstimatedPosition(),
-		wDesiredPose};
-	std::vector<pathplanner::Waypoint> wWaypoints = pathplanner::PathPlannerPath::waypointsFromPoses(wPoses);
-
-	pathplanner::PathConstraints wConstraints{
-		PathPlannerConstants::kMaxVelocity,
-		PathPlannerConstants::kMaxAcceleration,
-		PathPlannerConstants::kMaxAngularVelocity,
-		PathPlannerConstants::kMaxAngularAcceleration};
-
-	// wDistanceFromHubPath is of type std::shared_ptr<pathplanner::PathPlannerPath>
-	auto wDistanceFromHubPath = std::make_shared<pathplanner::PathPlannerPath>(
-			wWaypoints,
-			wConstraints,
-			std::nullopt,                                               // The ideal starting state, this is only relevant for pre-planned paths, so can be nullopt for on-the-fly paths.
-			pathplanner::GoalEndState(0.0_mps, wDesiredPose.Rotation()) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
-	);
-
-	// The path is already different depending on the Alliance color
-	wDistanceFromHubPath->preventFlipping = true;
-
-	frc2::CommandPtr wGoToPoseCommand = pathplanner::AutoBuilder::followPath(wDistanceFromHubPath);
-
-	return wGoToPoseCommand;
-}
-
-bool SubDrivetrain::isTowardsHub()
-{
-	frc::Translation2d wRobotToHubTranslation = getTranslationToHub();
-	frc::Rotation2d wRobotAngle = getPose().Rotation();
-
-	return units::math::abs((wRobotAngle - wRobotToHubTranslation.Angle()).Degrees()) < 5_deg / (wRobotToHubTranslation.Norm()).value();
-};
-
-bool SubDrivetrain::isInAllianceZone()
-{
-	frc::Translation2d wRobotToHubTranslation = getTranslationToHub();
-	// mAlliance is of type std::optional<frc::DriverStation::Alliance>
-	auto mAlliance = frc::DriverStation::GetAlliance();
-	if (mAlliance) {
-		if ((mAlliance == frc::DriverStation::kBlue && wRobotToHubTranslation.X() < 0_m) || (mAlliance == frc::DriverStation::kRed && wRobotToHubTranslation.X() > 0_m)) {
-			return false;
-		}
-		return true;
-	}
-	return false;
 }
 
 void SubDrivetrain::InitSendable(wpi::SendableBuilder& builder)
