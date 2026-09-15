@@ -19,6 +19,8 @@
 #include <units/length.h>
 #include <units/velocity.h>
 #include <units/voltage.h>
+#include <units/mass.h>
+#include <units/moment_of_inertia.h>
 
 #include "RobotixLib.hpp"
 
@@ -62,6 +64,8 @@ namespace OperatorConstants
 	} // namespace Axis
 } // namespace OperatorConstants
 
+
+
 namespace PathPlannerConstants
 {
 	inline constexpr double kPTranslation = 5.0;
@@ -76,6 +80,25 @@ namespace PathPlannerConstants
 	inline constexpr units::degrees_per_second_t kMaxAngularVelocity = 36.0_deg_per_s;
 	inline constexpr units::degrees_per_second_squared_t kMaxAngularAcceleration = 72.0_deg_per_s_sq;
 } // namespace PathPlannerConstants
+
+namespace ChassisConstants
+{
+	// Left-Right
+	inline constexpr units::meter_t kRobotWidth = 28_in;
+	// Front-Back
+	inline constexpr units::meter_t kRobotLength = 26.875_in;
+	// In both directions
+	inline constexpr units::meter_t kModuleCornerOffset = 1.75_in;
+
+	// We take for granted a rectangular frame
+	inline constexpr frc::Translation2d kFrontLeftTranslation = frc::Translation2d{(kRobotLength / 2 - kModuleCornerOffset), (kRobotWidth / 2 - kModuleCornerOffset)};
+	inline constexpr frc::Translation2d kFrontRightTranslation = frc::Translation2d{(kRobotLength / 2 - kModuleCornerOffset), -(kRobotWidth / 2 - kModuleCornerOffset)};
+	inline constexpr frc::Translation2d kBackLeftTranslation = frc::Translation2d{-(kRobotLength / 2 - kModuleCornerOffset), (kRobotWidth / 2 - kModuleCornerOffset)};
+	inline constexpr frc::Translation2d kBackRightTranslation = frc::Translation2d{-(kRobotLength / 2 - kModuleCornerOffset), -(kRobotWidth / 2 - kModuleCornerOffset)};
+
+	inline constexpr units::kilogram_t kRobotMass = 60_kg;
+	inline constexpr units::kilogram_square_meter_t kRobotMOI = 6_kg_sq_m;
+}
 
 namespace ModuleConstants
 {
@@ -136,19 +159,6 @@ namespace ModuleConstants
 
 namespace DrivetrainConstants
 {
-	// Left-Right
-	inline constexpr units::meter_t kRobotWidth = 28_in;
-	// Front-Back
-	inline constexpr units::meter_t kRobotLength = 26.875_in;
-	// In both directions
-	inline constexpr units::meter_t kModuleCornerOffset = 1.75_in;
-
-	// We take for granted a rectangular frame
-	inline constexpr frc::Translation2d kFrontLeftTranslation = frc::Translation2d{(kRobotLength / 2 - kModuleCornerOffset), (kRobotWidth / 2 - kModuleCornerOffset)};
-	inline constexpr frc::Translation2d kFrontRightTranslation = frc::Translation2d{(kRobotLength / 2 - kModuleCornerOffset), -(kRobotWidth / 2 - kModuleCornerOffset)};
-	inline constexpr frc::Translation2d kBackLeftTranslation = frc::Translation2d{-(kRobotLength / 2 - kModuleCornerOffset), (kRobotWidth / 2 - kModuleCornerOffset)};
-	inline constexpr frc::Translation2d kBackRightTranslation = frc::Translation2d{-(kRobotLength / 2 - kModuleCornerOffset), -(kRobotWidth / 2 - kModuleCornerOffset)};
-
 	inline constexpr units::meters_per_second_t kAttainableSpeed = 4.50_mps;
 	inline constexpr units::meters_per_second_t kMaxDesiredSpeed = 4.50_mps;
 	inline constexpr units::radians_per_second_t kMaxDesiredAngularSpeed = std::numbers::pi * 3_rad_per_s;
