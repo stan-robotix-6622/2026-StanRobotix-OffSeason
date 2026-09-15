@@ -6,7 +6,21 @@
 
 #include <frc2/command/Commands.h>
 
-RobotContainer::RobotContainer() {
+#include "Constants.h"
+
+RobotContainer::RobotContainer()
+{
+  mDriverController = new frc2::CommandXboxController{OperatorConstants::kDriverControllerPort};
+
+  mDrivetrain = new SubDrivetrain{};
+
+  mDrivetrain->SetDefaultCommand(mDrivetrain->getDriveCommand(
+    [this] {return mDriverController->GetLeftX();},
+    [this] {return mDriverController->GetLeftY();},
+    [this] {return mDriverController->GetRightX();},
+    [this] {return 1 - mDriverController->GetRightTriggerAxis();},
+    true));
+
   ConfigureBindings();
 }
 

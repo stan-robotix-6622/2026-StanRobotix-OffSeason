@@ -169,6 +169,43 @@ wpi::array<frc::SwerveModulePosition, 4> SubDrivetrain::getSwerveModulePositions
 	                                                mBackRightModule->getModulePosition()};
 }
 
+frc2::CommandPtr SubDrivetrain::getDriveCommand(std::function<double()> iXSupplier,
+																								std::function<double()> iYSupplier,
+																								std::function<double()> i0Supplier,
+																	 							std::function<double()> iSpeedModulationSupplier,
+																								bool iFieldRelative)
+{
+	return this->Run([this, iXSupplier, iYSupplier, i0Supplier, iSpeedModulationSupplier, iFieldRelative] {
+	if (iFieldRelative) {
+		if (frc::DriverStation::GetAlliance().value() == frc::DriverStation::Alliance::kBlue) {
+			mDesiredChassisSpeeds = frc::ChassisSpeeds::FromFieldRelativeSpeeds(iSpeedModulationSupplier() * DrivetrainConstants::kMaxDesiredSpeed * iXSupplier(),
+			                                                                    iSpeedModulationSupplier() * DrivetrainConstants::kMaxDesiredSpeed * iYSupplier(),
+			                                                                    iSpeedModulationSupplier() * DrivetrainConstants::kMaxDesiredAngularSpeed * i0Supplier(),
+			                                                                    getPose().Rotation());
+		}
+		else {
+			mDesiredChassisSpeeds = frc::ChassisSpeeds::FromFieldRelativeSpeeds(iSpeedModulationSupplier() * DrivetrainConstants::kMaxDesiredSpeed * -iXSupplier(),
+			                                                                    iSpeedModulationSupplier() * DrivetrainConstants::kMaxDesiredSpeed * -iYSupplier(),
+			                                                                    iSpeedModulationSupplier() * DrivetrainConstants::kMaxDesiredAngularSpeed * i0Supplier(),
+			                                                                    getPose().Rotation());
+		}
+	}
+	else {
+		mDesiredChassisSpeeds = frc::ChassisSpeeds::FromFieldRelativeSpeeds(iSpeedModulationSupplier() * DrivetrainConstants::kMaxDesiredSpeed * iXSupplier(),
+		                                                                    iSpeedModulationSupplier() * DrivetrainConstants::kMaxDesiredSpeed * iYSupplier(),
+		                                                                    iSpeedModulationSupplier() * DrivetrainConstants::kMaxDesiredAngularSpeed * i0Supplier(),
+		                                                                    0_rad);
+	}
+
+	mDesiredSwerveStates = mKinematics->ToSwerveModuleStates(mDesiredChassisSpeeds); // The array has in order: fl, fr, bl, br
+	mKinematics->DesaturateWheelSpeeds(&mDesiredSwerveStates, DrivetrainConstants::kAttainableSpeed);
+
+	mDesiredChassisSpeedsPublisher.Set(mDesiredChassisSpeeds);
+	mDesiredModuleStatesPublisher.Set(mDesiredSwerveStates);
+
+	setSwerveModuleStates(mDesiredSwerveStates);});
+}
+
 void SubDrivetrain::driveFieldRelative(float iX, float iY, float i0, double iSpeedModulation)
 {
 	if (mFieldRelative) {
