@@ -7,6 +7,7 @@
 #include <frc/geometry/Rotation2d.h>
 #include <frc/kinematics/SwerveModulePosition.h>
 #include <frc/kinematics/SwerveModuleState.h>
+#include <frc/simulation/FlywheelSim.h>
 #include <frc/system/plant/DCMotor.h>
 #include <rev/sim/SparkMaxSim.h>
 #include <rev/SparkAbsoluteEncoder.h>
@@ -35,8 +36,8 @@ class SwerveModule : public wpi::Sendable {
 	void setDesiredState(frc::SwerveModuleState iDesiredState);
 	void setDesiredHeading(frc::Rotation2d iDesiredHeading);
 
-	void setTurningVoltage(units::volt_t iVoltage);
 	void setDrivingVoltage(units::volt_t iVoltage);
+	void setTurningVoltage(units::volt_t iVoltage);
 
 	void seedEncoder();
 	void refreshModule();
@@ -57,6 +58,9 @@ class SwerveModule : public wpi::Sendable {
 	frc::DCMotor* mTurningGearBox;
 	rev::spark::SparkMaxSim* mDrivingMotorSim;
 	rev::spark::SparkMaxSim* mTurningMotorSim;
+
+	frc::sim::FlywheelSim* mDrivingFlywheelSim;
+	frc::sim::FlywheelSim* mTurningFlywheelSim;
 
 	frc::Rotation2d mTurningCurrentAngle;
 

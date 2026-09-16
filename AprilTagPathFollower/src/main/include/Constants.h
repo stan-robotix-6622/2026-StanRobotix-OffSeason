@@ -98,11 +98,12 @@ namespace ChassisConstants
 
 	inline constexpr units::kilogram_t kRobotMass = 60_kg;
 	inline constexpr units::kilogram_square_meter_t kRobotMOI = 6_kg_sq_m;
+	inline constexpr units::kilogram_square_meter_t kModuleMOI = 0.0003917128_kg_sq_m; // 1.33855 lb*in^2
 }
 
 namespace ModuleConstants
 {
-	inline constexpr double kDrivingMotorGearRatio = 4.71;                                 // 4.71 rotations of the motor for 1 rotation of the ouput
+	inline constexpr double kDrivingGearRatio = 4.71;                                      // 4.71 rotations of the motor for 1 rotation of the ouput
 	inline constexpr double kTurningGearRatio = 9424 / 203;                                // 9424 rotations of the motor for 203 rotations of the output
 	inline constexpr units::volt_t kNominalVoltage = 12_V;                                 // The voltage at which the max speeds are mesured
 	inline constexpr units::meter_t kWheelRadius = 1.341628_in;                            // The radius of REV's plastic wheels, masured with the wheelCaracterizationCommand
@@ -110,7 +111,7 @@ namespace ModuleConstants
 	inline constexpr units::radians_per_second_t kTurningWheelFreeSpeedRadps = 24.260_rad_per_s;
 	inline constexpr units::meters_per_second_t kDriveWheelMaxFreeSpeed = 4.9180_mps;
 
-	inline constexpr double kDrivingFactor = ModuleConstants::kWheelPerimeter.value() / kDrivingMotorGearRatio;
+	inline constexpr double kDrivingFactor = ModuleConstants::kWheelPerimeter.value() / kDrivingGearRatio;
 	inline constexpr double kTurningFactor = 2 * std::numbers::pi;
 
 	inline constexpr rev::spark::SparkLowLevel::ControlType kDrivingClosedLoopControlType = rev::spark::SparkLowLevel::ControlType::kVelocity;
