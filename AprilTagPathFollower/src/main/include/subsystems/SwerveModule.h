@@ -5,6 +5,8 @@
 #pragma once
 
 #include <frc/geometry/Rotation2d.h>
+#include <frc/controller/PIDController.h>
+#include <frc/controller/SimpleMotorFeedforward.h>
 #include <frc/kinematics/SwerveModulePosition.h>
 #include <frc/kinematics/SwerveModuleState.h>
 #include <frc/simulation/FlywheelSim.h>
@@ -61,6 +63,11 @@ class SwerveModule : public wpi::Sendable {
 
 	frc::sim::FlywheelSim* mDrivingFlywheelSim;
 	frc::sim::FlywheelSim* mTurningFlywheelSim;
+
+	frc::SimpleMotorFeedforward<units::meters>* mDrivingFeedforward;
+	frc::SimpleMotorFeedforward<units::radians>* mTurningFeedforward;
+	frc::PIDController* mDrivingPID;
+	frc::PIDController* mTurningPID;
 
 	frc::Rotation2d mTurningCurrentAngle;
 

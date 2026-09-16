@@ -32,6 +32,12 @@ SwerveModule::SwerveModule(int iDrivingMotorID, int iTurningMotorID, bool iDrivi
 	                         ModuleConstants::kTurningResetMode,
 	                         ModuleConstants::kTurningPersistMode);
 
+	mDrivingFeedforward = new frc::SimpleMotorFeedforward<units::meters>{0_V, 12_V / ModuleConstants::kDriveWheelMaxFreeSpeed};
+	mTurningFeedforward = new frc::SimpleMotorFeedforward<units::radians>{0_V, 12_V / ModuleConstants::kTurningWheelFreeSpeedRadps};
+	mDrivingPID = new frc::PIDController{ModuleConstants::kDrivingP, ModuleConstants::kDrivingI, ModuleConstants::kDrivingD};
+	mTurningPID = new frc::PIDController{ModuleConstants::kTurningP, ModuleConstants::kTurningI, ModuleConstants::kTurningD};
+	mTurningPID->EnableContinuousInput(ModuleConstants::Config::kTurningClosedLoopMinInput, ModuleConstants::Config::kTurningClosedLoopMaxInput);
+
 	// Initialization of the motors' ClosedLoopController
 	mDrivingClosedLoopController = new rev::spark::SparkClosedLoopController{mDrivingMotor->GetClosedLoopController()};
 	mTurningClosedLoopController = new rev::spark::SparkClosedLoopController{mTurningMotor->GetClosedLoopController()};
@@ -55,11 +61,19 @@ void SwerveModule::setDesiredState(frc::SwerveModuleState iDesiredState)
 	mTurningClosedLoopController->SetSetpoint(mOptimizedState.angle.Radians().value(), ModuleConstants::kTurningClosedLoopControlType);
 
 	if (frc::RobotBase::IsSimulation()) {
-		mDrivingFlywheelSim->SetInputVoltage(units::volt_t(mDrivingMotor->GetBusVoltage()));
-		mTurningFlywheelSim->SetInputVoltage(units::volt_t(mTurningMotor->GetBusVoltage()));
-		mDrivingFlywheelSim->Update(0.02_s);
+		mDrivingPID->SetSetpoint(mOptimizedState.speed.value());
+		mTurningPID->SetSetpoint(mOptimizedState.angle.Radians().value());
+		frc::SmartDashboard::PutNumber("drivetrain/swerve turning pid output", mTurningPID->Calculate(mTurningMotorSim->GetVelocity()));
+		// mDrivingFlywheelSim->SetInputVoltage(units::volt_t(
+		//   mDrivingFeedforward->Calculate(units::meters_per_second_t(mTurningMotorSim->GetVelocity()), units::meters_per_second_t(mDrivingPID->Calculate(mDrivingMotorSim->GetVelocity())))
+		// ));
+		mTurningFlywheelSim->SetInputVoltage(units::volt_t(
+				mTurningFeedforward->Calculate(units::radians_per_second_t(mDrivingMotorSim->GetVelocity()), units::radians_per_second_t(mTurningPID->Calculate(mTurningMotorSim->GetVelocity())))
+		));
+		frc::SmartDashboard::PutNumber("drivetrain/swerve module turning voltage", mTurningFeedforward->Calculate(units::radians_per_second_t(mDrivingMotorSim->GetVelocity()), units::radians_per_second_t(mTurningPID->Calculate(mTurningMotorSim->GetVelocity()))).value());
+		// mDrivingFlywheelSim->Update(0.02_s);
 		mTurningFlywheelSim->Update(0.02_s);
-		mDrivingMotorSim->iterate(mDrivingFlywheelSim->GetAngularVelocity().value(), 12, 0.02);
+		// mDrivingMotorSim->iterate(mDrivingFlywheelSim->GetAngularVelocity().value(), 12, 0.02);
 		mTurningMotorSim->iterate(mTurningFlywheelSim->GetAngularVelocity().value(), 12, 0.02);
 	}
 }

@@ -5,6 +5,7 @@
 #include "RobotContainer.h"
 
 #include <frc2/command/Commands.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 
 #include "Constants.h"
 
@@ -13,6 +14,8 @@ RobotContainer::RobotContainer()
   mDriverController = new frc2::CommandXboxController{OperatorConstants::kDriverControllerPort};
 
   mDrivetrain = new SubDrivetrain{};
+
+  frc::SmartDashboard::PutData(mDrivetrain);
 
   mDrivetrain->SetDefaultCommand(mDrivetrain->getDriveCommand(
     [this] {return mDriverController->GetLeftX();},
