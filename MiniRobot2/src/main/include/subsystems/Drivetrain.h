@@ -4,21 +4,46 @@
 
 #pragma once
 
+#include <frc2/command/Commands.h>
 #include <frc2/command/SubsystemBase.h>
-#include <ctre/phoenix6/TalonFX.hpp>
+
+#include <functional>
+
+#include "Telemetry.h"
+
+#include "subsystems/CommandSwerveDrivetrain.h"
 
 class Drivetrain : public frc2::SubsystemBase {
  public:
   Drivetrain();
 
-  /**
-   * Will be called periodically whenever the CommandScheduler runs.
-   */
-  void Periodic() override;
+  frc2::CommandPtr driveFieldRelativeCommand(std::function<double()> iX, std::function<double()> iY, std::function<double()> i0, std::function<double()> iSpeedModulation);
+
+	void SeedFieldCentric();
+
+	frc2::CommandPtr SysIdDynamic(frc2::sysid::Direction iDirection);
+	frc2::CommandPtr SysIdQuasistatic(frc2::sysid::Direction iDirection);
+
+	/**
+	 * Will be called periodically whenever the CommandScheduler runs.
+	 */
+	void Periodic() override;
 
  private:
- ctre::phoenix6::hardware::TalonFX *mLeftMotorController;
- ctre::phoenix6::hardware::TalonFX *mRightMotorController;
+  units::meters_per_second_t MaxSpeed = 0.3 * TunerConstants::kSpeedAt12Volts; // kSpeedAt12Volts desired top speed
+	units::radians_per_second_t MaxAngularRate = 0.5_tps;                        // 3/4 of a rotation per second max angular velocity
+
+	/* Setting up bindings for necessary control of the swerve drive platform */
+	swerve::requests::FieldCentric drive = swerve::requests::FieldCentric{}
+	                                           .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage); // Use open-loop control for drive motors
+	swerve::requests::SwerveDriveBrake brake{};
+	swerve::requests::PointWheelsAt point{};
+
+	/* Note: This must be constructed before the drivetrain, otherwise we need to
+	 *       define a destructor to un-register the telemetry from the drivetrain */
+	Telemetry logger{MaxSpeed};
+
+	subsystems::CommandSwerveDrivetrain* mCommandSwerveDrivetrain;
   // Components (e.g. motor controllers and sensors) should generally be
   // declared private and exposed only through public methods.
 };
