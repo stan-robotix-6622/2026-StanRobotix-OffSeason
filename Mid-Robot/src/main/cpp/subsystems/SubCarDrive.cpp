@@ -5,104 +5,94 @@
 #include "Constants.h"
 
 SubCarDrive::SubCarDrive() {
-  mFrontLeftDrive = new ctre::phoenix6::hardware::TalonFX{CANid::kFrontLeftDrive};
-  mFrontLeftSteer = new ctre::phoenix6::hardware::TalonFX{CANid::kFrontLeftSteer};
-  mFrontLeftCANcoder = new ctre::phoenix6::hardware::CANcoder{CANid::kFrontLeftCANcoder};
+  mFLDrive = new ctre::phoenix6::hardware::TalonFX{CANid::kFLDrive};
+  mFLSteer = new ctre::phoenix6::hardware::TalonFX{CANid::kFLSteer};
+  mFLEncoder = new ctre::phoenix6::hardware::CANcoder{CANid::kFLEncoder};
 
-  mFrontRightDrive = new ctre::phoenix6::hardware::TalonFX{CANid::kFrontRightDrive};
-  mFrontRightSteer = new ctre::phoenix6::hardware::TalonFX{CANid::kFrontRightSteer};
-  mFrontRightCANcoder = new ctre::phoenix6::hardware::CANcoder{CANid::kFrontRightCANcoder};
+  mFRDrive = new ctre::phoenix6::hardware::TalonFX{CANid::kFRDrive};
+  mFRSteer = new ctre::phoenix6::hardware::TalonFX{CANid::kFRSteer};
+  mFREncoder = new ctre::phoenix6::hardware::CANcoder{CANid::kFREncoder};
 
-  ctre::phoenix6::configs::CANcoderConfiguration wLeftCANcoderConfig{};
-  wLeftCANcoderConfig.MagnetSensor.MagnetOffset = CarDriveConstants::kFrontLeftMagnetOffset;
-  wLeftCANcoderConfig.MagnetSensor.SensorDirection = ctre::phoenix6::signals::SensorDirectionValue::CounterClockwise_Positive;
-  mFrontLeftCANcoder->GetConfigurator().Apply(wLeftCANcoderConfig);
+  ctre::phoenix6::configs::CANcoderConfiguration cancoderConfig{};
+  cancoderConfig.MagnetSensor.MagnetOffset = CarDriveConstants::kFLMagnetOffset;
+  cancoderConfig.MagnetSensor.SensorDirection = ctre::phoenix6::signals::SensorDirectionValue::CounterClockwise_Positive;
+  mFLEncoder->GetConfigurator().Apply(cancoderConfig);
 
-  ctre::phoenix6::configs::CANcoderConfiguration wRightCANcoderConfig{};
-  wRightCANcoderConfig.MagnetSensor.MagnetOffset = CarDriveConstants::kFrontRightMagnetOffset;
-  wRightCANcoderConfig.MagnetSensor.SensorDirection = ctre::phoenix6::signals::SensorDirectionValue::CounterClockwise_Positive;
-  mFrontRightCANcoder->GetConfigurator().Apply(wRightCANcoderConfig);
+  cancoderConfig.MagnetSensor.MagnetOffset = CarDriveConstants::kFRMagnetOffset;
+  mFREncoder->GetConfigurator().Apply(cancoderConfig);
 
-  ctre::phoenix6::configs::TalonFXConfiguration wLeftDriveConfig{};
-  wLeftDriveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-  wLeftDriveConfig.CurrentLimits.SupplyCurrentLimit = CarDriveConstants::kSupplyCurrentLimit;
-  wLeftDriveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-  wLeftDriveConfig.CurrentLimits.StatorCurrentLimit = CarDriveConstants::kStatorCurrentLimit;
-  wLeftDriveConfig.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake;
-  wLeftDriveConfig.MotorOutput.Inverted = CarDriveConstants::kFrontLeftDriveInverted
+  ctre::phoenix6::configs::TalonFXConfiguration driveConfig{};
+  driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+  driveConfig.CurrentLimits.SupplyCurrentLimit = CarDriveConstants::kSupplyCurrentLimit;
+  driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+  driveConfig.CurrentLimits.StatorCurrentLimit = CarDriveConstants::kStatorCurrentLimit;
+  driveConfig.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake;
+  driveConfig.MotorOutput.Inverted = CarDriveConstants::kFLDriveInverted
       ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
       : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
-  mFrontLeftDrive->GetConfigurator().Apply(wLeftDriveConfig);
+  mFLDrive->GetConfigurator().Apply(driveConfig);
 
-  ctre::phoenix6::configs::TalonFXConfiguration wRightDriveConfig{};
-  wRightDriveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-  wRightDriveConfig.CurrentLimits.SupplyCurrentLimit = CarDriveConstants::kSupplyCurrentLimit;
-  wRightDriveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-  wRightDriveConfig.CurrentLimits.StatorCurrentLimit = CarDriveConstants::kStatorCurrentLimit;
-  wRightDriveConfig.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake;
-  wRightDriveConfig.MotorOutput.Inverted = CarDriveConstants::kFrontRightDriveInverted
+  driveConfig.MotorOutput.Inverted = CarDriveConstants::kFRDriveInverted
       ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
       : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
-  mFrontRightDrive->GetConfigurator().Apply(wRightDriveConfig);
+  mFRDrive->GetConfigurator().Apply(driveConfig);
 
-  ctre::phoenix6::configs::TalonFXConfiguration wLeftSteerConfig{};
-  wLeftSteerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-  wLeftSteerConfig.CurrentLimits.SupplyCurrentLimit = CarDriveConstants::kSupplyCurrentLimit;
-  wLeftSteerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-  wLeftSteerConfig.CurrentLimits.StatorCurrentLimit = CarDriveConstants::kStatorCurrentLimit;
-  wLeftSteerConfig.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake;
-  wLeftSteerConfig.MotorOutput.Inverted = CarDriveConstants::kFrontLeftSteerInverted
+  ctre::phoenix6::configs::TalonFXConfiguration steerConfig{};
+  steerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+  steerConfig.CurrentLimits.SupplyCurrentLimit = CarDriveConstants::kSupplyCurrentLimit;
+  steerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+  steerConfig.CurrentLimits.StatorCurrentLimit = CarDriveConstants::kStatorCurrentLimit;
+  steerConfig.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake;
+  steerConfig.MotorOutput.Inverted = CarDriveConstants::kFLSteerInverted
       ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
       : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
-  wLeftSteerConfig.Feedback.FeedbackSensorSource = ctre::phoenix6::signals::FeedbackSensorSourceValue::RemoteCANcoder;
-  wLeftSteerConfig.Feedback.FeedbackRemoteSensorID = CANid::kFrontLeftCANcoder;
-  wLeftSteerConfig.Feedback.RotorToSensorRatio = CarDriveConstants::kSteerGearRatio;
-  wLeftSteerConfig.Feedback.SensorToMechanismRatio = 1.0;
-  wLeftSteerConfig.ClosedLoopGeneral.ContinuousWrap = true;
-  wLeftSteerConfig.Slot0.kP = CarDriveConstants::kSteerP;
-  wLeftSteerConfig.Slot0.kI = CarDriveConstants::kSteerI;
-  wLeftSteerConfig.Slot0.kD = CarDriveConstants::kSteerD;
-  mFrontLeftSteer->GetConfigurator().Apply(wLeftSteerConfig);
+  steerConfig.Feedback.FeedbackSensorSource = ctre::phoenix6::signals::FeedbackSensorSourceValue::RemoteCANcoder;
+  steerConfig.Feedback.FeedbackRemoteSensorID = CANid::kFLEncoder;
+  steerConfig.Feedback.RotorToSensorRatio = CarDriveConstants::kSteerGearRatio;
+  steerConfig.Feedback.SensorToMechanismRatio = 1.0;
+  steerConfig.ClosedLoopGeneral.ContinuousWrap = true;
+  steerConfig.Slot0.kP = CarDriveConstants::kSteerP;
+  steerConfig.Slot0.kI = CarDriveConstants::kSteerI;
+  steerConfig.Slot0.kD = CarDriveConstants::kSteerD;
+  mFLSteer->GetConfigurator().Apply(steerConfig);
 
-  ctre::phoenix6::configs::TalonFXConfiguration wRightSteerConfig = wLeftSteerConfig;
-  wRightSteerConfig.MotorOutput.Inverted = CarDriveConstants::kFrontRightSteerInverted
+  steerConfig.MotorOutput.Inverted = CarDriveConstants::kFRSteerInverted
       ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
       : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
-  wRightSteerConfig.Feedback.FeedbackRemoteSensorID = CANid::kFrontRightCANcoder;
-  mFrontRightSteer->GetConfigurator().Apply(wRightSteerConfig);
+  steerConfig.Feedback.FeedbackRemoteSensorID = CANid::kFREncoder;
+  mFRSteer->GetConfigurator().Apply(steerConfig);
 }
 
 SubCarDrive::~SubCarDrive() {
-  delete mFrontLeftDrive;
-  delete mFrontLeftSteer;
-  delete mFrontLeftCANcoder;
+  delete mFLDrive;
+  delete mFLSteer;
+  delete mFLEncoder;
 
-  delete mFrontRightDrive;
-  delete mFrontRightSteer;
-  delete mFrontRightCANcoder;
+  delete mFRDrive;
+  delete mFRSteer;
+  delete mFREncoder;
 }
 
 void SubCarDrive::Periodic() {}
 
 void SubCarDrive::drive(double iThrottle, double iBrake, double iSteer) {
-  double wClampedThrottle = std::clamp(iThrottle, 0.0, 1.0);
-  double wClampedBrake = std::clamp(iBrake, 0.0, 1.0);
-  double wNetThrottle = (wClampedThrottle * CarDriveConstants::kSpeedScale) * (1.0 - wClampedBrake);
-  if (wNetThrottle < 0.0) {
-    wNetThrottle = 0.0;
+  double throttle = std::clamp(iThrottle, 0.0, 1.0);
+  double brake = std::clamp(iBrake, 0.0, 1.0);
+  double speed = (throttle * CarDriveConstants::kSpeedScale) * (1.0 - brake);
+  if (speed < 0.0) {
+    speed = 0.0;
   }
 
-  units::angle::degree_t wSteerAngle = -std::clamp(iSteer, -1.0, 1.0) * CarDriveConstants::kMaxSteerAngle;
-  units::angle::turn_t wSteerTurns = wSteerAngle;
+  units::angle::turn_t steerAngle = -std::clamp(iSteer, -1.0, 1.0) * CarDriveConstants::kMaxSteerAngle;
 
-  mFrontLeftDrive->SetControl(mDriveDutyCycleControl.WithOutput(wNetThrottle));
-  mFrontRightDrive->SetControl(mDriveDutyCycleControl.WithOutput(wNetThrottle));
+  mFLDrive->SetControl(mDriveDutyCycleControl.WithOutput(speed));
+  mFRDrive->SetControl(mDriveDutyCycleControl.WithOutput(speed));
 
-  mFrontLeftSteer->SetControl(mSteerPositionControl.WithPosition(wSteerTurns));
-  mFrontRightSteer->SetControl(mSteerPositionControl.WithPosition(wSteerTurns));
+  mFLSteer->SetControl(mSteerPositionControl.WithPosition(steerAngle));
+  mFRSteer->SetControl(mSteerPositionControl.WithPosition(steerAngle));
 }
 
 void SubCarDrive::stop() {
-  mFrontLeftDrive->SetControl(mDriveDutyCycleControl.WithOutput(0.0));
-  mFrontRightDrive->SetControl(mDriveDutyCycleControl.WithOutput(0.0));
+  mFLDrive->SetControl(mDriveDutyCycleControl.WithOutput(0.0));
+  mFRDrive->SetControl(mDriveDutyCycleControl.WithOutput(0.0));
 }

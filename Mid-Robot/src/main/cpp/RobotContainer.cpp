@@ -9,10 +9,10 @@ RobotContainer::RobotContainer() {
 
 void RobotContainer::ConfigureBindings() {
   mCarDrive.SetDefaultCommand(mCarDrive.Run([this] {
-    double wThrottle = m_driverController.GetRightTriggerAxis();
-    double wBrake = m_driverController.GetLeftTriggerAxis();
-    double wSteer = frc::ApplyDeadband(m_driverController.GetRightX(), OperatorConstants::kJoystickDeadband);
-    mCarDrive.drive(wThrottle, wBrake, wSteer);
+    double throttle = m_driverController.GetRightTriggerAxis();
+    double brake = m_driverController.GetLeftTriggerAxis();
+    double steer = frc::ApplyDeadband(m_driverController.GetRightX(), OperatorConstants::kJoystickDeadband);
+    mCarDrive.drive(throttle, brake, steer);
   }));
 }
 

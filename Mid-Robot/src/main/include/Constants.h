@@ -12,13 +12,13 @@ inline constexpr double kJoystickDeadband = 0.05;
 
 namespace CANid {
 
-inline constexpr int kFrontLeftDrive = 15;
-inline constexpr int kFrontLeftSteer = 14;
-inline constexpr int kFrontLeftCANcoder = 3; // Pas encore branché, c'est a plug physiquement
+inline constexpr int kFLDrive = 15;
+inline constexpr int kFLSteer = 14;
+inline constexpr int kFLEncoder = 3; // Pas encore branché, c'est a plug physiquement
 
-inline constexpr int kFrontRightDrive = 17;
-inline constexpr int kFrontRightSteer = 16;
-inline constexpr int kFrontRightCANcoder = 6; // Pas encore branché, c'est a plug physiquement
+inline constexpr int kFRDrive = 17;
+inline constexpr int kFRSteer = 16;
+inline constexpr int kFREncoder = 6; // Pas encore branché, c'est a plug physiquement
 
 }  // namespace CANid
 
@@ -35,12 +35,12 @@ inline constexpr double kSteerP = 24.0;
 inline constexpr double kSteerI = 0.0;
 inline constexpr double kSteerD = 0.2;
 
-inline constexpr units::angle::turn_t kFrontLeftMagnetOffset{0.0};
-inline constexpr units::angle::turn_t kFrontRightMagnetOffset{0.0};
+inline constexpr units::angle::turn_t kFLMagnetOffset{0.0};
+inline constexpr units::angle::turn_t kFRMagnetOffset{0.0};
 
-inline constexpr bool kFrontLeftDriveInverted = false;
-inline constexpr bool kFrontRightDriveInverted = true;
-inline constexpr bool kFrontLeftSteerInverted = false;
-inline constexpr bool kFrontRightSteerInverted = false;
+inline constexpr bool kFLDriveInverted = false;
+inline constexpr bool kFRDriveInverted = true;
+inline constexpr bool kFLSteerInverted = false;
+inline constexpr bool kFRSteerInverted = false;
 
 }  // namespace CarDriveConstants
