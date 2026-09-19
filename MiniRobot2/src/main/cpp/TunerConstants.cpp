@@ -3,8 +3,9 @@
 // the WPILib BSD license file in the root directory of this project.
 
 #include "TunerConstants.h"
+#include "subsystems/CommandSwerveDrivetrain.h"
 
-TunerConstants::TunerConstants() = default;
-
-// This method will be called once per scheduler run
-void TunerConstants::Periodic() {}
+subsystems::CommandSwerveDrivetrain TunerConstants::CreateDrivetrain()
+{
+    return {DrivetrainConstants, FrontLeft, FrontRight, BackLeft, BackRight};
+}
