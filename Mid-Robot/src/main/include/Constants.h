@@ -12,13 +12,13 @@ inline constexpr double kJoystickDeadband = 0.05;
 
 namespace CANid {
 
-inline constexpr int kFrontLeftDrive = 1;
-inline constexpr int kFrontLeftSteer = 2;
-inline constexpr int kFrontLeftCANcoder = 3;
+inline constexpr int kFrontLeftDrive = 15;
+inline constexpr int kFrontLeftSteer = 14;
+inline constexpr int kFrontLeftCANcoder = 3; // Pas encore branché, c'est a plug physiquement
 
-inline constexpr int kFrontRightDrive = 4;
-inline constexpr int kFrontRightSteer = 5;
-inline constexpr int kFrontRightCANcoder = 6;
+inline constexpr int kFrontRightDrive = 17;
+inline constexpr int kFrontRightSteer = 16;
+inline constexpr int kFrontRightCANcoder = 6; // Pas encore branché, c'est a plug physiquement
 
 }  // namespace CANid
 
