@@ -14,6 +14,8 @@ void RobotContainer::ConfigureBindings() {
     double steer = frc::ApplyDeadband(m_driverController.GetRightX(), OperatorConstants::kJoystickDeadband);
     mCarDrive.drive(throttle, brake, steer);
   }));
+
+  m_driverController.A().WhileTrue(mCarDrive.getTestSteerCommand());
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
