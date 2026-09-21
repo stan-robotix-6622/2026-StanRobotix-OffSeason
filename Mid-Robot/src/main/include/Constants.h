@@ -31,11 +31,10 @@ inline constexpr double kSteerGearRatio = 150.0 / 7.0;
 inline constexpr units::current::ampere_t kSupplyCurrentLimit{40.0};
 inline constexpr units::current::ampere_t kStatorCurrentLimit{60.0};
 
-inline constexpr double kSteerP = 1.0;
+inline constexpr double kSteerP = 12.0;
 inline constexpr double kSteerI = 0.0;
-inline constexpr double kSteerD = 0.0;
+inline constexpr double kSteerD = 0.1;
 inline constexpr double kSteerS = 0.0;
-inline constexpr units::angle::degree_t kSteerTolerance{1.5};
 
 inline constexpr units::angle::turn_t kFLMagnetOffset{0.0};
 inline constexpr units::angle::turn_t kFRMagnetOffset{0.0};

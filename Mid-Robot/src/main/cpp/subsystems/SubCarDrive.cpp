@@ -6,7 +6,6 @@
 #include <units/angle.h>
 #include "Constants.h"
 #include "ctre/phoenix6/configs/Slot0Configs.hpp"
-#include "ctre/phoenix6/configs/ClosedLoopGeneralConfigs.hpp"
 #include "ctre/phoenix6/configs/MagnetSensorConfigs.hpp"
 #include "ctre/phoenix6/configs/MotorOutputConfigs.hpp"
 #include "ctre/phoenix6/configs/FeedbackConfigs.hpp"
@@ -24,7 +23,6 @@ SubCarDrive::SubCarDrive() {
   mI = CarDriveConstants::kSteerI;
   mD = CarDriveConstants::kSteerD;
   mS = CarDriveConstants::kSteerS;
-  mSteerTolerance = CarDriveConstants::kSteerTolerance;
 
   mFLMagnetOffset = CarDriveConstants::kFLMagnetOffset.value();
   mFRMagnetOffset = CarDriveConstants::kFRMagnetOffset.value();
@@ -71,13 +69,9 @@ SubCarDrive::SubCarDrive() {
   steerConfig.MotorOutput.Inverted = mFLSteerInverted
       ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
       : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
-  steerConfig.Feedback.FeedbackSensorSource = ctre::phoenix6::signals::FeedbackSensorSourceValue::RemoteCANcoder;
-  steerConfig.Feedback.FeedbackRemoteSensorID = CANid::kFLEncoder;
-  steerConfig.Feedback.RotorToSensorRatio = mSteerGearRatio;
-  steerConfig.Feedback.SensorToMechanismRatio = 1.0;
+  steerConfig.Feedback.FeedbackSensorSource = ctre::phoenix6::signals::FeedbackSensorSourceValue::RotorSensor;
+  steerConfig.Feedback.SensorToMechanismRatio = mSteerGearRatio;
   steerConfig.ClosedLoopGeneral.ContinuousWrap = true;
-  steerConfig.ClosedLoopGeneral.GainSchedErrorThreshold = mSteerTolerance;
-  steerConfig.Slot0.GainSchedBehavior = ctre::phoenix6::signals::GainSchedBehaviorValue::ZeroOutput;
   steerConfig.Slot0.kP = mP;
   steerConfig.Slot0.kI = mI;
   steerConfig.Slot0.kD = mD;
@@ -87,10 +81,9 @@ SubCarDrive::SubCarDrive() {
   steerConfig.MotorOutput.Inverted = mFRSteerInverted
       ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
       : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
-  steerConfig.Feedback.FeedbackRemoteSensorID = CANid::kFREncoder;
   mFRSteer->GetConfigurator().Apply(steerConfig);
 
-  mSteerPositionControl.OverrideBrakeDurNeutral = true;
+  syncSteerToCANcoder();
 
   initDashboard();
 }
@@ -123,10 +116,13 @@ void SubCarDrive::drive(double iThrottle, double iBrake, double iSteer) {
   }
 
   units::angle::degree_t steerAngle = -std::clamp(iSteer, -1.0, 1.0) * mMaxSteerAngle;
-  setSteerAngle(steerAngle);
+  mTargetSteerAngle = steerAngle;
 
   mFLDrive->SetControl(mDriveDutyCycleControl.WithOutput(speed));
   mFRDrive->SetControl(mDriveDutyCycleControl.WithOutput(speed));
+
+  mFLSteer->SetControl(mSteerPositionControl.WithPosition(steerAngle));
+  mFRSteer->SetControl(mSteerPositionControl.WithPosition(steerAngle));
 }
 
 void SubCarDrive::stop() {
@@ -141,45 +137,16 @@ void SubCarDrive::stopDrive() {
 void SubCarDrive::setSteerAngle(units::angle::degree_t iAngle) {
   units::angle::degree_t clampedAngle = std::clamp(iAngle, -mMaxSteerAngle, mMaxSteerAngle);
   mTargetSteerAngle = clampedAngle;
+  mFLSteer->SetControl(mSteerPositionControl.WithPosition(clampedAngle));
+  mFRSteer->SetControl(mSteerPositionControl.WithPosition(clampedAngle));
+}
 
-  double targetDeg = clampedAngle.value();
-  double flDeg = units::angle::degree_t{mFLSteer->GetPosition().GetValue()}.value();
-  double frDeg = units::angle::degree_t{mFRSteer->GetPosition().GetValue()}.value();
-  double flErr = std::abs(targetDeg - flDeg);
-  double frErr = std::abs(targetDeg - frDeg);
-  double tol = mSteerTolerance.value();
+void SubCarDrive::syncSteerToCANcoder() {
+  mFLEncoder->GetPosition().WaitForUpdate(250_ms);
+  mFREncoder->GetPosition().WaitForUpdate(250_ms);
 
-  if (mFLAtTarget) {
-    if (flErr > tol + 0.5) {
-      mFLAtTarget = false;
-    }
-  } else {
-    if (flErr <= tol) {
-      mFLAtTarget = true;
-    }
-  }
-
-  if (mFRAtTarget) {
-    if (frErr > tol + 0.5) {
-      mFRAtTarget = false;
-    }
-  } else {
-    if (frErr <= tol) {
-      mFRAtTarget = true;
-    }
-  }
-
-  if (mFLAtTarget) {
-    mFLSteer->SetControl(mSteerNeutralControl);
-  } else {
-    mFLSteer->SetControl(mSteerPositionControl.WithPosition(clampedAngle));
-  }
-
-  if (mFRAtTarget) {
-    mFRSteer->SetControl(mSteerNeutralControl);
-  } else {
-    mFRSteer->SetControl(mSteerPositionControl.WithPosition(clampedAngle));
-  }
+  mFLSteer->SetPosition(mFLEncoder->GetPosition().GetValue());
+  mFRSteer->SetPosition(mFREncoder->GetPosition().GetValue());
 }
 
 frc2::CommandPtr SubCarDrive::getTestSteerCommand() {
@@ -191,11 +158,11 @@ frc2::CommandPtr SubCarDrive::getTestSteerCommand() {
 }
 
 void SubCarDrive::initDashboard() {
+  frc::SmartDashboard::SetDefaultBoolean("Steer/SyncCANcoder", false);
   frc::SmartDashboard::SetDefaultNumber("Steer/kP", mP);
   frc::SmartDashboard::SetDefaultNumber("Steer/kI", mI);
   frc::SmartDashboard::SetDefaultNumber("Steer/kD", mD);
   frc::SmartDashboard::SetDefaultNumber("Steer/kS", mS);
-  frc::SmartDashboard::SetDefaultNumber("Steer/ToleranceDeg", mSteerTolerance.value());
 
   frc::SmartDashboard::SetDefaultNumber("Steer/FLMagnetOffset", mFLMagnetOffset);
   frc::SmartDashboard::SetDefaultNumber("Steer/FRMagnetOffset", mFRMagnetOffset);
@@ -228,7 +195,6 @@ void SubCarDrive::updateConfigsFromDashboard() {
     mS = newS;
 
     ctre::phoenix6::configs::Slot0Configs slot0Config{};
-    slot0Config.GainSchedBehavior = ctre::phoenix6::signals::GainSchedBehaviorValue::ZeroOutput;
     slot0Config.kP = mP;
     slot0Config.kI = mI;
     slot0Config.kD = mD;
@@ -247,6 +213,8 @@ void SubCarDrive::updateConfigsFromDashboard() {
     magConfig.MagnetOffset = units::angle::turn_t{mFLMagnetOffset};
     magConfig.SensorDirection = ctre::phoenix6::signals::SensorDirectionValue::CounterClockwise_Positive;
     mFLEncoder->GetConfigurator().Apply(magConfig);
+    mFLEncoder->GetPosition().WaitForUpdate(250_ms);
+    mFLSteer->SetPosition(mFLEncoder->GetPosition().GetValue());
 
     frc::SmartDashboard::PutNumber("Steer/FLMagnetOffset", mFLMagnetOffset);
     frc::SmartDashboard::PutBoolean("Steer/ZeroFL", false);
@@ -262,6 +230,8 @@ void SubCarDrive::updateConfigsFromDashboard() {
     magConfig.MagnetOffset = units::angle::turn_t{mFRMagnetOffset};
     magConfig.SensorDirection = ctre::phoenix6::signals::SensorDirectionValue::CounterClockwise_Positive;
     mFREncoder->GetConfigurator().Apply(magConfig);
+    mFREncoder->GetPosition().WaitForUpdate(250_ms);
+    mFRSteer->SetPosition(mFREncoder->GetPosition().GetValue());
 
     frc::SmartDashboard::PutNumber("Steer/FRMagnetOffset", mFRMagnetOffset);
     frc::SmartDashboard::PutBoolean("Steer/ZeroFR", false);
@@ -274,6 +244,8 @@ void SubCarDrive::updateConfigsFromDashboard() {
     magConfig.MagnetOffset = units::angle::turn_t{mFLMagnetOffset};
     magConfig.SensorDirection = ctre::phoenix6::signals::SensorDirectionValue::CounterClockwise_Positive;
     mFLEncoder->GetConfigurator().Apply(magConfig);
+    mFLEncoder->GetPosition().WaitForUpdate(250_ms);
+    mFLSteer->SetPosition(mFLEncoder->GetPosition().GetValue());
   }
 
   double newFRMagnetOffset = frc::SmartDashboard::GetNumber("Steer/FRMagnetOffset", mFRMagnetOffset);
@@ -283,6 +255,8 @@ void SubCarDrive::updateConfigsFromDashboard() {
     magConfig.MagnetOffset = units::angle::turn_t{mFRMagnetOffset};
     magConfig.SensorDirection = ctre::phoenix6::signals::SensorDirectionValue::CounterClockwise_Positive;
     mFREncoder->GetConfigurator().Apply(magConfig);
+    mFREncoder->GetPosition().WaitForUpdate(250_ms);
+    mFRSteer->SetPosition(mFREncoder->GetPosition().GetValue());
   }
 
   bool newFLDriveInverted = frc::SmartDashboard::GetBoolean("Drive/FLDriveInverted", mFLDriveInverted);
@@ -333,14 +307,16 @@ void SubCarDrive::updateConfigsFromDashboard() {
   if (std::abs(newGearRatio - mSteerGearRatio) > 1e-6) {
     mSteerGearRatio = newGearRatio;
     ctre::phoenix6::configs::FeedbackConfigs feedbackConfig{};
-    feedbackConfig.FeedbackSensorSource = ctre::phoenix6::signals::FeedbackSensorSourceValue::RemoteCANcoder;
-    feedbackConfig.FeedbackRemoteSensorID = CANid::kFLEncoder;
-    feedbackConfig.RotorToSensorRatio = mSteerGearRatio;
-    feedbackConfig.SensorToMechanismRatio = 1.0;
+    feedbackConfig.FeedbackSensorSource = ctre::phoenix6::signals::FeedbackSensorSourceValue::RotorSensor;
+    feedbackConfig.SensorToMechanismRatio = mSteerGearRatio;
     mFLSteer->GetConfigurator().Apply(feedbackConfig);
-
-    feedbackConfig.FeedbackRemoteSensorID = CANid::kFREncoder;
     mFRSteer->GetConfigurator().Apply(feedbackConfig);
+    syncSteerToCANcoder();
+  }
+
+  if (frc::SmartDashboard::GetBoolean("Steer/SyncCANcoder", false)) {
+    syncSteerToCANcoder();
+    frc::SmartDashboard::PutBoolean("Steer/SyncCANcoder", false);
   }
 
   double newMaxSteerAngleDeg = frc::SmartDashboard::GetNumber("Steer/MaxAngleDeg", mMaxSteerAngle.value());
@@ -351,16 +327,6 @@ void SubCarDrive::updateConfigsFromDashboard() {
   double newSpeedScale = frc::SmartDashboard::GetNumber("Drive/SpeedScale", mSpeedScale);
   if (std::abs(newSpeedScale - mSpeedScale) > 1e-6) {
     mSpeedScale = newSpeedScale;
-  }
-
-  double newToleranceDeg = frc::SmartDashboard::GetNumber("Steer/ToleranceDeg", mSteerTolerance.value());
-  if (std::abs(newToleranceDeg - mSteerTolerance.value()) > 1e-6) {
-    mSteerTolerance = units::angle::degree_t{newToleranceDeg};
-    ctre::phoenix6::configs::ClosedLoopGeneralConfigs generalConfig{};
-    generalConfig.ContinuousWrap = true;
-    generalConfig.GainSchedErrorThreshold = mSteerTolerance;
-    mFLSteer->GetConfigurator().Apply(generalConfig);
-    mFRSteer->GetConfigurator().Apply(generalConfig);
   }
 }
 
@@ -380,8 +346,6 @@ void SubCarDrive::updateTelemetry() {
   frc::SmartDashboard::PutNumber("Steer/FRAngleDeg", frDeg);
   frc::SmartDashboard::PutNumber("Steer/FLErrDeg", targetDeg - flDeg);
   frc::SmartDashboard::PutNumber("Steer/FRErrDeg", targetDeg - frDeg);
-  frc::SmartDashboard::PutBoolean("Steer/FLAtTarget", mFLAtTarget);
-  frc::SmartDashboard::PutBoolean("Steer/FRAtTarget", mFRAtTarget);
 
   frc::SmartDashboard::PutNumber("Steer/FLEncoderDeg", units::angle::degree_t{mFLEncoder->GetPosition().GetValue()}.value());
   frc::SmartDashboard::PutNumber("Steer/FREncoderDeg", units::angle::degree_t{mFREncoder->GetPosition().GetValue()}.value());

@@ -6,7 +6,6 @@
 #include <ctre/phoenix6/CANcoder.hpp>
 #include <ctre/phoenix6/controls/DutyCycleOut.hpp>
 #include <ctre/phoenix6/controls/PositionVoltage.hpp>
-#include <ctre/phoenix6/controls/NeutralOut.hpp>
 
 class SubCarDrive : public frc2::SubsystemBase {
  public:
@@ -25,6 +24,7 @@ class SubCarDrive : public frc2::SubsystemBase {
   void initDashboard();
   void updateConfigsFromDashboard();
   void updateTelemetry();
+  void syncSteerToCANcoder();
 
   ctre::phoenix6::hardware::TalonFX* mFLDrive;
   ctre::phoenix6::hardware::TalonFX* mFLSteer;
@@ -36,16 +36,11 @@ class SubCarDrive : public frc2::SubsystemBase {
 
   ctre::phoenix6::controls::DutyCycleOut mDriveDutyCycleControl{0.0};
   ctre::phoenix6::controls::PositionVoltage mSteerPositionControl{0_tr};
-  ctre::phoenix6::controls::NeutralOut mSteerNeutralControl{};
-
-  bool mFLAtTarget{false};
-  bool mFRAtTarget{false};
 
   double mP;
   double mI;
   double mD;
   double mS;
-  units::angle::degree_t mSteerTolerance;
 
   units::angle::degree_t mTargetSteerAngle{0.0_deg};
 
