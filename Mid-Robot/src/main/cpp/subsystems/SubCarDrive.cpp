@@ -149,6 +149,46 @@ void SubCarDrive::syncSteerToCANcoder() {
   mFRSteer->SetPosition(mFREncoder->GetPosition().GetValue());
 }
 
+void SubCarDrive::zeroFL() {
+  double currentPos = mFLEncoder->GetAbsolutePosition().GetValue().value();
+  mFLMagnetOffset -= currentPos;
+  while (mFLMagnetOffset > 1.0) mFLMagnetOffset -= 1.0;
+  while (mFLMagnetOffset < -1.0) mFLMagnetOffset += 1.0;
+
+  ctre::phoenix6::configs::MagnetSensorConfigs magConfig{};
+  magConfig.MagnetOffset = units::angle::turn_t{mFLMagnetOffset};
+  magConfig.SensorDirection = ctre::phoenix6::signals::SensorDirectionValue::CounterClockwise_Positive;
+  mFLEncoder->GetConfigurator().Apply(magConfig);
+  mFLEncoder->GetPosition().WaitForUpdate(250_ms);
+  mFLSteer->SetPosition(mFLEncoder->GetPosition().GetValue());
+
+  frc::SmartDashboard::PutNumber("Steer/FLMagnetOffset", mFLMagnetOffset);
+}
+
+void SubCarDrive::zeroFR() {
+  double currentPos = mFREncoder->GetAbsolutePosition().GetValue().value();
+  mFRMagnetOffset -= currentPos;
+  while (mFRMagnetOffset > 1.0) mFRMagnetOffset -= 1.0;
+  while (mFRMagnetOffset < -1.0) mFRMagnetOffset += 1.0;
+
+  ctre::phoenix6::configs::MagnetSensorConfigs magConfig{};
+  magConfig.MagnetOffset = units::angle::turn_t{mFRMagnetOffset};
+  magConfig.SensorDirection = ctre::phoenix6::signals::SensorDirectionValue::CounterClockwise_Positive;
+  mFREncoder->GetConfigurator().Apply(magConfig);
+  mFREncoder->GetPosition().WaitForUpdate(250_ms);
+  mFRSteer->SetPosition(mFREncoder->GetPosition().GetValue());
+
+  frc::SmartDashboard::PutNumber("Steer/FRMagnetOffset", mFRMagnetOffset);
+}
+
+frc2::CommandPtr SubCarDrive::getZeroFLCommand() {
+  return RunOnce([this] { zeroFL(); });
+}
+
+frc2::CommandPtr SubCarDrive::getZeroFRCommand() {
+  return RunOnce([this] { zeroFR(); });
+}
+
 frc2::CommandPtr SubCarDrive::getTestSteerCommand() {
   return Run([this] {
     double targetAngleDeg = frc::SmartDashboard::GetNumber("Steer/TestTargetAngleDeg", 45.0);
@@ -204,36 +244,12 @@ void SubCarDrive::updateConfigsFromDashboard() {
   }
 
   if (frc::SmartDashboard::GetBoolean("Steer/ZeroFL", false)) {
-    double currentPos = mFLEncoder->GetAbsolutePosition().GetValue().value();
-    mFLMagnetOffset -= currentPos;
-    while (mFLMagnetOffset > 1.0) mFLMagnetOffset -= 1.0;
-    while (mFLMagnetOffset < -1.0) mFLMagnetOffset += 1.0;
-
-    ctre::phoenix6::configs::MagnetSensorConfigs magConfig{};
-    magConfig.MagnetOffset = units::angle::turn_t{mFLMagnetOffset};
-    magConfig.SensorDirection = ctre::phoenix6::signals::SensorDirectionValue::CounterClockwise_Positive;
-    mFLEncoder->GetConfigurator().Apply(magConfig);
-    mFLEncoder->GetPosition().WaitForUpdate(250_ms);
-    mFLSteer->SetPosition(mFLEncoder->GetPosition().GetValue());
-
-    frc::SmartDashboard::PutNumber("Steer/FLMagnetOffset", mFLMagnetOffset);
+    zeroFL();
     frc::SmartDashboard::PutBoolean("Steer/ZeroFL", false);
   }
 
   if (frc::SmartDashboard::GetBoolean("Steer/ZeroFR", false)) {
-    double currentPos = mFREncoder->GetAbsolutePosition().GetValue().value();
-    mFRMagnetOffset -= currentPos;
-    while (mFRMagnetOffset > 1.0) mFRMagnetOffset -= 1.0;
-    while (mFRMagnetOffset < -1.0) mFRMagnetOffset += 1.0;
-
-    ctre::phoenix6::configs::MagnetSensorConfigs magConfig{};
-    magConfig.MagnetOffset = units::angle::turn_t{mFRMagnetOffset};
-    magConfig.SensorDirection = ctre::phoenix6::signals::SensorDirectionValue::CounterClockwise_Positive;
-    mFREncoder->GetConfigurator().Apply(magConfig);
-    mFREncoder->GetPosition().WaitForUpdate(250_ms);
-    mFRSteer->SetPosition(mFREncoder->GetPosition().GetValue());
-
-    frc::SmartDashboard::PutNumber("Steer/FRMagnetOffset", mFRMagnetOffset);
+    zeroFR();
     frc::SmartDashboard::PutBoolean("Steer/ZeroFR", false);
   }
 

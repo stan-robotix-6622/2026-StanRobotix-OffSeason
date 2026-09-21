@@ -16,6 +16,9 @@ void RobotContainer::ConfigureBindings() {
   }));
 
   m_driverController.A().WhileTrue(mCarDrive.getTestSteerCommand());
+
+  m_driverController.LeftBumper().OnTrue(mCarDrive.getZeroFLCommand());
+  m_driverController.RightBumper().OnTrue(mCarDrive.getZeroFRCommand());
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {

@@ -17,6 +17,10 @@ class SubCarDrive : public frc2::SubsystemBase {
   void stopDrive();
   void setSteerAngle(units::angle::degree_t iAngle);
   frc2::CommandPtr getTestSteerCommand();
+  void zeroFL();
+  void zeroFR();
+  frc2::CommandPtr getZeroFLCommand();
+  frc2::CommandPtr getZeroFRCommand();
 
   void Periodic() override;
 
