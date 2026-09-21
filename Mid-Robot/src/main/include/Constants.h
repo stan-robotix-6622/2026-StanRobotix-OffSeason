@@ -8,7 +8,7 @@ namespace OperatorConstants {
 inline constexpr int kDriverControllerPort = 0;
 inline constexpr double kJoystickDeadband = 0.05;
 
-}  // namespace OperatorConstants
+} // namespace OperatorConstants
 
 namespace CANid {
 
@@ -20,7 +20,7 @@ inline constexpr int kFRDrive = 17;
 inline constexpr int kFRSteer = 16;
 inline constexpr int kFREncoder = 33;
 
-}  // namespace CANid
+} // namespace CANid
 
 namespace CarDriveConstants {
 
@@ -39,9 +39,9 @@ inline constexpr double kSteerS = 0.0;
 inline constexpr units::angle::turn_t kFLMagnetOffset{0.0};
 inline constexpr units::angle::turn_t kFRMagnetOffset{0.0};
 
-inline constexpr bool kFLDriveInverted = false;
+inline constexpr bool kFLDriveInverted = true;
 inline constexpr bool kFRDriveInverted = true;
 inline constexpr bool kFLSteerInverted = false;
 inline constexpr bool kFRSteerInverted = false;
 
-}  // namespace CarDriveConstants
+} // namespace CarDriveConstants
