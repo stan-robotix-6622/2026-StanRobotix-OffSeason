@@ -14,11 +14,11 @@ namespace CANid {
 
 inline constexpr int kFLDrive = 15;
 inline constexpr int kFLSteer = 14;
-inline constexpr int kFLEncoder = 3; // Pas encore branché, c'est a plug physiquement
+inline constexpr int kFLEncoder = 32;
 
 inline constexpr int kFRDrive = 17;
 inline constexpr int kFRSteer = 16;
-inline constexpr int kFREncoder = 6; // Pas encore branché, c'est a plug physiquement
+inline constexpr int kFREncoder = 33;
 
 }  // namespace CANid
 
@@ -31,7 +31,7 @@ inline constexpr double kSteerGearRatio = 150.0 / 7.0;
 inline constexpr units::current::ampere_t kSupplyCurrentLimit{40.0};
 inline constexpr units::current::ampere_t kStatorCurrentLimit{60.0};
 
-inline constexpr double kSteerP = 12.0;
+inline constexpr double kSteerP = 40.0;
 inline constexpr double kSteerI = 0.0;
 inline constexpr double kSteerD = 0.1;
 inline constexpr double kSteerS = 0.0;

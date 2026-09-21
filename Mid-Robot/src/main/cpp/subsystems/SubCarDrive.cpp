@@ -103,7 +103,7 @@ void SubCarDrive::Periodic() {
   updateTelemetry();
 }
 
-void SubCarDrive::drive(double iThrottle, double iBrake, double iSteer) {
+void SubCarDrive::drive(double iThrottle, double iBrake, double iSteer, bool iReverse) {
   if (frc::SmartDashboard::GetBoolean("Steer/TestEnable", false)) {
     return;
   }
@@ -113,6 +113,9 @@ void SubCarDrive::drive(double iThrottle, double iBrake, double iSteer) {
   double speed = (throttle * mSpeedScale) * (1.0 - brake);
   if (speed < 0.0) {
     speed = 0.0;
+  }
+  if (iReverse) {
+    speed = -speed;
   }
 
   units::angle::degree_t steerAngle = -std::clamp(iSteer, -1.0, 1.0) * mMaxSteerAngle;

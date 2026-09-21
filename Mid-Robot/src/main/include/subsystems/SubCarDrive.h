@@ -12,7 +12,7 @@ class SubCarDrive : public frc2::SubsystemBase {
   SubCarDrive();
   ~SubCarDrive() override;
 
-  void drive(double iThrottle, double iBrake, double iSteer);
+  void drive(double iThrottle, double iBrake, double iSteer, bool iReverse = false);
   void stop();
   void stopDrive();
   void setSteerAngle(units::angle::degree_t iAngle);

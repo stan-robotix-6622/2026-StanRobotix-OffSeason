@@ -12,7 +12,7 @@ void RobotContainer::ConfigureBindings() {
     double throttle = m_driverController.GetRightTriggerAxis();
     double brake = m_driverController.GetLeftTriggerAxis();
     double steer = frc::ApplyDeadband(m_driverController.GetRightX(), OperatorConstants::kJoystickDeadband);
-    mCarDrive.drive(throttle, brake, steer);
+    mCarDrive.drive(throttle, brake, steer, m_driverController.GetHID().GetBButton());
   }));
 
   m_driverController.A().WhileTrue(mCarDrive.getTestSteerCommand());
