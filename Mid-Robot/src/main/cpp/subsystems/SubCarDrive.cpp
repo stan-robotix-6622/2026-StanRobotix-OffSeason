@@ -90,6 +90,8 @@ SubCarDrive::SubCarDrive() {
   steerConfig.Feedback.FeedbackRemoteSensorID = CANid::kFREncoder;
   mFRSteer->GetConfigurator().Apply(steerConfig);
 
+  mSteerPositionControl.OverrideBrakeDurNeutral = true;
+
   initDashboard();
 }
 
@@ -121,13 +123,10 @@ void SubCarDrive::drive(double iThrottle, double iBrake, double iSteer) {
   }
 
   units::angle::degree_t steerAngle = -std::clamp(iSteer, -1.0, 1.0) * mMaxSteerAngle;
-  mTargetSteerAngle = steerAngle;
+  setSteerAngle(steerAngle);
 
   mFLDrive->SetControl(mDriveDutyCycleControl.WithOutput(speed));
   mFRDrive->SetControl(mDriveDutyCycleControl.WithOutput(speed));
-
-  mFLSteer->SetControl(mSteerPositionControl.WithPosition(steerAngle));
-  mFRSteer->SetControl(mSteerPositionControl.WithPosition(steerAngle));
 }
 
 void SubCarDrive::stop() {
@@ -142,8 +141,45 @@ void SubCarDrive::stopDrive() {
 void SubCarDrive::setSteerAngle(units::angle::degree_t iAngle) {
   units::angle::degree_t clampedAngle = std::clamp(iAngle, -mMaxSteerAngle, mMaxSteerAngle);
   mTargetSteerAngle = clampedAngle;
-  mFLSteer->SetControl(mSteerPositionControl.WithPosition(clampedAngle));
-  mFRSteer->SetControl(mSteerPositionControl.WithPosition(clampedAngle));
+
+  double targetDeg = clampedAngle.value();
+  double flDeg = units::angle::degree_t{mFLSteer->GetPosition().GetValue()}.value();
+  double frDeg = units::angle::degree_t{mFRSteer->GetPosition().GetValue()}.value();
+  double flErr = std::abs(targetDeg - flDeg);
+  double frErr = std::abs(targetDeg - frDeg);
+  double tol = mSteerTolerance.value();
+
+  if (mFLAtTarget) {
+    if (flErr > tol + 0.5) {
+      mFLAtTarget = false;
+    }
+  } else {
+    if (flErr <= tol) {
+      mFLAtTarget = true;
+    }
+  }
+
+  if (mFRAtTarget) {
+    if (frErr > tol + 0.5) {
+      mFRAtTarget = false;
+    }
+  } else {
+    if (frErr <= tol) {
+      mFRAtTarget = true;
+    }
+  }
+
+  if (mFLAtTarget) {
+    mFLSteer->SetControl(mSteerNeutralControl);
+  } else {
+    mFLSteer->SetControl(mSteerPositionControl.WithPosition(clampedAngle));
+  }
+
+  if (mFRAtTarget) {
+    mFRSteer->SetControl(mSteerNeutralControl);
+  } else {
+    mFRSteer->SetControl(mSteerPositionControl.WithPosition(clampedAngle));
+  }
 }
 
 frc2::CommandPtr SubCarDrive::getTestSteerCommand() {
@@ -344,8 +380,8 @@ void SubCarDrive::updateTelemetry() {
   frc::SmartDashboard::PutNumber("Steer/FRAngleDeg", frDeg);
   frc::SmartDashboard::PutNumber("Steer/FLErrDeg", targetDeg - flDeg);
   frc::SmartDashboard::PutNumber("Steer/FRErrDeg", targetDeg - frDeg);
-  frc::SmartDashboard::PutBoolean("Steer/FLAtTarget", std::abs(targetDeg - flDeg) <= mSteerTolerance.value());
-  frc::SmartDashboard::PutBoolean("Steer/FRAtTarget", std::abs(targetDeg - frDeg) <= mSteerTolerance.value());
+  frc::SmartDashboard::PutBoolean("Steer/FLAtTarget", mFLAtTarget);
+  frc::SmartDashboard::PutBoolean("Steer/FRAtTarget", mFRAtTarget);
 
   frc::SmartDashboard::PutNumber("Steer/FLEncoderDeg", units::angle::degree_t{mFLEncoder->GetPosition().GetValue()}.value());
   frc::SmartDashboard::PutNumber("Steer/FREncoderDeg", units::angle::degree_t{mFREncoder->GetPosition().GetValue()}.value());
