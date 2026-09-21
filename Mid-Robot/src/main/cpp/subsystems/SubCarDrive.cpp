@@ -6,6 +6,7 @@
 #include <units/angle.h>
 #include "Constants.h"
 #include "ctre/phoenix6/configs/Slot0Configs.hpp"
+#include "ctre/phoenix6/configs/ClosedLoopGeneralConfigs.hpp"
 #include "ctre/phoenix6/configs/MagnetSensorConfigs.hpp"
 #include "ctre/phoenix6/configs/MotorOutputConfigs.hpp"
 #include "ctre/phoenix6/configs/FeedbackConfigs.hpp"
@@ -23,6 +24,7 @@ SubCarDrive::SubCarDrive() {
   mI = CarDriveConstants::kSteerI;
   mD = CarDriveConstants::kSteerD;
   mS = CarDriveConstants::kSteerS;
+  mSteerTolerance = CarDriveConstants::kSteerTolerance;
 
   mFLMagnetOffset = CarDriveConstants::kFLMagnetOffset.value();
   mFRMagnetOffset = CarDriveConstants::kFRMagnetOffset.value();
@@ -74,6 +76,8 @@ SubCarDrive::SubCarDrive() {
   steerConfig.Feedback.RotorToSensorRatio = mSteerGearRatio;
   steerConfig.Feedback.SensorToMechanismRatio = 1.0;
   steerConfig.ClosedLoopGeneral.ContinuousWrap = true;
+  steerConfig.ClosedLoopGeneral.GainSchedErrorThreshold = mSteerTolerance;
+  steerConfig.Slot0.GainSchedBehavior = ctre::phoenix6::signals::GainSchedBehaviorValue::ZeroOutput;
   steerConfig.Slot0.kP = mP;
   steerConfig.Slot0.kI = mI;
   steerConfig.Slot0.kD = mD;
@@ -155,6 +159,7 @@ void SubCarDrive::initDashboard() {
   frc::SmartDashboard::SetDefaultNumber("Steer/kI", mI);
   frc::SmartDashboard::SetDefaultNumber("Steer/kD", mD);
   frc::SmartDashboard::SetDefaultNumber("Steer/kS", mS);
+  frc::SmartDashboard::SetDefaultNumber("Steer/ToleranceDeg", mSteerTolerance.value());
 
   frc::SmartDashboard::SetDefaultNumber("Steer/FLMagnetOffset", mFLMagnetOffset);
   frc::SmartDashboard::SetDefaultNumber("Steer/FRMagnetOffset", mFRMagnetOffset);
@@ -187,6 +192,7 @@ void SubCarDrive::updateConfigsFromDashboard() {
     mS = newS;
 
     ctre::phoenix6::configs::Slot0Configs slot0Config{};
+    slot0Config.GainSchedBehavior = ctre::phoenix6::signals::GainSchedBehaviorValue::ZeroOutput;
     slot0Config.kP = mP;
     slot0Config.kI = mI;
     slot0Config.kD = mD;
@@ -310,6 +316,16 @@ void SubCarDrive::updateConfigsFromDashboard() {
   if (std::abs(newSpeedScale - mSpeedScale) > 1e-6) {
     mSpeedScale = newSpeedScale;
   }
+
+  double newToleranceDeg = frc::SmartDashboard::GetNumber("Steer/ToleranceDeg", mSteerTolerance.value());
+  if (std::abs(newToleranceDeg - mSteerTolerance.value()) > 1e-6) {
+    mSteerTolerance = units::angle::degree_t{newToleranceDeg};
+    ctre::phoenix6::configs::ClosedLoopGeneralConfigs generalConfig{};
+    generalConfig.ContinuousWrap = true;
+    generalConfig.GainSchedErrorThreshold = mSteerTolerance;
+    mFLSteer->GetConfigurator().Apply(generalConfig);
+    mFRSteer->GetConfigurator().Apply(generalConfig);
+  }
 }
 
 void SubCarDrive::updateTelemetry() {
@@ -328,6 +344,8 @@ void SubCarDrive::updateTelemetry() {
   frc::SmartDashboard::PutNumber("Steer/FRAngleDeg", frDeg);
   frc::SmartDashboard::PutNumber("Steer/FLErrDeg", targetDeg - flDeg);
   frc::SmartDashboard::PutNumber("Steer/FRErrDeg", targetDeg - frDeg);
+  frc::SmartDashboard::PutBoolean("Steer/FLAtTarget", std::abs(targetDeg - flDeg) <= mSteerTolerance.value());
+  frc::SmartDashboard::PutBoolean("Steer/FRAtTarget", std::abs(targetDeg - frDeg) <= mSteerTolerance.value());
 
   frc::SmartDashboard::PutNumber("Steer/FLEncoderDeg", units::angle::degree_t{mFLEncoder->GetPosition().GetValue()}.value());
   frc::SmartDashboard::PutNumber("Steer/FREncoderDeg", units::angle::degree_t{mFREncoder->GetPosition().GetValue()}.value());

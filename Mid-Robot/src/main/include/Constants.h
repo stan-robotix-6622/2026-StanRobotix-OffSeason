@@ -35,6 +35,7 @@ inline constexpr double kSteerP = 24.0;
 inline constexpr double kSteerI = 0.0;
 inline constexpr double kSteerD = 0.2;
 inline constexpr double kSteerS = 0.0;
+inline constexpr units::angle::degree_t kSteerTolerance{0.5};
 
 inline constexpr units::angle::turn_t kFLMagnetOffset{0.0};
 inline constexpr units::angle::turn_t kFRMagnetOffset{0.0};

@@ -40,6 +40,7 @@ class SubCarDrive : public frc2::SubsystemBase {
   double mI;
   double mD;
   double mS;
+  units::angle::degree_t mSteerTolerance;
 
   units::angle::degree_t mTargetSteerAngle{0.0_deg};
 
