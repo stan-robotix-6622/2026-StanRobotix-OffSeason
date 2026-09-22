@@ -25,19 +25,19 @@ inline constexpr int kFREncoder = 33;
 namespace CarDriveConstants {
 
 inline constexpr double kSpeedScale = 0.5;
-inline constexpr units::angle::degree_t kMaxSteerAngle{60.0};
+inline constexpr units::angle::degree_t kMaxSteerAngle{60.0_deg};
 inline constexpr double kSteerGearRatio = 150.0 / 7.0;
 
-inline constexpr units::current::ampere_t kSupplyCurrentLimit{40.0};
-inline constexpr units::current::ampere_t kStatorCurrentLimit{60.0};
+inline constexpr units::current::ampere_t kSupplyCurrentLimit{40.0_A};
+inline constexpr units::current::ampere_t kStatorCurrentLimit{60.0_A};
 
 inline constexpr double kSteerP = 40.0;
 inline constexpr double kSteerI = 0.0;
 inline constexpr double kSteerD = 0.1;
 inline constexpr double kSteerS = 0.0;
 
-inline constexpr units::angle::turn_t kFLMagnetOffset{0.0};
-inline constexpr units::angle::turn_t kFRMagnetOffset{0.0};
+inline constexpr units::angle::turn_t kFLMagnetOffset{0.0_tr};
+inline constexpr units::angle::turn_t kFRMagnetOffset{0.0_tr};
 
 inline constexpr bool kFLDriveInverted = true;
 inline constexpr bool kFRDriveInverted = true;

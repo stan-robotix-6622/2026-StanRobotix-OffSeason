@@ -13,8 +13,7 @@ class RobotContainer {
   frc2::CommandPtr GetAutonomousCommand();
 
  private:
-  frc2::CommandXboxController m_driverController{
-      OperatorConstants::kDriverControllerPort};
+  frc2::CommandXboxController mDriverController{OperatorConstants::kDriverControllerPort};
 
   SubCarDrive mCarDrive;
 

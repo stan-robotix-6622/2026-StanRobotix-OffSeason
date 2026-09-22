@@ -9,16 +9,15 @@ RobotContainer::RobotContainer() {
 
 void RobotContainer::ConfigureBindings() {
   mCarDrive.SetDefaultCommand(mCarDrive.Run([this] {
-    double throttle = m_driverController.GetRightTriggerAxis();
-    double brake = m_driverController.GetLeftTriggerAxis();
-    double steer = frc::ApplyDeadband(m_driverController.GetRightX(), OperatorConstants::kJoystickDeadband);
-    mCarDrive.drive(throttle, brake, steer, m_driverController.GetHID().GetBButton());
+    double throttle = mDriverController.GetRightTriggerAxis();
+    double brake = mDriverController.GetLeftTriggerAxis();
+    double steer = frc::ApplyDeadband(mDriverController.GetRightX(), OperatorConstants::kJoystickDeadband);
+    mCarDrive.drive(throttle, brake, steer, mDriverController.GetHID().GetBButton());
   }));
 
-  m_driverController.A().WhileTrue(mCarDrive.getTestSteerCommand());
-
-  m_driverController.LeftBumper().OnTrue(mCarDrive.getZeroFLCommand());
-  m_driverController.RightBumper().OnTrue(mCarDrive.getZeroFRCommand());
+  mDriverController.A().WhileTrue(mCarDrive.getTestSteerCommand());
+  mDriverController.LeftBumper().OnTrue(mCarDrive.getZeroFLCommand());
+  mDriverController.RightBumper().OnTrue(mCarDrive.getZeroFRCommand());
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {

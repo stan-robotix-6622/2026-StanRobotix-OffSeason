@@ -2,13 +2,14 @@
 
 #include <algorithm>
 #include <cmath>
+#include <ctre/phoenix6/configs/FeedbackConfigs.hpp>
+#include <ctre/phoenix6/configs/MagnetSensorConfigs.hpp>
+#include <ctre/phoenix6/configs/MotorOutputConfigs.hpp>
+#include <ctre/phoenix6/configs/Slot0Configs.hpp>
+#include <frc/DriverStation.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <units/angle.h>
 #include "Constants.h"
-#include "ctre/phoenix6/configs/Slot0Configs.hpp"
-#include "ctre/phoenix6/configs/MagnetSensorConfigs.hpp"
-#include "ctre/phoenix6/configs/MotorOutputConfigs.hpp"
-#include "ctre/phoenix6/configs/FeedbackConfigs.hpp"
 
 SubCarDrive::SubCarDrive() {
   mFLDrive = new ctre::phoenix6::hardware::TalonFX{CANid::kFLDrive};
@@ -226,6 +227,20 @@ void SubCarDrive::initDashboard() {
 }
 
 void SubCarDrive::updateConfigsFromDashboard() {
+  double newSpeedScale = frc::SmartDashboard::GetNumber("Drive/SpeedScale", mSpeedScale);
+  if (std::abs(newSpeedScale - mSpeedScale) > 1e-6) {
+    mSpeedScale = newSpeedScale;
+  }
+
+  double newMaxSteerAngleDeg = frc::SmartDashboard::GetNumber("Steer/MaxAngleDeg", mMaxSteerAngle.value());
+  if (std::abs(newMaxSteerAngleDeg - mMaxSteerAngle.value()) > 1e-6) {
+    mMaxSteerAngle = units::angle::degree_t{newMaxSteerAngleDeg};
+  }
+
+  if (!frc::DriverStation::IsTest()) {
+    return;
+  }
+
   double newP = frc::SmartDashboard::GetNumber("Steer/kP", mP);
   double newI = frc::SmartDashboard::GetNumber("Steer/kI", mI);
   double newD = frc::SmartDashboard::GetNumber("Steer/kD", mD);
@@ -337,25 +352,9 @@ void SubCarDrive::updateConfigsFromDashboard() {
     syncSteerToCANcoder();
     frc::SmartDashboard::PutBoolean("Steer/SyncCANcoder", false);
   }
-
-  double newMaxSteerAngleDeg = frc::SmartDashboard::GetNumber("Steer/MaxAngleDeg", mMaxSteerAngle.value());
-  if (std::abs(newMaxSteerAngleDeg - mMaxSteerAngle.value()) > 1e-6) {
-    mMaxSteerAngle = units::angle::degree_t{newMaxSteerAngleDeg};
-  }
-
-  double newSpeedScale = frc::SmartDashboard::GetNumber("Drive/SpeedScale", mSpeedScale);
-  if (std::abs(newSpeedScale - mSpeedScale) > 1e-6) {
-    mSpeedScale = newSpeedScale;
-  }
 }
 
 void SubCarDrive::updateTelemetry() {
-  if (frc::SmartDashboard::GetBoolean("Steer/TestEnable", false)) {
-    double targetAngleDeg = frc::SmartDashboard::GetNumber("Steer/TestTargetAngleDeg", 45.0);
-    setSteerAngle(units::angle::degree_t{targetAngleDeg});
-    stopDrive();
-  }
-
   double targetDeg = mTargetSteerAngle.value();
   double flDeg = units::angle::degree_t{mFLSteer->GetPosition().GetValue()}.value();
   double frDeg = units::angle::degree_t{mFRSteer->GetPosition().GetValue()}.value();
