@@ -1,6 +1,5 @@
 #include "RobotContainer.h"
 
-#include <frc/MathUtil.h>
 #include <frc2/command/Commands.h>
 
 RobotContainer::RobotContainer() {
@@ -8,16 +7,15 @@ RobotContainer::RobotContainer() {
 }
 
 void RobotContainer::ConfigureBindings() {
-  mCarDrive.SetDefaultCommand(mCarDrive.Run([this] {
-    double throttle = mDriverController.GetRightTriggerAxis();
-    double brake = mDriverController.GetLeftTriggerAxis();
-    double steer = frc::ApplyDeadband(mDriverController.GetRightX(), OperatorConstants::kJoystickDeadband);
-    mCarDrive.drive(throttle, brake, steer, mDriverController.GetHID().GetBButton());
-  }));
+  mCarDrive.SetDefaultCommand(mCarDrive.getDriveCommand(
+      [this] { return mDriverController.getRightTriggerWithDeadband(); },
+      [this] { return mDriverController.getLeftTriggerWithDeadband(); },
+      [this] { return mDriverController.getRightXWithDeadband(); },
+      [this] { return mDriverController.GetHID().GetBButton(); }));
 
-  mDriverController.A().WhileTrue(mCarDrive.getTestSteerCommand());
-  mDriverController.LeftBumper().OnTrue(mCarDrive.getZeroFLCommand());
-  mDriverController.RightBumper().OnTrue(mCarDrive.getZeroFRCommand());
+  mDriverController.bindHold(mDriverController.A(), mCarDrive.getTestSteerCommand());
+  mDriverController.bindPress(mDriverController.LeftBumper(), mCarDrive.getZeroFLCommand());
+  mDriverController.bindPress(mDriverController.RightBumper(), mCarDrive.getZeroFRCommand());
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
