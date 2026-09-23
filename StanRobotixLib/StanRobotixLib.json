@@ -1,0 +1,25 @@
+{
+  "fileName": "StanRobotixLib.json",
+  "name": "StanRobotixLib",
+  "version": "1.0.0",
+  "uuid": "66226622-2026-4c7b-b389-stanrobotix01",
+  "frcYear": "2026",
+  "mavenUrls": [
+    "https://maven.stanrobotix.com/release"
+  ],
+  "jsonUrl": "https://software-metadata.stanrobotix.com/StanRobotixLib-2026.json",
+  "javaDependencies": [],
+  "jniDependencies": [],
+  "cppDependencies": [
+    {
+      "groupId": "com.stanrobotix",
+      "artifactId": "StanRobotixLib-cpp",
+      "version": "1.0.0",
+      "libName": "StanRobotixLib",
+      "headerClassifier": "headers",
+      "sharedLibrary": false,
+      "skipInvalidPlatforms": true,
+      "binaryPlatforms": []
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+plugins {
+    id "cpp"
+    id "google-test-test-suite"
+    id "edu.wpi.first.GradleRIO" version "2026.2.1"
+    id "maven-publish"
+}
+
+model {
+    components {
+        stanTestProgram(NativeExecutableSpec) {
+            targetPlatform wpi.platforms.desktop
+            sources.cpp {
+                source {
+                    srcDir 'src/test/cpp'
+                    include '**/*.cpp'
+                }
+                exportedHeaders {
+                    srcDir 'include'
+                }
+            }
+            wpi.cpp.vendor.cpp(it)
+            wpi.cpp.deps.wpilib(it)
+            wpi.cpp.deps.googleTest(it)
+        }
+    }
+}
+
+tasks.register('headersZip', Zip) {
+    archiveBaseName = 'StanRobotixLib-cpp'
+    archiveVersion = '1.0.0'
+    archiveClassifier = 'headers'
+    destinationDirectory = layout.buildDirectory.dir('libs')
+    from('include')
+}
+
+publishing {
+    publications {
+        stanRobotixLib(MavenPublication) {
+            groupId = 'com.stanrobotix'
+            artifactId = 'StanRobotixLib-cpp'
+            version = '1.0.0'
+            artifact tasks.named('headersZip')
+            pom {
+                name = 'StanRobotixLib'
+                description = 'Unified C++ WPILib library and FRC Vendordep for Team Stan Robotix 6622'
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = 'buildRepo'
+            url = layout.buildDirectory.dir('repos/releases')
+        }
+    }
+}
+
+tasks.register('test', Exec) {
+    description = "Runs native tests in fast Debug mode"
+    group = "verification"
+    dependsOn 'installStanTestProgramDebugExecutable'
+    workingDir = layout.projectDirectory
+    commandLine "${layout.buildDirectory.get()}/install/stanTestProgram/debug/stanTestProgram"
+}
+
+check.dependsOn 'test'
+build.dependsOn tasks.named('headersZip')

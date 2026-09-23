@@ -1,0 +1,24 @@
+# Build & Gradle
+build/
+.gradle/
+bin/
+*.class
+
+# C++ Build artifacts
+*.o
+*.obj
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Packages
+*.zip
+*.jar
+*.tar.gz
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+*~
