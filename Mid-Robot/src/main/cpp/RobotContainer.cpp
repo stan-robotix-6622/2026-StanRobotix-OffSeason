@@ -12,12 +12,15 @@ void RobotContainer::ConfigureBindings() {
     double throttle = mDriverController.GetRightTriggerAxis();
     double brake = mDriverController.GetLeftTriggerAxis();
     double steer = frc::ApplyDeadband(mDriverController.GetRightX(), OperatorConstants::kJoystickDeadband);
-    mCarDrive.drive(throttle, brake, steer, mDriverController.GetHID().GetBButton());
+    bool reverse = mDriverController.GetHID().GetBButton();
+    bool drift = mDriverController.LeftBumper().Get();
+    mCarDrive.drive(throttle, brake, steer, reverse, drift);
   }));
 
   mDriverController.A().WhileTrue(mCarDrive.getTestSteerCommand());
-  mDriverController.LeftBumper().OnTrue(mCarDrive.getZeroFLCommand());
-  mDriverController.RightBumper().OnTrue(mCarDrive.getZeroFRCommand());
+  mDriverController.Y().OnTrue(mCarDrive.getCalibrateRatioCommand());
+  mDriverController.POVLeft().OnTrue(mCarDrive.getZeroFLCommand());
+  mDriverController.POVRight().OnTrue(mCarDrive.getZeroFRCommand());
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {

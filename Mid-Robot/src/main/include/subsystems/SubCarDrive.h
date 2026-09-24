@@ -1,20 +1,25 @@
 #pragma once
 
 #include <ctre/phoenix6/CANcoder.hpp>
+#include <ctre/phoenix6/Pigeon2.hpp>
 #include <ctre/phoenix6/TalonFX.hpp>
 #include <ctre/phoenix6/controls/DutyCycleOut.hpp>
 #include <ctre/phoenix6/controls/PositionVoltage.hpp>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/SubsystemBase.h>
+#include <units/acceleration.h>
 #include <units/angle.h>
+#include <units/angular_velocity.h>
 #include <units/length.h>
+#include <units/time.h>
+#include <units/velocity.h>
 
 class SubCarDrive : public frc2::SubsystemBase {
  public:
   SubCarDrive();
   ~SubCarDrive() override;
 
-  void drive(double iThrottle, double iBrake, double iSteer, bool iReverse = false);
+  void drive(double iThrottle, double iBrake, double iSteer, bool iReverse = false, bool iDrift = false);
   void stop();
   void stopDrive();
   void setSteerAngle(units::angle::degree_t iAngle);
@@ -23,6 +28,7 @@ class SubCarDrive : public frc2::SubsystemBase {
   void zeroFR();
   frc2::CommandPtr getZeroFLCommand();
   frc2::CommandPtr getZeroFRCommand();
+  frc2::CommandPtr getCalibrateRatioCommand();
 
   void Periodic() override;
 
@@ -39,6 +45,8 @@ class SubCarDrive : public frc2::SubsystemBase {
   ctre::phoenix6::hardware::TalonFX* mFRDrive;
   ctre::phoenix6::hardware::TalonFX* mFRSteer;
   ctre::phoenix6::hardware::CANcoder* mFREncoder;
+
+  ctre::phoenix6::hardware::Pigeon2* mPigeon;
 
   ctre::phoenix6::controls::DutyCycleOut mDriveDutyCycleControl{0.0};
   ctre::phoenix6::controls::PositionVoltage mSteerPositionControl{0_tr};
@@ -68,4 +76,17 @@ class SubCarDrive : public frc2::SubsystemBase {
 
   units::length::inch_t mTrackWidth;
   units::length::inch_t mWheelBase;
+  units::length::inch_t mWheelRadius;
+
+  double mDriveGearRatio;
+  double mTractionSlipThreshold;
+  double mTractionKp;
+  double mYawStabilityKp;
+  double mDriftTorqueVectorScale;
+  bool mTractionControlEnabled{true};
+
+  bool mIsSlipping{false};
+  bool mDriftActive{false};
+  double mPreviousWheelSpeedFL{0.0};
+  double mPreviousWheelSpeedFR{0.0};
 };

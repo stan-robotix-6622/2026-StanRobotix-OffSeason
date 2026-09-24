@@ -21,6 +21,8 @@ inline constexpr int kFRDrive = 17;
 inline constexpr int kFRSteer = 16;
 inline constexpr int kFREncoder = 33;
 
+inline constexpr int kPigeon2 = 1;
+
 } // namespace CANid
 
 namespace CarDriveConstants {
@@ -48,5 +50,11 @@ inline constexpr bool kFLDriveInverted = true;
 inline constexpr bool kFRDriveInverted = true;
 inline constexpr bool kFLSteerInverted = false;
 inline constexpr bool kFRSteerInverted = false;
+
+inline constexpr double kDriveGearRatio = 6.75;
+inline constexpr double kTractionSlipThreshold = 1.5;
+inline constexpr double kTractionKp = 0.4;
+inline constexpr double kYawStabilityKp = 0.05;
+inline constexpr double kDriftTorqueVectorScale = 1.8;
 
 } // namespace CarDriveConstants
