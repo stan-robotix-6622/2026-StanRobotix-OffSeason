@@ -1,7 +1,7 @@
 #pragma once
 
 #include <frc2/command/CommandPtr.h>
-#include <stan/StanXboxController.h>
+#include <frc2/command/button/CommandXboxController.h>
 
 #include "Constants.h"
 #include "subsystems/SubCarDrive.h"
@@ -13,9 +13,7 @@ class RobotContainer {
   frc2::CommandPtr GetAutonomousCommand();
 
  private:
-  stan::StanXboxController mDriverController{
-      OperatorConstants::kDriverControllerPort,
-      OperatorConstants::kJoystickDeadband};
+  frc2::CommandXboxController mDriverController{OperatorConstants::kDriverControllerPort};
 
   SubCarDrive mCarDrive;
 

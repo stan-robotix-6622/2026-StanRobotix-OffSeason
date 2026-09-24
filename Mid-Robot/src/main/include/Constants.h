@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stan/StanCarDrive.h>
 #include <units/angle.h>
 #include <units/current.h>
 
@@ -44,31 +43,5 @@ inline constexpr bool kFLDriveInverted = true;
 inline constexpr bool kFRDriveInverted = true;
 inline constexpr bool kFLSteerInverted = false;
 inline constexpr bool kFRSteerInverted = false;
-
-inline stan::StanCarDriveConfig createConfig() {
-  stan::StanCarDriveConfig config;
-  config.kFLDriveId = CANid::kFLDrive;
-  config.kFRDriveId = CANid::kFRDrive;
-  config.kFLSteerId = CANid::kFLSteer;
-  config.kFRSteerId = CANid::kFRSteer;
-  config.kFLEncoderId = CANid::kFLEncoder;
-  config.kFREncoderId = CANid::kFREncoder;
-  config.kSteerGearRatio = kSteerGearRatio;
-  config.kMaxSteerAngle = kMaxSteerAngle;
-  config.kSpeedScale = kSpeedScale;
-  config.kFLMagnetOffset = kFLMagnetOffset;
-  config.kFRMagnetOffset = kFRMagnetOffset;
-  config.kFLDriveInverted = kFLDriveInverted;
-  config.kFRDriveInverted = kFRDriveInverted;
-  config.kFLSteerInverted = kFLSteerInverted;
-  config.kFRSteerInverted = kFRSteerInverted;
-  config.kSteerP = kSteerP;
-  config.kSteerI = kSteerI;
-  config.kSteerD = kSteerD;
-  config.kSteerS = kSteerS;
-  config.kSupplyCurrentLimit = kSupplyCurrentLimit;
-  config.kStatorCurrentLimit = kStatorCurrentLimit;
-  return config;
-}
 
 } // namespace CarDriveConstants
