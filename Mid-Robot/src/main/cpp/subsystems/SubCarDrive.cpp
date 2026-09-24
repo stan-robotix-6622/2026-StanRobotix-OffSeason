@@ -158,17 +158,20 @@ void SubCarDrive::drive(double iThrottle, double iBrake, double iSteer, bool iRe
     angleFL = std::clamp(angleFL, -mMaxSteerAngle, mMaxSteerAngle);
     angleFR = std::clamp(angleFR, -mMaxSteerAngle, mMaxSteerAngle);
 
-    double dFL = std::hypot(L, R - halfW);
-    double dFR = std::hypot(L, R + halfW);
-    double dCenter = std::hypot(L, R);
+    double absR = std::abs(R);
+    double dOuter = std::hypot(L, absR + halfW);
+    double dInner = std::hypot(L, std::max(0.0, absR - halfW));
+    double dCenter = std::hypot(L, absR);
 
-    double maxRatio = std::max(dFL, dFR) / dCenter;
-    speedFL = speed * (dFL / dCenter);
-    speedFR = speed * (dFR / dCenter);
+    double speedOuter = std::clamp(speed * (dOuter / dCenter), -1.0, 1.0);
+    double speedInner = std::clamp(speed * (dInner / dCenter), -1.0, 1.0);
 
-    if (maxRatio > 1.0 && std::abs(speed) > 1e-4) {
-      speedFL /= maxRatio;
-      speedFR /= maxRatio;
+    if (R < 0.0) {
+      speedFR = speedOuter;
+      speedFL = speedInner;
+    } else {
+      speedFL = speedOuter;
+      speedFR = speedInner;
     }
   }
 
@@ -181,11 +184,11 @@ void SubCarDrive::drive(double iThrottle, double iBrake, double iSteer, bool iRe
   } else if (iDrift) {
     mIsSlipping = false;
     if (steerAngle > 1.0_deg) {
-      speedFR = std::clamp(speedFR * mDriftTorqueVectorScale, -1.0, 1.0);
-      speedFL *= (1.0 - std::abs(iSteer) * 0.8);
-    } else if (steerAngle < -1.0_deg) {
       speedFL = std::clamp(speedFL * mDriftTorqueVectorScale, -1.0, 1.0);
-      speedFR *= (1.0 - std::abs(iSteer) * 0.8);
+      speedFR *= (1.0 - std::abs(iSteer) * 0.4);
+    } else if (steerAngle < -1.0_deg) {
+      speedFR = std::clamp(speedFR * mDriftTorqueVectorScale, -1.0, 1.0);
+      speedFL *= (1.0 - std::abs(iSteer) * 0.4);
     }
   } else if (mTractionControlEnabled) {
     double wheelCircumference = 2.0 * std::numbers::pi * units::meter_t{mWheelRadius}.value();
