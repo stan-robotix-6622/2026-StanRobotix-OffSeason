@@ -420,6 +420,10 @@ void SubCarDrive::initDashboard() {
 }
 
 void SubCarDrive::updateConfigsFromDashboard() {
+  if (!frc::DriverStation::IsTest()) {
+    return;
+  }
+
   double newTrackWidth = frc::SmartDashboard::GetNumber("CarDrive/TrackWidthInches", mTrackWidth.value());
   if (std::abs(newTrackWidth - mTrackWidth.value()) > 1e-6) {
     mTrackWidth = units::length::inch_t{newTrackWidth};
@@ -450,10 +454,6 @@ void SubCarDrive::updateConfigsFromDashboard() {
   double newDriveRatio = frc::SmartDashboard::GetNumber("Drive/DriveGearRatio", mDriveGearRatio);
   if (std::abs(newDriveRatio - mDriveGearRatio) > 1e-6) {
     mDriveGearRatio = newDriveRatio;
-  }
-
-  if (!frc::DriverStation::IsTest()) {
-    return;
   }
 
   double newP = frc::SmartDashboard::GetNumber("Steer/kP", mP);
@@ -570,6 +570,12 @@ void SubCarDrive::updateConfigsFromDashboard() {
 }
 
 void SubCarDrive::updateTelemetry() {
+  mTelemetryCounter++;
+  if (mTelemetryCounter < 5) {
+    return;
+  }
+  mTelemetryCounter = 0;
+
   double targetDeg = mTargetSteerAngle.value();
   double flDeg = units::angle::degree_t{mFLSteer->GetPosition().GetValue()}.value();
   double frDeg = units::angle::degree_t{mFRSteer->GetPosition().GetValue()}.value();
@@ -593,6 +599,8 @@ void SubCarDrive::updateTelemetry() {
 
   frc::SmartDashboard::PutNumber("Steer/FLCurrentAmps", mFLSteer->GetStatorCurrent().GetValue().value());
   frc::SmartDashboard::PutNumber("Steer/FRCurrentAmps", mFRSteer->GetStatorCurrent().GetValue().value());
+  frc::SmartDashboard::PutNumber("Steer/FLMotorVoltage", mFLSteer->GetMotorVoltage().GetValue().value());
+  frc::SmartDashboard::PutNumber("Steer/FRMotorVoltage", mFRSteer->GetMotorVoltage().GetValue().value());
   frc::SmartDashboard::PutNumber("Drive/FLCurrentAmps", mFLDrive->GetStatorCurrent().GetValue().value());
   frc::SmartDashboard::PutNumber("Drive/FRCurrentAmps", mFRDrive->GetStatorCurrent().GetValue().value());
 
