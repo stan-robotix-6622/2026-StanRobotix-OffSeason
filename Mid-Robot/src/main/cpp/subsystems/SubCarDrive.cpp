@@ -152,8 +152,8 @@ void SubCarDrive::drive(double iThrottle, double iBrake, double iSteer, bool iRe
     double tanDelta = std::tan(delta.value());
     double R = L / tanDelta;
 
-    angleFL = units::angle::degree_t{std::atan(L / (R - halfW))};
-    angleFR = units::angle::degree_t{std::atan(L / (R + halfW))};
+    angleFL = units::angle::radian_t{std::atan(L / (R - halfW))};
+    angleFR = units::angle::radian_t{std::atan(L / (R + halfW))};
 
     angleFL = std::clamp(angleFL, -mMaxSteerAngle, mMaxSteerAngle);
     angleFR = std::clamp(angleFR, -mMaxSteerAngle, mMaxSteerAngle);
