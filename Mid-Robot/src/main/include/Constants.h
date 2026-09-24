@@ -13,15 +13,15 @@ inline constexpr double kJoystickDeadband = 0.05;
 
 namespace CANid {
 
-inline constexpr int kFLDrive = 15;
+inline constexpr int kFLDrive = 12;
 inline constexpr int kFLSteer = 14;
 inline constexpr int kFLEncoder = 32;
 
-inline constexpr int kFRDrive = 17;
+inline constexpr int kFRDrive = 18;
 inline constexpr int kFRSteer = 16;
 inline constexpr int kFREncoder = 33;
 
-inline constexpr int kPigeon2 = 1;
+inline constexpr int kPigeon2 = 0;
 
 } // namespace CANid
 
