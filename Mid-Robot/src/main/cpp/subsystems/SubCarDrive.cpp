@@ -48,6 +48,7 @@ SubCarDrive::SubCarDrive() {
   mDriveGearRatio = CarDriveConstants::kDriveGearRatio;
   mTractionSlipThreshold = CarDriveConstants::kTractionSlipThreshold;
   mTractionKp = CarDriveConstants::kTractionKp;
+  mYawSlipThreshold = CarDriveConstants::kYawSlipThreshold;
   mYawStabilityKp = CarDriveConstants::kYawStabilityKp;
   mDriftTorqueVectorScale = CarDriveConstants::kDriftTorqueVectorScale;
 
@@ -171,60 +172,75 @@ void SubCarDrive::drive(double iThrottle, double iBrake, double iSteer, bool iRe
     }
   }
 
-  double wheelCircumference = 2.0 * std::numbers::pi * units::meter_t{mWheelRadius}.value();
-  double rpsFL = mFLDrive->GetVelocity().GetValue().value();
-  double rpsFR = mFRDrive->GetVelocity().GetValue().value();
-  double wheelSpeedFL = (rpsFL / mDriveGearRatio) * wheelCircumference;
-  double wheelSpeedFR = (rpsFR / mDriveGearRatio) * wheelCircumference;
-  double accelFL = (wheelSpeedFL - mPreviousWheelSpeedFL) / 0.02;
-  double accelFR = (wheelSpeedFR - mPreviousWheelSpeedFR) / 0.02;
-  mPreviousWheelSpeedFL = wheelSpeedFL;
-  mPreviousWheelSpeedFR = wheelSpeedFR;
-
-  units::acceleration::meters_per_second_squared_t imuAccelX = mPigeon->GetAccelerationX().GetValue();
-  units::angular_velocity::degrees_per_second_t gyroYawRate = mPigeon->GetAngularVelocityZDevice().GetValue();
-
   mDriftActive = iDrift;
-  if (iDrift) {
+
+  if (std::abs(speed) < 1e-4) {
+    mIsSlipping = false;
+    speedFL = 0.0;
+    speedFR = 0.0;
+  } else if (iDrift) {
     mIsSlipping = false;
     if (steerAngle > 1.0_deg) {
       speedFR = std::clamp(speedFR * mDriftTorqueVectorScale, -1.0, 1.0);
-      speedFL = speedFL * (1.0 - std::abs(iSteer) * 0.8);
+      speedFL *= (1.0 - std::abs(iSteer) * 0.8);
     } else if (steerAngle < -1.0_deg) {
       speedFL = std::clamp(speedFL * mDriftTorqueVectorScale, -1.0, 1.0);
-      speedFR = speedFR * (1.0 - std::abs(iSteer) * 0.8);
+      speedFR *= (1.0 - std::abs(iSteer) * 0.8);
     }
   } else if (mTractionControlEnabled) {
+    double wheelCircumference = 2.0 * std::numbers::pi * units::meter_t{mWheelRadius}.value();
+    double accelFLRps2 = mFLDrive->GetAcceleration().GetValue().value();
+    double accelFRRps2 = mFRDrive->GetAcceleration().GetValue().value();
+    double wheelAccelFL = (accelFLRps2 / mDriveGearRatio) * wheelCircumference;
+    double wheelAccelFR = (accelFRRps2 / mDriveGearRatio) * wheelCircumference;
+
     double forwardSign = (speed >= 0.0) ? 1.0 : -1.0;
+    units::acceleration::meters_per_second_squared_t imuAccelX = mPigeon->GetAccelerationX().GetValue();
     double measuredAx = imuAccelX.value() * forwardSign;
-    double effectiveAccelFL = accelFL * forwardSign;
-    double effectiveAccelFR = accelFR * forwardSign;
 
-    double slipFL = effectiveAccelFL - measuredAx;
-    double slipFR = effectiveAccelFR - measuredAx;
+    double slipFL = (wheelAccelFL * forwardSign) - measuredAx;
+    double slipFR = (wheelAccelFR * forwardSign) - measuredAx;
 
-    bool slipFLDetected = (slipFL > mTractionSlipThreshold) && (std::abs(speed) > 0.05);
-    bool slipFRDetected = (slipFR > mTractionSlipThreshold) && (std::abs(speed) > 0.05);
+    bool slipFLDetected = (slipFL > mTractionSlipThreshold);
+    bool slipFRDetected = (slipFR > mTractionSlipThreshold);
     mIsSlipping = slipFLDetected || slipFRDetected;
 
     if (slipFLDetected) {
-      double reductionFL = (slipFL - mTractionSlipThreshold) * mTractionKp;
-      speedFL *= std::clamp(1.0 - reductionFL, 0.05, 1.0);
+      double reductionFL = std::clamp((slipFL - mTractionSlipThreshold) * mTractionKp, 0.0, 0.8);
+      speedFL *= (1.0 - reductionFL);
     }
     if (slipFRDetected) {
-      double reductionFR = (slipFR - mTractionSlipThreshold) * mTractionKp;
-      speedFR *= std::clamp(1.0 - reductionFR, 0.05, 1.0);
+      double reductionFR = std::clamp((slipFR - mTractionSlipThreshold) * mTractionKp, 0.0, 0.8);
+      speedFR *= (1.0 - reductionFR);
     }
 
+    double rpsFL = mFLDrive->GetVelocity().GetValue().value();
+    double rpsFR = mFRDrive->GetVelocity().GetValue().value();
+    double wheelSpeedFL = (rpsFL / mDriveGearRatio) * wheelCircumference;
+    double wheelSpeedFR = (rpsFR / mDriveGearRatio) * wheelCircumference;
     double linearVelocity = (wheelSpeedFL + wheelSpeedFR) * 0.5;
+
     double wheelbaseMeters = units::meter_t{mWheelBase}.value();
     double desiredYawRateRadPerSec = (linearVelocity / wheelbaseMeters) * std::tan(delta.value());
-    double desiredYawRateDps = desiredYawRateRadPerSec * 180.0 / std::numbers::pi;
-    double yawRateError = desiredYawRateDps - gyroYawRate.value();
-    double yawCorrection = yawRateError * mYawStabilityKp;
+    double desiredYawRateDps = desiredYawRateRadPerSec * (180.0 / std::numbers::pi);
 
-    speedFL = std::clamp(speedFL - yawCorrection, -1.0, 1.0);
-    speedFR = std::clamp(speedFR + yawCorrection, -1.0, 1.0);
+    units::angular_velocity::degrees_per_second_t gyroYawRate = mPigeon->GetAngularVelocityZDevice().GetValue();
+    double actualYawRateDps = gyroYawRate.value();
+
+    double excessYaw = 0.0;
+    if (desiredYawRateDps > 1.0) {
+      excessYaw = actualYawRateDps - desiredYawRateDps;
+    } else if (desiredYawRateDps < -1.0) {
+      excessYaw = -actualYawRateDps - (-desiredYawRateDps);
+    } else {
+      excessYaw = std::abs(actualYawRateDps);
+    }
+
+    if (excessYaw > mYawSlipThreshold) {
+      double yawReduction = std::clamp((excessYaw - mYawSlipThreshold) * mYawStabilityKp, 0.0, 0.8);
+      speedFL *= (1.0 - yawReduction);
+      speedFR *= (1.0 - yawReduction);
+    }
   } else {
     mIsSlipping = false;
   }
@@ -397,6 +413,7 @@ void SubCarDrive::initDashboard() {
   frc::SmartDashboard::SetDefaultBoolean("TractionControl/Enable", mTractionControlEnabled);
   frc::SmartDashboard::SetDefaultNumber("TractionControl/SlipThreshold", mTractionSlipThreshold);
   frc::SmartDashboard::SetDefaultNumber("TractionControl/Kp", mTractionKp);
+  frc::SmartDashboard::SetDefaultNumber("TractionControl/YawSlipThreshold", mYawSlipThreshold);
   frc::SmartDashboard::SetDefaultNumber("TractionControl/YawKp", mYawStabilityKp);
   frc::SmartDashboard::SetDefaultNumber("Drift/TorqueVectorScale", mDriftTorqueVectorScale);
   frc::SmartDashboard::SetDefaultNumber("Drive/DriveGearRatio", mDriveGearRatio);
@@ -426,6 +443,7 @@ void SubCarDrive::updateConfigsFromDashboard() {
   mTractionControlEnabled = frc::SmartDashboard::GetBoolean("TractionControl/Enable", mTractionControlEnabled);
   mTractionSlipThreshold = frc::SmartDashboard::GetNumber("TractionControl/SlipThreshold", mTractionSlipThreshold);
   mTractionKp = frc::SmartDashboard::GetNumber("TractionControl/Kp", mTractionKp);
+  mYawSlipThreshold = frc::SmartDashboard::GetNumber("TractionControl/YawSlipThreshold", mYawSlipThreshold);
   mYawStabilityKp = frc::SmartDashboard::GetNumber("TractionControl/YawKp", mYawStabilityKp);
   mDriftTorqueVectorScale = frc::SmartDashboard::GetNumber("Drift/TorqueVectorScale", mDriftTorqueVectorScale);
 
