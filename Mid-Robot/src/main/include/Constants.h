@@ -2,6 +2,7 @@
 
 #include <units/angle.h>
 #include <units/current.h>
+#include <units/length.h>
 
 namespace OperatorConstants {
 
@@ -27,6 +28,10 @@ namespace CarDriveConstants {
 inline constexpr double kSpeedScale = 0.5;
 inline constexpr units::angle::degree_t kMaxSteerAngle{60.0_deg};
 inline constexpr double kSteerGearRatio = 150.0 / 7.0;
+
+inline constexpr units::length::inch_t kTrackWidth{14.0_in};
+inline constexpr units::length::inch_t kWheelBase{21.0_in};
+inline constexpr units::length::inch_t kWheelRadius{2.0_in};
 
 inline constexpr units::current::ampere_t kSupplyCurrentLimit{40.0_A};
 inline constexpr units::current::ampere_t kStatorCurrentLimit{60.0_A};

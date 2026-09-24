@@ -7,6 +7,7 @@
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/SubsystemBase.h>
 #include <units/angle.h>
+#include <units/length.h>
 
 class SubCarDrive : public frc2::SubsystemBase {
  public:
@@ -48,6 +49,10 @@ class SubCarDrive : public frc2::SubsystemBase {
   double mS;
 
   units::angle::degree_t mTargetSteerAngle{0.0_deg};
+  units::angle::degree_t mTargetSteerAngleFL{0.0_deg};
+  units::angle::degree_t mTargetSteerAngleFR{0.0_deg};
+  double mTargetSpeedFL{0.0};
+  double mTargetSpeedFR{0.0};
 
   double mFLMagnetOffset;
   double mFRMagnetOffset;
@@ -60,4 +65,7 @@ class SubCarDrive : public frc2::SubsystemBase {
   double mSteerGearRatio;
   units::angle::degree_t mMaxSteerAngle;
   double mSpeedScale;
+
+  units::length::inch_t mTrackWidth;
+  units::length::inch_t mWheelBase;
 };

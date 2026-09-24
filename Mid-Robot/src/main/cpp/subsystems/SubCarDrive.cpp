@@ -36,6 +36,8 @@ SubCarDrive::SubCarDrive() {
   mSteerGearRatio = CarDriveConstants::kSteerGearRatio;
   mMaxSteerAngle = CarDriveConstants::kMaxSteerAngle;
   mSpeedScale = CarDriveConstants::kSpeedScale;
+  mTrackWidth = CarDriveConstants::kTrackWidth;
+  mWheelBase = CarDriveConstants::kWheelBase;
 
   ctre::phoenix6::configs::CANcoderConfiguration cancoderConfig{};
   cancoderConfig.MagnetSensor.MagnetOffset = units::angle::turn_t{mFLMagnetOffset};
@@ -122,14 +124,54 @@ void SubCarDrive::drive(double iThrottle, double iBrake, double iSteer, bool iRe
   units::angle::degree_t steerAngle = -std::clamp(iSteer, -1.0, 1.0) * mMaxSteerAngle;
   mTargetSteerAngle = steerAngle;
 
-  mFLDrive->SetControl(mDriveDutyCycleControl.WithOutput(speed));
-  mFRDrive->SetControl(mDriveDutyCycleControl.WithOutput(speed));
+  units::angle::radian_t delta{steerAngle};
+  double L = mWheelBase.value();
+  double halfW = (mTrackWidth / 2.0).value();
 
-  mFLSteer->SetControl(mSteerPositionControl.WithPosition(steerAngle));
-  mFRSteer->SetControl(mSteerPositionControl.WithPosition(steerAngle));
+  double speedFL = speed;
+  double speedFR = speed;
+  units::angle::degree_t angleFL{0.0_deg};
+  units::angle::degree_t angleFR{0.0_deg};
+
+  if (std::abs(delta.value()) > 1e-4) {
+    double tanDelta = std::tan(delta.value());
+    double R = L / tanDelta;
+
+    angleFL = units::angle::degree_t{std::atan(L / (R - halfW))};
+    angleFR = units::angle::degree_t{std::atan(L / (R + halfW))};
+
+    angleFL = std::clamp(angleFL, -mMaxSteerAngle, mMaxSteerAngle);
+    angleFR = std::clamp(angleFR, -mMaxSteerAngle, mMaxSteerAngle);
+
+    double dFL = std::hypot(L, R - halfW);
+    double dFR = std::hypot(L, R + halfW);
+    double dCenter = std::hypot(L, R);
+
+    double maxRatio = std::max(dFL, dFR) / dCenter;
+    speedFL = speed * (dFL / dCenter);
+    speedFR = speed * (dFR / dCenter);
+
+    if (maxRatio > 1.0 && std::abs(speed) > 1e-4) {
+      speedFL /= maxRatio;
+      speedFR /= maxRatio;
+    }
+  }
+
+  mTargetSteerAngleFL = angleFL;
+  mTargetSteerAngleFR = angleFR;
+  mTargetSpeedFL = speedFL;
+  mTargetSpeedFR = speedFR;
+
+  mFLDrive->SetControl(mDriveDutyCycleControl.WithOutput(speedFL));
+  mFRDrive->SetControl(mDriveDutyCycleControl.WithOutput(speedFR));
+
+  mFLSteer->SetControl(mSteerPositionControl.WithPosition(angleFL));
+  mFRSteer->SetControl(mSteerPositionControl.WithPosition(angleFR));
 }
 
 void SubCarDrive::stop() {
+  mTargetSpeedFL = 0.0;
+  mTargetSpeedFR = 0.0;
   mFLDrive->SetControl(mDriveDutyCycleControl.WithOutput(0.0));
   mFRDrive->SetControl(mDriveDutyCycleControl.WithOutput(0.0));
 }
@@ -141,6 +183,8 @@ void SubCarDrive::stopDrive() {
 void SubCarDrive::setSteerAngle(units::angle::degree_t iAngle) {
   units::angle::degree_t clampedAngle = std::clamp(iAngle, -mMaxSteerAngle, mMaxSteerAngle);
   mTargetSteerAngle = clampedAngle;
+  mTargetSteerAngleFL = clampedAngle;
+  mTargetSteerAngleFR = clampedAngle;
   mFLSteer->SetControl(mSteerPositionControl.WithPosition(clampedAngle));
   mFRSteer->SetControl(mSteerPositionControl.WithPosition(clampedAngle));
 }
@@ -220,6 +264,8 @@ void SubCarDrive::initDashboard() {
   frc::SmartDashboard::SetDefaultNumber("Steer/MaxAngleDeg", mMaxSteerAngle.value());
   frc::SmartDashboard::SetDefaultNumber("Drive/SpeedScale", mSpeedScale);
 
+  frc::SmartDashboard::SetDefaultNumber("CarDrive/TrackWidthInches", mTrackWidth.value());
+  frc::SmartDashboard::SetDefaultNumber("CarDrive/WheelBaseInches", mWheelBase.value());
   frc::SmartDashboard::SetDefaultNumber("Steer/TestTargetAngleDeg", 45.0);
   frc::SmartDashboard::SetDefaultBoolean("Steer/TestEnable", false);
   frc::SmartDashboard::SetDefaultBoolean("Steer/ZeroFL", false);
@@ -227,6 +273,16 @@ void SubCarDrive::initDashboard() {
 }
 
 void SubCarDrive::updateConfigsFromDashboard() {
+  double newTrackWidth = frc::SmartDashboard::GetNumber("CarDrive/TrackWidthInches", mTrackWidth.value());
+  if (std::abs(newTrackWidth - mTrackWidth.value()) > 1e-6) {
+    mTrackWidth = units::length::inch_t{newTrackWidth};
+  }
+
+  double newWheelBase = frc::SmartDashboard::GetNumber("CarDrive/WheelBaseInches", mWheelBase.value());
+  if (std::abs(newWheelBase - mWheelBase.value()) > 1e-6) {
+    mWheelBase = units::length::inch_t{newWheelBase};
+  }
+
   double newSpeedScale = frc::SmartDashboard::GetNumber("Drive/SpeedScale", mSpeedScale);
   if (std::abs(newSpeedScale - mSpeedScale) > 1e-6) {
     mSpeedScale = newSpeedScale;
@@ -360,10 +416,15 @@ void SubCarDrive::updateTelemetry() {
   double frDeg = units::angle::degree_t{mFRSteer->GetPosition().GetValue()}.value();
 
   frc::SmartDashboard::PutNumber("Steer/TargetAngleDeg", targetDeg);
+  frc::SmartDashboard::PutNumber("Steer/FLTargetDeg", mTargetSteerAngleFL.value());
+  frc::SmartDashboard::PutNumber("Steer/FRTargetDeg", mTargetSteerAngleFR.value());
+  frc::SmartDashboard::PutNumber("Drive/FLTargetSpeed", mTargetSpeedFL);
+  frc::SmartDashboard::PutNumber("Drive/FRTargetSpeed", mTargetSpeedFR);
+
   frc::SmartDashboard::PutNumber("Steer/FLAngleDeg", flDeg);
   frc::SmartDashboard::PutNumber("Steer/FRAngleDeg", frDeg);
-  frc::SmartDashboard::PutNumber("Steer/FLErrDeg", targetDeg - flDeg);
-  frc::SmartDashboard::PutNumber("Steer/FRErrDeg", targetDeg - frDeg);
+  frc::SmartDashboard::PutNumber("Steer/FLErrDeg", mTargetSteerAngleFL.value() - flDeg);
+  frc::SmartDashboard::PutNumber("Steer/FRErrDeg", mTargetSteerAngleFR.value() - frDeg);
 
   frc::SmartDashboard::PutNumber("Steer/FLEncoderDeg", units::angle::degree_t{mFLEncoder->GetPosition().GetValue()}.value());
   frc::SmartDashboard::PutNumber("Steer/FREncoderDeg", units::angle::degree_t{mFREncoder->GetPosition().GetValue()}.value());
