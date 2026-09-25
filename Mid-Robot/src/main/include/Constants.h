@@ -52,10 +52,10 @@ inline constexpr bool kFLSteerInverted = false;
 inline constexpr bool kFRSteerInverted = false;
 
 inline constexpr double kDriveGearRatio = 6.75;
-inline constexpr double kTractionSlipThreshold = 2.0;
-inline constexpr double kTractionKp = 0.3;
-inline constexpr double kYawSlipThreshold = 20.0;
-inline constexpr double kYawStabilityKp = 0.02;
+inline constexpr double kTractionSlipThreshold = 5.0;
+inline constexpr double kTractionKp = 0.05;
+inline constexpr double kYawSlipThreshold = 25.0;
+inline constexpr double kYawStabilityKp = 0.005;
 inline constexpr double kDriftTorqueVectorScale = 1.25;
 
 } // namespace CarDriveConstants

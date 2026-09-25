@@ -84,9 +84,15 @@ class SubCarDrive : public frc2::SubsystemBase {
   double mYawSlipThreshold;
   double mYawStabilityKp;
   double mDriftTorqueVectorScale;
-  bool mTractionControlEnabled{false};
+  bool mTractionControlEnabled{true};
 
   bool mIsSlipping{false};
   bool mDriftActive{false};
   int mTelemetryCounter{0};
+
+  double mFilteredWheelAccelFL{0.0};
+  double mFilteredWheelAccelFR{0.0};
+  double mPrevWheelSpeedFL{0.0};
+  double mPrevWheelSpeedFR{0.0};
+  double mFilteredImuAx{0.0};
 };

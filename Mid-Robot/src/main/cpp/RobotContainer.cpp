@@ -11,7 +11,7 @@ void RobotContainer::ConfigureBindings() {
   mCarDrive.SetDefaultCommand(mCarDrive.Run([this] {
     double throttle = mDriverController.GetRightTriggerAxis();
     double brake = mDriverController.GetLeftTriggerAxis();
-    double steer = frc::ApplyDeadband(mDriverController.GetRightX(), OperatorConstants::kJoystickDeadband);
+    double steer = frc::ApplyDeadband(mDriverController.GetLeftX(), OperatorConstants::kJoystickDeadband);
     bool reverse = mDriverController.GetHID().GetBButton();
     bool drift = mDriverController.LeftBumper().Get();
     mCarDrive.drive(throttle, brake, steer, reverse, drift);

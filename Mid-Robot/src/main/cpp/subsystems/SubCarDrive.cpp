@@ -163,8 +163,18 @@ void SubCarDrive::drive(double iThrottle, double iBrake, double iSteer, bool iRe
     double dInner = std::hypot(L, std::max(0.0, absR - halfW));
     double dCenter = std::hypot(L, absR);
 
-    double speedOuter = std::clamp(speed * (dOuter / dCenter), -1.0, 1.0);
-    double speedInner = std::clamp(speed * (dInner / dCenter), -1.0, 1.0);
+    double ratioOuter = dOuter / dCenter;
+    double ratioInner = dInner / dCenter;
+
+    double maxRatio = ratioOuter;
+    double normSpeed = std::abs(speed);
+    if (normSpeed * maxRatio > 1.0 && normSpeed > 1e-4) {
+      ratioOuter /= (normSpeed * maxRatio);
+      ratioInner /= (normSpeed * maxRatio);
+    }
+
+    double speedOuter = speed * ratioOuter;
+    double speedInner = speed * ratioInner;
 
     if (R < 0.0) {
       speedFR = speedOuter;
@@ -192,37 +202,40 @@ void SubCarDrive::drive(double iThrottle, double iBrake, double iSteer, bool iRe
     }
   } else if (mTractionControlEnabled) {
     double wheelCircumference = 2.0 * std::numbers::pi * units::meter_t{mWheelRadius}.value();
-    double accelFLRps2 = mFLDrive->GetAcceleration().GetValue().value();
-    double accelFRRps2 = mFRDrive->GetAcceleration().GetValue().value();
-    double wheelAccelFL = (accelFLRps2 / mDriveGearRatio) * wheelCircumference;
-    double wheelAccelFR = (accelFRRps2 / mDriveGearRatio) * wheelCircumference;
+    double rpsFL = mFLDrive->GetVelocity().GetValue().value();
+    double rpsFR = mFRDrive->GetVelocity().GetValue().value();
+    double wheelSpeedFL = (rpsFL / mDriveGearRatio) * wheelCircumference;
+    double wheelSpeedFR = (rpsFR / mDriveGearRatio) * wheelCircumference;
+
+    double rawAccelFL = (wheelSpeedFL - mPrevWheelSpeedFL) / 0.02;
+    double rawAccelFR = (wheelSpeedFR - mPrevWheelSpeedFR) / 0.02;
+    mPrevWheelSpeedFL = wheelSpeedFL;
+    mPrevWheelSpeedFR = wheelSpeedFR;
+
+    mFilteredWheelAccelFL = 0.6 * mFilteredWheelAccelFL + 0.4 * rawAccelFL;
+    mFilteredWheelAccelFR = 0.6 * mFilteredWheelAccelFR + 0.4 * rawAccelFR;
 
     double forwardSign = (speed >= 0.0) ? 1.0 : -1.0;
     units::acceleration::meters_per_second_squared_t imuAccelX = mPigeon->GetAccelerationX().GetValue();
-    double measuredAx = imuAccelX.value() * forwardSign;
+    mFilteredImuAx = 0.6 * mFilteredImuAx + 0.4 * (imuAccelX.value() * forwardSign);
 
-    double slipFL = (wheelAccelFL * forwardSign) - measuredAx;
-    double slipFR = (wheelAccelFR * forwardSign) - measuredAx;
+    double slipFL = (mFilteredWheelAccelFL * forwardSign) - mFilteredImuAx;
+    double slipFR = (mFilteredWheelAccelFR * forwardSign) - mFilteredImuAx;
 
     bool slipFLDetected = (slipFL > mTractionSlipThreshold);
     bool slipFRDetected = (slipFR > mTractionSlipThreshold);
     mIsSlipping = slipFLDetected || slipFRDetected;
 
     if (slipFLDetected) {
-      double reductionFL = std::clamp((slipFL - mTractionSlipThreshold) * mTractionKp, 0.0, 0.8);
+      double reductionFL = std::clamp((slipFL - mTractionSlipThreshold) * mTractionKp, 0.0, 0.35);
       speedFL *= (1.0 - reductionFL);
     }
     if (slipFRDetected) {
-      double reductionFR = std::clamp((slipFR - mTractionSlipThreshold) * mTractionKp, 0.0, 0.8);
+      double reductionFR = std::clamp((slipFR - mTractionSlipThreshold) * mTractionKp, 0.0, 0.35);
       speedFR *= (1.0 - reductionFR);
     }
 
-    double rpsFL = mFLDrive->GetVelocity().GetValue().value();
-    double rpsFR = mFRDrive->GetVelocity().GetValue().value();
-    double wheelSpeedFL = (rpsFL / mDriveGearRatio) * wheelCircumference;
-    double wheelSpeedFR = (rpsFR / mDriveGearRatio) * wheelCircumference;
     double linearVelocity = (wheelSpeedFL + wheelSpeedFR) * 0.5;
-
     double wheelbaseMeters = units::meter_t{mWheelBase}.value();
     double desiredYawRateRadPerSec = (linearVelocity / wheelbaseMeters) * std::tan(delta.value());
     double desiredYawRateDps = desiredYawRateRadPerSec * (180.0 / std::numbers::pi);
@@ -240,7 +253,7 @@ void SubCarDrive::drive(double iThrottle, double iBrake, double iSteer, bool iRe
     }
 
     if (excessYaw > mYawSlipThreshold) {
-      double yawReduction = std::clamp((excessYaw - mYawSlipThreshold) * mYawStabilityKp, 0.0, 0.8);
+      double yawReduction = std::clamp((excessYaw - mYawSlipThreshold) * mYawStabilityKp, 0.0, 0.35);
       speedFL *= (1.0 - yawReduction);
       speedFR *= (1.0 - yawReduction);
     }
