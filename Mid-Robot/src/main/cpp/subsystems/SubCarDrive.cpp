@@ -436,10 +436,6 @@ void SubCarDrive::initDashboard() {
 }
 
 void SubCarDrive::updateConfigsFromDashboard() {
-  if (!frc::DriverStation::IsTest()) {
-    return;
-  }
-
   double newTrackWidth = frc::SmartDashboard::GetNumber("CarDrive/TrackWidthInches", mTrackWidth.value());
   if (std::abs(newTrackWidth - mTrackWidth.value()) > 1e-6) {
     mTrackWidth = units::length::inch_t{newTrackWidth};
@@ -490,6 +486,10 @@ void SubCarDrive::updateConfigsFromDashboard() {
     slot0Config.kS = mS;
     mFLSteer->GetConfigurator().Apply(slot0Config);
     mFRSteer->GetConfigurator().Apply(slot0Config);
+  }
+
+  if (!frc::DriverStation::IsTest()) {
+    return;
   }
 
   if (frc::SmartDashboard::GetBoolean("Steer/ZeroFL", false)) {
