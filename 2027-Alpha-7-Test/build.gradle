@@ -102,7 +102,3 @@ model {
         }
     }
 }
-
-nativeUtils.platformConfigs.named('windowsarm64').configure {
-  it.cppCompiler.args.add("/utf-8")
-}
