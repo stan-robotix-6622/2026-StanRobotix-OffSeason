@@ -136,8 +136,12 @@ $RECYCLE.BIN/
 *.lnk
 
 ### Gradle ###
-.gradle
-/build/
+**/.gradle/
+**/build/
+
+### Gradle in any subdirectory ###
+.gradle/
+build/
 
 ### Gradle in any subdirectory ###
 .gradle/
