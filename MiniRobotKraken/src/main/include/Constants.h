@@ -21,6 +21,20 @@ inline constexpr int kDriverControllerPort = 0;
 }  // namespace OperatorConstants
 
 namespace DriveTrainConstants {
-  constexpr int kRightMotorID = 0;
-  constexpr int kLeftMotorID = 1;
+  constexpr int kRightMotorDriveID = 18;
+  constexpr int kRightMotorTurnID = 16;
+  constexpr int kRightEncoder = 33;
+
+  constexpr int kLeftMotorDriveID = 12;
+  constexpr int kLeftMotorTurnID = 14;
+  constexpr int kLeftEncoder = 32;
+    
+}
+
+namespace PIDConstants{
+
+	inline constexpr double kP = 0;
+	inline constexpr double kI = 0;
+	inline constexpr double kD = 0;
+
 }

@@ -11,7 +11,7 @@
 class DriveTrain : public frc2::SubsystemBase {
  public:
   DriveTrain();
-  void Drive(double RightY);
+  void Drive(double Turn, double Drive);
 
   /**
    * Will be called periodically whenever the CommandScheduler runs.
@@ -22,6 +22,8 @@ class DriveTrain : public frc2::SubsystemBase {
   // Components (e.g. motor controllers and sensors) should generally be
   // declared private and exposed only through public methods.
 
-  ctre::phoenix6::hardware::TalonFX* mRightMotor;
-  ctre::phoenix6::hardware::TalonFX* mLeftMotor;
+  ctre::phoenix6::hardware::TalonFX* mRightMotorDrive;
+	ctre::phoenix6::hardware::TalonFX* mRightMotorTurn;
+  ctre::phoenix6::hardware::TalonFX* mLeftMotorDrive;
+	ctre::phoenix6::hardware::TalonFX* mLeftMotorTurn;
 };
