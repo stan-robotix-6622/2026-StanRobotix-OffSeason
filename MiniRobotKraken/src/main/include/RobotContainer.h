@@ -36,6 +36,6 @@ class RobotContainer {
 
   frc::XboxController* mXboxController;
   DriveTrain* mDriveTrain;
-
+  
   void ConfigureBindings();
 };

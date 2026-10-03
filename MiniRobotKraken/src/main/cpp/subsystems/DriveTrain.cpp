@@ -5,25 +5,36 @@
 #include "subsystems/DriveTrain.h"
 #include "Constants.h"
 
+
 DriveTrain::DriveTrain() {
   mRightMotorDrive = new ctre::phoenix6::hardware::TalonFX{DriveTrainConstants::kRightMotorDriveID};
   mLeftMotorDrive = new ctre::phoenix6::hardware::TalonFX{DriveTrainConstants::kLeftMotorDriveID};
 	mRightMotorTurn = new ctre::phoenix6::hardware::TalonFX{DriveTrainConstants::kRightMotorTurnID};
 	mLeftMotorTurn = new ctre::phoenix6::hardware::TalonFX{DriveTrainConstants::kLeftMotorTurnID};
+
+	mPIDController = new frc::PIDController{PIDConstants::kP, PIDConstants::kI, PIDConstants::kD, PIDConstants::kPeriod};
+	mLeftEncoder = new ctre::phoenix6::hardware::CANcoder{DriveTrainConstants::kLeftEncoder};
+	mRightEncoder = new ctre::phoenix6::hardware::CANcoder{DriveTrainConstants::kRightEncoder};
 };
 
 // This method will be called once per scheduler run
 void DriveTrain::Periodic() {}
 
+// 
 void DriveTrain::Drive(double Drive, double Turn)
 {
   // ctre::phoenix6::HootReplay::SetSpeed(RightY);
+  Turn*=DriveTrainConstants::kMaxAngle;
+	//mPIDController->Calculate(CurrentTurn,Turn);
   mRightMotorDrive->Set(Drive);
   mRightMotorTurn->Set(Turn);
 
   mLeftMotorDrive->Set(Drive);
 	mLeftMotorTurn->Set(Turn);
 	
+	mLeftEncoder->GetAbsolutePosition();
+	mRightEncoder->GetAbsolutePosition();
+	//mLeftEncoder =std::clamp(mLeftEncoder,DriveTrainConstants::kEncoderMinAbsoluteValue,DriveTrainConstants::kEncoderMaxAbsoluteValue);
 }
 
 

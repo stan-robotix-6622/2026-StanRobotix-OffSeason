@@ -28,15 +28,16 @@ namespace DriveTrainConstants {
   constexpr int kLeftMotorDriveID = 12;
   constexpr int kLeftMotorTurnID = 14;
   constexpr int kLeftEncoder = 32;
-
-	constexpr units::angle::kMaxTurnAngle = {45_deg}; 
-    
+  
+	constexpr float kEncoderMaxAbsoluteValue = 0.999755859375;
+	constexpr float kEncoderMinAbsoluteValue = -1.0;
+	constexpr int kMaxAngle = 25; 
 }
 
 namespace PIDConstants{
 
-	inline constexpr double kP = 0;
+	inline constexpr double kP = 0.01;
 	inline constexpr double kI = 0;
 	inline constexpr double kD = 0;
-
+  units::second_t kPeriod = 20_ms;
 }

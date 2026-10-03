@@ -4,9 +4,12 @@
 
 #pragma once
 
+#include <ctre/phoenix6/CANcoder.hpp>
 #include <frc2/command/SubsystemBase.h>
+#include <frc/controller/PIDController.h>
 #include <ctre/phoenix6/HootReplay.hpp>
 #include <ctre/phoenix6/TalonFX.hpp>
+#include <iostream>
 
 class DriveTrain : public frc2::SubsystemBase {
  public:
@@ -26,4 +29,10 @@ class DriveTrain : public frc2::SubsystemBase {
 	ctre::phoenix6::hardware::TalonFX* mRightMotorTurn;
   ctre::phoenix6::hardware::TalonFX* mLeftMotorDrive;
 	ctre::phoenix6::hardware::TalonFX* mLeftMotorTurn;
+	frc::PIDController* mPIDController;
+	ctre::phoenix6::hardware::CANcoder* mLeftEncoder;	
+	ctre::phoenix6::hardware::CANcoder* mRightEncoder;	
 };
+
+
+

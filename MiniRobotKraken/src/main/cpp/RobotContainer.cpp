@@ -13,7 +13,8 @@
 RobotContainer::RobotContainer() {
   // Initialize all of your commands and subsystems here
   mXboxController = new frc::XboxController{0};
-
+//	mDriveTrainAngle = new DriveTrainAngle;
+  
   // Configure the button bindings
   ConfigureBindings();
 }
@@ -30,17 +31,18 @@ void RobotContainer::ConfigureBindings() {
   // pressed, cancelling on release.
   m_driverController.B().WhileTrue(m_subsystem.ExampleMethodCommand());
 
-  mDriveTrain->SetDefaultCommand(frc2::RunCommand(
+ mDriveTrain->SetDefaultCommand(frc2::RunCommand(
     [this] {
-      if (abs(mXboxController->GetLeftX()) > 0.1 || abs(mXboxController->GetRightY()) > 0.1) {
-        mDriveTrain->Drive(mXboxController->GetRightY());
-      }
-
+     if (abs(mXboxController->GetLeftX()) > 0.1 || abs(mXboxController->GetRightY()) > 0.1) {
+       mDriveTrain->Drive(mXboxController->GetRightY(), mXboxController->GetLeftX());
+     }
       else {
-        mDriveTrain->Drive(0);
-      }
-    }, {mDriveTrain}
-  ));
+       mDriveTrain->Drive(0, 0);
+     }
+   }, {mDriveTrain}
+ ));
+
+
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
