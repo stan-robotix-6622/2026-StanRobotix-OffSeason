@@ -1,7 +1,7 @@
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
-
+#include <units/angle.h>
 #pragma once
 
 /**
@@ -28,6 +28,8 @@ namespace DriveTrainConstants {
   constexpr int kLeftMotorDriveID = 12;
   constexpr int kLeftMotorTurnID = 14;
   constexpr int kLeftEncoder = 32;
+
+	constexpr units::angle::kMaxTurnAngle = {45_deg}; 
     
 }
 
