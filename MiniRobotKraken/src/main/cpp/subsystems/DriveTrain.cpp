@@ -4,6 +4,7 @@
 
 #include "subsystems/DriveTrain.h"
 #include "Constants.h"
+#include "DriveTrain.h"
 
 DriveTrain::DriveTrain() {
   mRightMotorDrive = new ctre::phoenix6::hardware::TalonFX{DriveTrainConstants::kRightMotorDriveID};
@@ -25,6 +26,4 @@ void DriveTrain::Drive(double Drive, double Turn)
 	mLeftMotorTurn->Set(Turn);
 	
 }
-
-
 
