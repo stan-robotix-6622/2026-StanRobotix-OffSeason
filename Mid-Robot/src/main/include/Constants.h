@@ -33,7 +33,6 @@ inline constexpr double kSteerGearRatio = 150.0 / 7.0;
 
 inline constexpr units::length::inch_t kTrackWidth{14.0_in};
 inline constexpr units::length::inch_t kWheelBase{21.0_in};
-inline constexpr units::length::inch_t kWheelRadius{2.0_in};
 
 inline constexpr units::current::ampere_t kSupplyCurrentLimit{40.0_A};
 inline constexpr units::current::ampere_t kStatorCurrentLimit{60.0_A};
@@ -51,11 +50,7 @@ inline constexpr bool kFRDriveInverted = true;
 inline constexpr bool kFLSteerInverted = false;
 inline constexpr bool kFRSteerInverted = false;
 
-inline constexpr double kDriveGearRatio = 6.75;
-inline constexpr double kTractionSlipThreshold = 5.0;
-inline constexpr double kTractionKp = 0.05;
-inline constexpr double kYawSlipThreshold = 25.0;
-inline constexpr double kYawStabilityKp = 0.005;
 inline constexpr double kDriftTorqueVectorScale = 1.25;
+inline constexpr double kDriftInnerScale = 0.4;
 
 } // namespace CarDriveConstants

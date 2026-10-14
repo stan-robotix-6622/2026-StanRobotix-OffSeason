@@ -2,16 +2,10 @@
 
 #include <algorithm>
 #include <cmath>
-#include <numbers>
-#include <ctre/phoenix6/configs/FeedbackConfigs.hpp>
 #include <ctre/phoenix6/configs/MagnetSensorConfigs.hpp>
-#include <ctre/phoenix6/configs/MotorOutputConfigs.hpp>
-#include <ctre/phoenix6/configs/Slot0Configs.hpp>
 #include <frc/DriverStation.h>
-#include <frc/Timer.h>
 #include <frc/smartdashboard/SmartDashboard.h>
-#include <frc2/command/Commands.h>
-#include <units/angle.h>
+#include <units/math.h>
 #include "Constants.h"
 
 SubCarDrive::SubCarDrive() {
@@ -25,79 +19,12 @@ SubCarDrive::SubCarDrive() {
 
   mPigeon = new ctre::phoenix6::hardware::Pigeon2{CANid::kPigeon2};
 
-  mP = CarDriveConstants::kSteerP;
-  mI = CarDriveConstants::kSteerI;
-  mD = CarDriveConstants::kSteerD;
-  mS = CarDriveConstants::kSteerS;
-
-  mFLMagnetOffset = CarDriveConstants::kFLMagnetOffset.value();
-  mFRMagnetOffset = CarDriveConstants::kFRMagnetOffset.value();
-
-  mFLDriveInverted = CarDriveConstants::kFLDriveInverted;
-  mFRDriveInverted = CarDriveConstants::kFRDriveInverted;
-  mFLSteerInverted = CarDriveConstants::kFLSteerInverted;
-  mFRSteerInverted = CarDriveConstants::kFRSteerInverted;
-
-  mSteerGearRatio = CarDriveConstants::kSteerGearRatio;
-  mMaxSteerAngle = CarDriveConstants::kMaxSteerAngle;
-  mSpeedScale = CarDriveConstants::kSpeedScale;
-  mTrackWidth = CarDriveConstants::kTrackWidth;
-  mWheelBase = CarDriveConstants::kWheelBase;
-  mWheelRadius = CarDriveConstants::kWheelRadius;
-
-  mDriveGearRatio = CarDriveConstants::kDriveGearRatio;
-  mTractionSlipThreshold = CarDriveConstants::kTractionSlipThreshold;
-  mTractionKp = CarDriveConstants::kTractionKp;
-  mYawSlipThreshold = CarDriveConstants::kYawSlipThreshold;
-  mYawStabilityKp = CarDriveConstants::kYawStabilityKp;
-  mDriftTorqueVectorScale = CarDriveConstants::kDriftTorqueVectorScale;
-
-  ctre::phoenix6::configs::CANcoderConfiguration cancoderConfig{};
-  cancoderConfig.MagnetSensor.MagnetOffset = units::angle::turn_t{mFLMagnetOffset};
-  cancoderConfig.MagnetSensor.SensorDirection = ctre::phoenix6::signals::SensorDirectionValue::CounterClockwise_Positive;
-  mFLEncoder->GetConfigurator().Apply(cancoderConfig);
-
-  cancoderConfig.MagnetSensor.MagnetOffset = units::angle::turn_t{mFRMagnetOffset};
-  mFREncoder->GetConfigurator().Apply(cancoderConfig);
-
-  ctre::phoenix6::configs::TalonFXConfiguration driveConfig{};
-  driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-  driveConfig.CurrentLimits.SupplyCurrentLimit = CarDriveConstants::kSupplyCurrentLimit;
-  driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-  driveConfig.CurrentLimits.StatorCurrentLimit = CarDriveConstants::kStatorCurrentLimit;
-  driveConfig.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake;
-  driveConfig.MotorOutput.Inverted = mFLDriveInverted
-      ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
-      : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
-  mFLDrive->GetConfigurator().Apply(driveConfig);
-
-  driveConfig.MotorOutput.Inverted = mFRDriveInverted
-      ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
-      : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
-  mFRDrive->GetConfigurator().Apply(driveConfig);
-
-  ctre::phoenix6::configs::TalonFXConfiguration steerConfig{};
-  steerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-  steerConfig.CurrentLimits.SupplyCurrentLimit = CarDriveConstants::kSupplyCurrentLimit;
-  steerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-  steerConfig.CurrentLimits.StatorCurrentLimit = CarDriveConstants::kStatorCurrentLimit;
-  steerConfig.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake;
-  steerConfig.MotorOutput.Inverted = mFLSteerInverted
-      ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
-      : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
-  steerConfig.Feedback.FeedbackSensorSource = ctre::phoenix6::signals::FeedbackSensorSourceValue::RotorSensor;
-  steerConfig.Feedback.SensorToMechanismRatio = mSteerGearRatio;
-  steerConfig.ClosedLoopGeneral.ContinuousWrap = true;
-  steerConfig.Slot0.kP = mP;
-  steerConfig.Slot0.kI = mI;
-  steerConfig.Slot0.kD = mD;
-  steerConfig.Slot0.kS = mS;
-  mFLSteer->GetConfigurator().Apply(steerConfig);
-
-  steerConfig.MotorOutput.Inverted = mFRSteerInverted
-      ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
-      : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
-  mFRSteer->GetConfigurator().Apply(steerConfig);
+  applyMagnetConfig(mFLEncoder, mFLMagnetOffset);
+  applyMagnetConfig(mFREncoder, mFRMagnetOffset);
+  applyDriveConfig(mFLDrive, mFLDriveInverted);
+  applyDriveConfig(mFRDrive, mFRDriveInverted);
+  applySteerConfig(mFLSteer, mFLSteerInverted);
+  applySteerConfig(mFRSteer, mFRSteerInverted);
 
   syncSteerToCANcoder();
 
@@ -122,10 +49,6 @@ void SubCarDrive::Periodic() {
 }
 
 void SubCarDrive::drive(double iThrottle, double iBrake, double iSteer, bool iReverse, bool iDrift) {
-  if (frc::SmartDashboard::GetBoolean("Steer/TestEnable", false)) {
-    return;
-  }
-
   double throttle = std::clamp(iThrottle, 0.0, 1.0);
   double brake = std::clamp(iBrake, 0.0, 1.0);
   double speed = (throttle * mSpeedScale) * (1.0 - brake);
@@ -140,43 +63,38 @@ void SubCarDrive::drive(double iThrottle, double iBrake, double iSteer, bool iRe
   mTargetSteerAngle = steerAngle;
 
   units::angle::radian_t delta{steerAngle};
-  double L = mWheelBase.value();
-  double halfW = (mTrackWidth / 2.0).value();
+  units::meter_t halfTrack = mTrackWidth / 2.0;
 
   double speedFL = speed;
   double speedFR = speed;
   units::angle::degree_t angleFL{0.0_deg};
   units::angle::degree_t angleFR{0.0_deg};
 
-  if (std::abs(delta.value()) > 1e-4) {
-    double tanDelta = std::tan(delta.value());
-    double R = L / tanDelta;
+  if (units::math::abs(delta) > 1e-4_rad) {
+    units::meter_t turnRadius = mWheelBase / units::math::tan(delta);
 
-    angleFL = units::angle::radian_t{std::atan(L / (R - halfW))};
-    angleFR = units::angle::radian_t{std::atan(L / (R + halfW))};
+    angleFL = units::math::atan(mWheelBase / (turnRadius - halfTrack));
+    angleFR = units::math::atan(mWheelBase / (turnRadius + halfTrack));
 
     angleFL = std::clamp(angleFL, -mMaxSteerAngle, mMaxSteerAngle);
     angleFR = std::clamp(angleFR, -mMaxSteerAngle, mMaxSteerAngle);
 
-    double absR = std::abs(R);
-    double dOuter = std::hypot(L, absR + halfW);
-    double dInner = std::hypot(L, std::max(0.0, absR - halfW));
-    double dCenter = std::hypot(L, absR);
+    units::meter_t absRadius = units::math::abs(turnRadius);
+    units::meter_t centerDistance = units::math::hypot(mWheelBase, absRadius);
+    double ratioOuter = (units::math::hypot(mWheelBase, absRadius + halfTrack) / centerDistance).value();
+    double ratioInner = (units::math::hypot(mWheelBase, std::max(0_m, absRadius - halfTrack)) / centerDistance).value();
 
-    double ratioOuter = dOuter / dCenter;
-    double ratioInner = dInner / dCenter;
-
-    double maxRatio = ratioOuter;
     double normSpeed = std::abs(speed);
-    if (normSpeed * maxRatio > 1.0 && normSpeed > 1e-4) {
-      ratioOuter /= (normSpeed * maxRatio);
-      ratioInner /= (normSpeed * maxRatio);
+    double maxRatio = normSpeed * ratioOuter;
+    if (maxRatio > 1.0 && normSpeed > 1e-4) {
+      ratioOuter /= maxRatio;
+      ratioInner /= maxRatio;
     }
 
     double speedOuter = speed * ratioOuter;
     double speedInner = speed * ratioInner;
 
-    if (R < 0.0) {
+    if (turnRadius < 0_m) {
       speedFR = speedOuter;
       speedFL = speedInner;
     } else {
@@ -188,77 +106,16 @@ void SubCarDrive::drive(double iThrottle, double iBrake, double iSteer, bool iRe
   mDriftActive = iDrift;
 
   if (std::abs(speed) < 1e-4) {
-    mIsSlipping = false;
     speedFL = 0.0;
     speedFR = 0.0;
   } else if (iDrift) {
-    mIsSlipping = false;
     if (steerAngle > 1.0_deg) {
       speedFL = std::clamp(speedFL * mDriftTorqueVectorScale, -1.0, 1.0);
-      speedFR *= (1.0 - std::abs(iSteer) * 0.4);
+      speedFR *= (1.0 - std::abs(iSteer) * CarDriveConstants::kDriftInnerScale);
     } else if (steerAngle < -1.0_deg) {
       speedFR = std::clamp(speedFR * mDriftTorqueVectorScale, -1.0, 1.0);
-      speedFL *= (1.0 - std::abs(iSteer) * 0.4);
+      speedFL *= (1.0 - std::abs(iSteer) * CarDriveConstants::kDriftInnerScale);
     }
-  } else if (mTractionControlEnabled) {
-    double wheelCircumference = 2.0 * std::numbers::pi * units::meter_t{mWheelRadius}.value();
-    double rpsFL = mFLDrive->GetVelocity().GetValue().value();
-    double rpsFR = mFRDrive->GetVelocity().GetValue().value();
-    double wheelSpeedFL = (rpsFL / mDriveGearRatio) * wheelCircumference;
-    double wheelSpeedFR = (rpsFR / mDriveGearRatio) * wheelCircumference;
-
-    double rawAccelFL = (wheelSpeedFL - mPrevWheelSpeedFL) / 0.02;
-    double rawAccelFR = (wheelSpeedFR - mPrevWheelSpeedFR) / 0.02;
-    mPrevWheelSpeedFL = wheelSpeedFL;
-    mPrevWheelSpeedFR = wheelSpeedFR;
-
-    mFilteredWheelAccelFL = 0.6 * mFilteredWheelAccelFL + 0.4 * rawAccelFL;
-    mFilteredWheelAccelFR = 0.6 * mFilteredWheelAccelFR + 0.4 * rawAccelFR;
-
-    double forwardSign = (speed >= 0.0) ? 1.0 : -1.0;
-    units::acceleration::meters_per_second_squared_t imuAccelX = mPigeon->GetAccelerationX().GetValue();
-    mFilteredImuAx = 0.6 * mFilteredImuAx + 0.4 * (imuAccelX.value() * forwardSign);
-
-    double slipFL = (mFilteredWheelAccelFL * forwardSign) - mFilteredImuAx;
-    double slipFR = (mFilteredWheelAccelFR * forwardSign) - mFilteredImuAx;
-
-    bool slipFLDetected = (slipFL > mTractionSlipThreshold);
-    bool slipFRDetected = (slipFR > mTractionSlipThreshold);
-    mIsSlipping = slipFLDetected || slipFRDetected;
-
-    if (slipFLDetected) {
-      double reductionFL = std::clamp((slipFL - mTractionSlipThreshold) * mTractionKp, 0.0, 0.35);
-      speedFL *= (1.0 - reductionFL);
-    }
-    if (slipFRDetected) {
-      double reductionFR = std::clamp((slipFR - mTractionSlipThreshold) * mTractionKp, 0.0, 0.35);
-      speedFR *= (1.0 - reductionFR);
-    }
-
-    double linearVelocity = (wheelSpeedFL + wheelSpeedFR) * 0.5;
-    double wheelbaseMeters = units::meter_t{mWheelBase}.value();
-    double desiredYawRateRadPerSec = (linearVelocity / wheelbaseMeters) * std::tan(delta.value());
-    double desiredYawRateDps = desiredYawRateRadPerSec * (180.0 / std::numbers::pi);
-
-    units::angular_velocity::degrees_per_second_t gyroYawRate = mPigeon->GetAngularVelocityZDevice().GetValue();
-    double actualYawRateDps = gyroYawRate.value();
-
-    double excessYaw = 0.0;
-    if (desiredYawRateDps > 1.0) {
-      excessYaw = actualYawRateDps - desiredYawRateDps;
-    } else if (desiredYawRateDps < -1.0) {
-      excessYaw = -actualYawRateDps - (-desiredYawRateDps);
-    } else {
-      excessYaw = std::abs(actualYawRateDps);
-    }
-
-    if (excessYaw > mYawSlipThreshold) {
-      double yawReduction = std::clamp((excessYaw - mYawSlipThreshold) * mYawStabilityKp, 0.0, 0.35);
-      speedFL *= (1.0 - yawReduction);
-      speedFR *= (1.0 - yawReduction);
-    }
-  } else {
-    mIsSlipping = false;
   }
 
   mTargetSteerAngleFL = angleFL;
@@ -280,10 +137,6 @@ void SubCarDrive::stop() {
   mFRDrive->SetControl(mDriveDutyCycleControl.WithOutput(0.0));
 }
 
-void SubCarDrive::stopDrive() {
-  stop();
-}
-
 void SubCarDrive::setSteerAngle(units::angle::degree_t iAngle) {
   units::angle::degree_t clampedAngle = std::clamp(iAngle, -mMaxSteerAngle, mMaxSteerAngle);
   mTargetSteerAngle = clampedAngle;
@@ -301,36 +154,65 @@ void SubCarDrive::syncSteerToCANcoder() {
   mFRSteer->SetPosition(mFREncoder->GetPosition().GetValue());
 }
 
+void SubCarDrive::applyMagnetConfig(ctre::phoenix6::hardware::CANcoder* iEncoder, units::angle::turn_t iOffset) {
+  ctre::phoenix6::configs::MagnetSensorConfigs magnetConfig{};
+  magnetConfig.MagnetOffset = iOffset;
+  magnetConfig.SensorDirection = ctre::phoenix6::signals::SensorDirectionValue::CounterClockwise_Positive;
+  iEncoder->GetConfigurator().Apply(magnetConfig);
+}
+
+void SubCarDrive::applyDriveConfig(ctre::phoenix6::hardware::TalonFX* iMotor, bool iInverted) {
+  ctre::phoenix6::configs::TalonFXConfiguration config{};
+  config.CurrentLimits.SupplyCurrentLimitEnable = true;
+  config.CurrentLimits.SupplyCurrentLimit = CarDriveConstants::kSupplyCurrentLimit;
+  config.CurrentLimits.StatorCurrentLimitEnable = true;
+  config.CurrentLimits.StatorCurrentLimit = CarDriveConstants::kStatorCurrentLimit;
+  config.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake;
+  config.MotorOutput.Inverted = iInverted
+      ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
+      : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
+  iMotor->GetConfigurator().Apply(config);
+}
+
+void SubCarDrive::applySteerConfig(ctre::phoenix6::hardware::TalonFX* iMotor, bool iInverted) {
+  ctre::phoenix6::configs::TalonFXConfiguration config{};
+  config.CurrentLimits.SupplyCurrentLimitEnable = true;
+  config.CurrentLimits.SupplyCurrentLimit = CarDriveConstants::kSupplyCurrentLimit;
+  config.CurrentLimits.StatorCurrentLimitEnable = true;
+  config.CurrentLimits.StatorCurrentLimit = CarDriveConstants::kStatorCurrentLimit;
+  config.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake;
+  config.MotorOutput.Inverted = iInverted
+      ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
+      : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
+  config.Feedback.FeedbackSensorSource = ctre::phoenix6::signals::FeedbackSensorSourceValue::RotorSensor;
+  config.Feedback.SensorToMechanismRatio = mSteerGearRatio;
+  config.ClosedLoopGeneral.ContinuousWrap = true;
+  config.Slot0.kP = mSteerP;
+  config.Slot0.kI = mSteerI;
+  config.Slot0.kD = mSteerD;
+  config.Slot0.kS = mSteerS;
+  iMotor->GetConfigurator().Apply(config);
+}
+
+void SubCarDrive::zeroSteer(ctre::phoenix6::hardware::CANcoder* iEncoder, ctre::phoenix6::hardware::TalonFX* iSteer,
+                            units::angle::turn_t& ioMagnetOffset, std::string_view iKey) {
+  units::angle::turn_t absoluteTurns = iEncoder->GetAbsolutePosition().GetValue();
+  ioMagnetOffset = units::angle::turn_t{std::remainder((ioMagnetOffset - absoluteTurns).value(), 1.0)};
+
+  applyMagnetConfig(iEncoder, ioMagnetOffset);
+
+  iEncoder->GetPosition().WaitForUpdate(250_ms);
+  iSteer->SetPosition(iEncoder->GetPosition().GetValue());
+
+  frc::SmartDashboard::PutNumber(iKey, ioMagnetOffset.value());
+}
+
 void SubCarDrive::zeroFL() {
-  double currentPos = mFLEncoder->GetAbsolutePosition().GetValue().value();
-  mFLMagnetOffset -= currentPos;
-  while (mFLMagnetOffset > 1.0) mFLMagnetOffset -= 1.0;
-  while (mFLMagnetOffset < -1.0) mFLMagnetOffset += 1.0;
-
-  ctre::phoenix6::configs::MagnetSensorConfigs magConfig{};
-  magConfig.MagnetOffset = units::angle::turn_t{mFLMagnetOffset};
-  magConfig.SensorDirection = ctre::phoenix6::signals::SensorDirectionValue::CounterClockwise_Positive;
-  mFLEncoder->GetConfigurator().Apply(magConfig);
-  mFLEncoder->GetPosition().WaitForUpdate(250_ms);
-  mFLSteer->SetPosition(mFLEncoder->GetPosition().GetValue());
-
-  frc::SmartDashboard::PutNumber("Steer/FLMagnetOffset", mFLMagnetOffset);
+  zeroSteer(mFLEncoder, mFLSteer, mFLMagnetOffset, "Steer/FLMagnetOffset");
 }
 
 void SubCarDrive::zeroFR() {
-  double currentPos = mFREncoder->GetAbsolutePosition().GetValue().value();
-  mFRMagnetOffset -= currentPos;
-  while (mFRMagnetOffset > 1.0) mFRMagnetOffset -= 1.0;
-  while (mFRMagnetOffset < -1.0) mFRMagnetOffset += 1.0;
-
-  ctre::phoenix6::configs::MagnetSensorConfigs magConfig{};
-  magConfig.MagnetOffset = units::angle::turn_t{mFRMagnetOffset};
-  magConfig.SensorDirection = ctre::phoenix6::signals::SensorDirectionValue::CounterClockwise_Positive;
-  mFREncoder->GetConfigurator().Apply(magConfig);
-  mFREncoder->GetPosition().WaitForUpdate(250_ms);
-  mFRSteer->SetPosition(mFREncoder->GetPosition().GetValue());
-
-  frc::SmartDashboard::PutNumber("Steer/FRMagnetOffset", mFRMagnetOffset);
+  zeroSteer(mFREncoder, mFRSteer, mFRMagnetOffset, "Steer/FRMagnetOffset");
 }
 
 frc2::CommandPtr SubCarDrive::getZeroFLCommand() {
@@ -345,70 +227,19 @@ frc2::CommandPtr SubCarDrive::getTestSteerCommand() {
   return Run([this] {
     double targetAngleDeg = frc::SmartDashboard::GetNumber("Steer/TestTargetAngleDeg", 45.0);
     setSteerAngle(units::angle::degree_t{targetAngleDeg});
-    stopDrive();
+    stop();
   });
-}
-
-frc2::CommandPtr SubCarDrive::getCalibrateRatioCommand() {
-  struct CalibState {
-    double startRotationsFL{0.0};
-    double startRotationsFR{0.0};
-    double integratedVelocity{0.0};
-    double integratedDistance{0.0};
-    double accelBias{0.0};
-  };
-  auto state = std::make_shared<CalibState>();
-
-  return frc2::cmd::Sequence(
-      RunOnce([this, state] {
-        state->startRotationsFL = mFLDrive->GetPosition().GetValue().value();
-        state->startRotationsFR = mFRDrive->GetPosition().GetValue().value();
-        state->integratedVelocity = 0.0;
-        state->integratedDistance = 0.0;
-        units::acceleration::meters_per_second_squared_t a = mPigeon->GetAccelerationX().GetValue();
-        state->accelBias = a.value();
-      }),
-      Run([this, state] {
-        mFLSteer->SetControl(mSteerPositionControl.WithPosition(0.0_deg));
-        mFRSteer->SetControl(mSteerPositionControl.WithPosition(0.0_deg));
-        mFLDrive->SetControl(mDriveDutyCycleControl.WithOutput(0.18));
-        mFRDrive->SetControl(mDriveDutyCycleControl.WithOutput(0.18));
-
-        units::acceleration::meters_per_second_squared_t a = mPigeon->GetAccelerationX().GetValue();
-        double ax = a.value() - state->accelBias;
-        state->integratedVelocity += ax * 0.02;
-        if (state->integratedVelocity < 0.0) {
-          state->integratedVelocity = 0.0;
-        }
-        state->integratedDistance += state->integratedVelocity * 0.02;
-      }).WithTimeout(1.2_s),
-      RunOnce([this, state] {
-        stop();
-        double deltaFL = std::abs(mFLDrive->GetPosition().GetValue().value() - state->startRotationsFL);
-        double deltaFR = std::abs(mFRDrive->GetPosition().GetValue().value() - state->startRotationsFR);
-        double avgRotations = (deltaFL + deltaFR) * 0.5;
-        double wheelCircumference = 2.0 * std::numbers::pi * units::meter_t{mWheelRadius}.value();
-
-        if (state->integratedDistance > 0.05 && avgRotations > 0.1) {
-          double estimatedRatio = (avgRotations * wheelCircumference) / state->integratedDistance;
-          if (estimatedRatio > 1.0 && estimatedRatio < 25.0) {
-            mDriveGearRatio = estimatedRatio;
-            frc::SmartDashboard::PutNumber("Drive/DriveGearRatio", mDriveGearRatio);
-          }
-          frc::SmartDashboard::PutNumber("Drive/CalibratedGearRatio", estimatedRatio);
-        }
-      }));
 }
 
 void SubCarDrive::initDashboard() {
   frc::SmartDashboard::SetDefaultBoolean("Steer/SyncCANcoder", false);
-  frc::SmartDashboard::SetDefaultNumber("Steer/kP", mP);
-  frc::SmartDashboard::SetDefaultNumber("Steer/kI", mI);
-  frc::SmartDashboard::SetDefaultNumber("Steer/kD", mD);
-  frc::SmartDashboard::SetDefaultNumber("Steer/kS", mS);
+  frc::SmartDashboard::SetDefaultNumber("Steer/kP", mSteerP);
+  frc::SmartDashboard::SetDefaultNumber("Steer/kI", mSteerI);
+  frc::SmartDashboard::SetDefaultNumber("Steer/kD", mSteerD);
+  frc::SmartDashboard::SetDefaultNumber("Steer/kS", mSteerS);
 
-  frc::SmartDashboard::SetDefaultNumber("Steer/FLMagnetOffset", mFLMagnetOffset);
-  frc::SmartDashboard::SetDefaultNumber("Steer/FRMagnetOffset", mFRMagnetOffset);
+  frc::SmartDashboard::SetDefaultNumber("Steer/FLMagnetOffset", mFLMagnetOffset.value());
+  frc::SmartDashboard::SetDefaultNumber("Steer/FRMagnetOffset", mFRMagnetOffset.value());
 
   frc::SmartDashboard::SetDefaultBoolean("Drive/FLDriveInverted", mFLDriveInverted);
   frc::SmartDashboard::SetDefaultBoolean("Drive/FRDriveInverted", mFRDriveInverted);
@@ -419,77 +250,57 @@ void SubCarDrive::initDashboard() {
   frc::SmartDashboard::SetDefaultNumber("Steer/MaxAngleDeg", mMaxSteerAngle.value());
   frc::SmartDashboard::SetDefaultNumber("Drive/SpeedScale", mSpeedScale);
 
-  frc::SmartDashboard::SetDefaultNumber("CarDrive/TrackWidthInches", mTrackWidth.value());
-  frc::SmartDashboard::SetDefaultNumber("CarDrive/WheelBaseInches", mWheelBase.value());
+  frc::SmartDashboard::SetDefaultNumber("CarDrive/TrackWidthInches", units::inch_t{mTrackWidth}.value());
+  frc::SmartDashboard::SetDefaultNumber("CarDrive/WheelBaseInches", units::inch_t{mWheelBase}.value());
   frc::SmartDashboard::SetDefaultNumber("Steer/TestTargetAngleDeg", 45.0);
-  frc::SmartDashboard::SetDefaultBoolean("Steer/TestEnable", false);
   frc::SmartDashboard::SetDefaultBoolean("Steer/ZeroFL", false);
   frc::SmartDashboard::SetDefaultBoolean("Steer/ZeroFR", false);
 
-  frc::SmartDashboard::SetDefaultBoolean("TractionControl/Enable", mTractionControlEnabled);
-  frc::SmartDashboard::SetDefaultNumber("TractionControl/SlipThreshold", mTractionSlipThreshold);
-  frc::SmartDashboard::SetDefaultNumber("TractionControl/Kp", mTractionKp);
-  frc::SmartDashboard::SetDefaultNumber("TractionControl/YawSlipThreshold", mYawSlipThreshold);
-  frc::SmartDashboard::SetDefaultNumber("TractionControl/YawKp", mYawStabilityKp);
   frc::SmartDashboard::SetDefaultNumber("Drift/TorqueVectorScale", mDriftTorqueVectorScale);
-  frc::SmartDashboard::SetDefaultNumber("Drive/DriveGearRatio", mDriveGearRatio);
 }
 
 void SubCarDrive::updateConfigsFromDashboard() {
-  double newTrackWidth = frc::SmartDashboard::GetNumber("CarDrive/TrackWidthInches", mTrackWidth.value());
-  if (std::abs(newTrackWidth - mTrackWidth.value()) > 1e-6) {
-    mTrackWidth = units::length::inch_t{newTrackWidth};
+  double trackWidthInches = frc::SmartDashboard::GetNumber("CarDrive/TrackWidthInches", units::inch_t{mTrackWidth}.value());
+  if (std::abs(trackWidthInches - units::inch_t{mTrackWidth}.value()) > 1e-6) {
+    mTrackWidth = units::inch_t{trackWidthInches};
   }
 
-  double newWheelBase = frc::SmartDashboard::GetNumber("CarDrive/WheelBaseInches", mWheelBase.value());
-  if (std::abs(newWheelBase - mWheelBase.value()) > 1e-6) {
-    mWheelBase = units::length::inch_t{newWheelBase};
+  double wheelBaseInches = frc::SmartDashboard::GetNumber("CarDrive/WheelBaseInches", units::inch_t{mWheelBase}.value());
+  if (std::abs(wheelBaseInches - units::inch_t{mWheelBase}.value()) > 1e-6) {
+    mWheelBase = units::inch_t{wheelBaseInches};
   }
 
-  double newSpeedScale = frc::SmartDashboard::GetNumber("Drive/SpeedScale", mSpeedScale);
-  if (std::abs(newSpeedScale - mSpeedScale) > 1e-6) {
-    mSpeedScale = newSpeedScale;
+  double speedScale = frc::SmartDashboard::GetNumber("Drive/SpeedScale", mSpeedScale);
+  if (std::abs(speedScale - mSpeedScale) > 1e-6) {
+    mSpeedScale = speedScale;
   }
 
-  double newMaxSteerAngleDeg = frc::SmartDashboard::GetNumber("Steer/MaxAngleDeg", mMaxSteerAngle.value());
-  if (std::abs(newMaxSteerAngleDeg - mMaxSteerAngle.value()) > 1e-6) {
-    mMaxSteerAngle = units::angle::degree_t{newMaxSteerAngleDeg};
+  double maxSteerAngleDeg = frc::SmartDashboard::GetNumber("Steer/MaxAngleDeg", mMaxSteerAngle.value());
+  if (std::abs(maxSteerAngleDeg - mMaxSteerAngle.value()) > 1e-6) {
+    mMaxSteerAngle = units::angle::degree_t{maxSteerAngleDeg};
   }
 
-  mTractionControlEnabled = frc::SmartDashboard::GetBoolean("TractionControl/Enable", mTractionControlEnabled);
-  mTractionSlipThreshold = frc::SmartDashboard::GetNumber("TractionControl/SlipThreshold", mTractionSlipThreshold);
-  mTractionKp = frc::SmartDashboard::GetNumber("TractionControl/Kp", mTractionKp);
-  mYawSlipThreshold = frc::SmartDashboard::GetNumber("TractionControl/YawSlipThreshold", mYawSlipThreshold);
-  mYawStabilityKp = frc::SmartDashboard::GetNumber("TractionControl/YawKp", mYawStabilityKp);
-  mDriftTorqueVectorScale = frc::SmartDashboard::GetNumber("Drift/TorqueVectorScale", mDriftTorqueVectorScale);
-
-  double newDriveRatio = frc::SmartDashboard::GetNumber("Drive/DriveGearRatio", mDriveGearRatio);
-  if (std::abs(newDriveRatio - mDriveGearRatio) > 1e-6) {
-    mDriveGearRatio = newDriveRatio;
-  }
-
-  double newP = frc::SmartDashboard::GetNumber("Steer/kP", mP);
-  double newI = frc::SmartDashboard::GetNumber("Steer/kI", mI);
-  double newD = frc::SmartDashboard::GetNumber("Steer/kD", mD);
-  double newS = frc::SmartDashboard::GetNumber("Steer/kS", mS);
-
-  if (std::abs(newP - mP) > 1e-6 || std::abs(newI - mI) > 1e-6 || std::abs(newD - mD) > 1e-6 || std::abs(newS - mS) > 1e-6) {
-    mP = newP;
-    mI = newI;
-    mD = newD;
-    mS = newS;
-
-    ctre::phoenix6::configs::Slot0Configs slot0Config{};
-    slot0Config.kP = mP;
-    slot0Config.kI = mI;
-    slot0Config.kD = mD;
-    slot0Config.kS = mS;
-    mFLSteer->GetConfigurator().Apply(slot0Config);
-    mFRSteer->GetConfigurator().Apply(slot0Config);
+  double driftTorqueVectorScale = frc::SmartDashboard::GetNumber("Drift/TorqueVectorScale", mDriftTorqueVectorScale);
+  if (std::abs(driftTorqueVectorScale - mDriftTorqueVectorScale) > 1e-6) {
+    mDriftTorqueVectorScale = driftTorqueVectorScale;
   }
 
   if (!frc::DriverStation::IsTest()) {
     return;
+  }
+
+  double steerP = frc::SmartDashboard::GetNumber("Steer/kP", mSteerP);
+  double steerI = frc::SmartDashboard::GetNumber("Steer/kI", mSteerI);
+  double steerD = frc::SmartDashboard::GetNumber("Steer/kD", mSteerD);
+  double steerS = frc::SmartDashboard::GetNumber("Steer/kS", mSteerS);
+  if (std::abs(steerP - mSteerP) > 1e-6 || std::abs(steerI - mSteerI) > 1e-6 ||
+      std::abs(steerD - mSteerD) > 1e-6 || std::abs(steerS - mSteerS) > 1e-6) {
+    mSteerP = steerP;
+    mSteerI = steerI;
+    mSteerD = steerD;
+    mSteerS = steerS;
+    applySteerConfig(mFLSteer, mFLSteerInverted);
+    applySteerConfig(mFRSteer, mFRSteerInverted);
   }
 
   if (frc::SmartDashboard::GetBoolean("Steer/ZeroFL", false)) {
@@ -502,80 +313,49 @@ void SubCarDrive::updateConfigsFromDashboard() {
     frc::SmartDashboard::PutBoolean("Steer/ZeroFR", false);
   }
 
-  double newFLMagnetOffset = frc::SmartDashboard::GetNumber("Steer/FLMagnetOffset", mFLMagnetOffset);
-  if (std::abs(newFLMagnetOffset - mFLMagnetOffset) > 1e-6) {
-    mFLMagnetOffset = newFLMagnetOffset;
-    ctre::phoenix6::configs::MagnetSensorConfigs magConfig{};
-    magConfig.MagnetOffset = units::angle::turn_t{mFLMagnetOffset};
-    magConfig.SensorDirection = ctre::phoenix6::signals::SensorDirectionValue::CounterClockwise_Positive;
-    mFLEncoder->GetConfigurator().Apply(magConfig);
-    mFLEncoder->GetPosition().WaitForUpdate(250_ms);
-    mFLSteer->SetPosition(mFLEncoder->GetPosition().GetValue());
+  double flMagnetOffset = frc::SmartDashboard::GetNumber("Steer/FLMagnetOffset", mFLMagnetOffset.value());
+  if (std::abs(flMagnetOffset - mFLMagnetOffset.value()) > 1e-6) {
+    mFLMagnetOffset = units::angle::turn_t{flMagnetOffset};
+    applyMagnetConfig(mFLEncoder, mFLMagnetOffset);
+    syncSteerToCANcoder();
   }
 
-  double newFRMagnetOffset = frc::SmartDashboard::GetNumber("Steer/FRMagnetOffset", mFRMagnetOffset);
-  if (std::abs(newFRMagnetOffset - mFRMagnetOffset) > 1e-6) {
-    mFRMagnetOffset = newFRMagnetOffset;
-    ctre::phoenix6::configs::MagnetSensorConfigs magConfig{};
-    magConfig.MagnetOffset = units::angle::turn_t{mFRMagnetOffset};
-    magConfig.SensorDirection = ctre::phoenix6::signals::SensorDirectionValue::CounterClockwise_Positive;
-    mFREncoder->GetConfigurator().Apply(magConfig);
-    mFREncoder->GetPosition().WaitForUpdate(250_ms);
-    mFRSteer->SetPosition(mFREncoder->GetPosition().GetValue());
+  double frMagnetOffset = frc::SmartDashboard::GetNumber("Steer/FRMagnetOffset", mFRMagnetOffset.value());
+  if (std::abs(frMagnetOffset - mFRMagnetOffset.value()) > 1e-6) {
+    mFRMagnetOffset = units::angle::turn_t{frMagnetOffset};
+    applyMagnetConfig(mFREncoder, mFRMagnetOffset);
+    syncSteerToCANcoder();
   }
 
-  bool newFLDriveInverted = frc::SmartDashboard::GetBoolean("Drive/FLDriveInverted", mFLDriveInverted);
-  if (newFLDriveInverted != mFLDriveInverted) {
-    mFLDriveInverted = newFLDriveInverted;
-    ctre::phoenix6::configs::MotorOutputConfigs outputConfig{};
-    outputConfig.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake;
-    outputConfig.Inverted = mFLDriveInverted
-        ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
-        : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
-    mFLDrive->GetConfigurator().Apply(outputConfig);
+  bool flDriveInverted = frc::SmartDashboard::GetBoolean("Drive/FLDriveInverted", mFLDriveInverted);
+  if (flDriveInverted != mFLDriveInverted) {
+    mFLDriveInverted = flDriveInverted;
+    applyDriveConfig(mFLDrive, mFLDriveInverted);
   }
 
-  bool newFRDriveInverted = frc::SmartDashboard::GetBoolean("Drive/FRDriveInverted", mFRDriveInverted);
-  if (newFRDriveInverted != mFRDriveInverted) {
-    mFRDriveInverted = newFRDriveInverted;
-    ctre::phoenix6::configs::MotorOutputConfigs outputConfig{};
-    outputConfig.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake;
-    outputConfig.Inverted = mFRDriveInverted
-        ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
-        : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
-    mFRDrive->GetConfigurator().Apply(outputConfig);
+  bool frDriveInverted = frc::SmartDashboard::GetBoolean("Drive/FRDriveInverted", mFRDriveInverted);
+  if (frDriveInverted != mFRDriveInverted) {
+    mFRDriveInverted = frDriveInverted;
+    applyDriveConfig(mFRDrive, mFRDriveInverted);
   }
 
-  bool newFLSteerInverted = frc::SmartDashboard::GetBoolean("Steer/FLSteerInverted", mFLSteerInverted);
-  if (newFLSteerInverted != mFLSteerInverted) {
-    mFLSteerInverted = newFLSteerInverted;
-    ctre::phoenix6::configs::MotorOutputConfigs outputConfig{};
-    outputConfig.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake;
-    outputConfig.Inverted = mFLSteerInverted
-        ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
-        : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
-    mFLSteer->GetConfigurator().Apply(outputConfig);
+  bool flSteerInverted = frc::SmartDashboard::GetBoolean("Steer/FLSteerInverted", mFLSteerInverted);
+  if (flSteerInverted != mFLSteerInverted) {
+    mFLSteerInverted = flSteerInverted;
+    applySteerConfig(mFLSteer, mFLSteerInverted);
   }
 
-  bool newFRSteerInverted = frc::SmartDashboard::GetBoolean("Steer/FRSteerInverted", mFRSteerInverted);
-  if (newFRSteerInverted != mFRSteerInverted) {
-    mFRSteerInverted = newFRSteerInverted;
-    ctre::phoenix6::configs::MotorOutputConfigs outputConfig{};
-    outputConfig.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake;
-    outputConfig.Inverted = mFRSteerInverted
-        ? ctre::phoenix6::signals::InvertedValue::Clockwise_Positive
-        : ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
-    mFRSteer->GetConfigurator().Apply(outputConfig);
+  bool frSteerInverted = frc::SmartDashboard::GetBoolean("Steer/FRSteerInverted", mFRSteerInverted);
+  if (frSteerInverted != mFRSteerInverted) {
+    mFRSteerInverted = frSteerInverted;
+    applySteerConfig(mFRSteer, mFRSteerInverted);
   }
 
-  double newGearRatio = frc::SmartDashboard::GetNumber("Steer/GearRatio", mSteerGearRatio);
-  if (std::abs(newGearRatio - mSteerGearRatio) > 1e-6) {
-    mSteerGearRatio = newGearRatio;
-    ctre::phoenix6::configs::FeedbackConfigs feedbackConfig{};
-    feedbackConfig.FeedbackSensorSource = ctre::phoenix6::signals::FeedbackSensorSourceValue::RotorSensor;
-    feedbackConfig.SensorToMechanismRatio = mSteerGearRatio;
-    mFLSteer->GetConfigurator().Apply(feedbackConfig);
-    mFRSteer->GetConfigurator().Apply(feedbackConfig);
+  double steerGearRatio = frc::SmartDashboard::GetNumber("Steer/GearRatio", mSteerGearRatio);
+  if (std::abs(steerGearRatio - mSteerGearRatio) > 1e-6) {
+    mSteerGearRatio = steerGearRatio;
+    applySteerConfig(mFLSteer, mFLSteerInverted);
+    applySteerConfig(mFRSteer, mFRSteerInverted);
     syncSteerToCANcoder();
   }
 
@@ -620,7 +400,6 @@ void SubCarDrive::updateTelemetry() {
   frc::SmartDashboard::PutNumber("Drive/FLCurrentAmps", mFLDrive->GetStatorCurrent().GetValue().value());
   frc::SmartDashboard::PutNumber("Drive/FRCurrentAmps", mFRDrive->GetStatorCurrent().GetValue().value());
 
-  frc::SmartDashboard::PutBoolean("TractionControl/IsSlipping", mIsSlipping);
   frc::SmartDashboard::PutBoolean("Drift/Active", mDriftActive);
 
   units::angle::degree_t yaw = mPigeon->GetYaw().GetValue();

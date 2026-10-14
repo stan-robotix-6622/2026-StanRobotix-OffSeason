@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string_view>
 #include <ctre/phoenix6/CANcoder.hpp>
 #include <ctre/phoenix6/Pigeon2.hpp>
 #include <ctre/phoenix6/TalonFX.hpp>
@@ -13,6 +14,7 @@
 #include <units/length.h>
 #include <units/time.h>
 #include <units/velocity.h>
+#include "Constants.h"
 
 class SubCarDrive : public frc2::SubsystemBase {
  public:
@@ -21,14 +23,12 @@ class SubCarDrive : public frc2::SubsystemBase {
 
   void drive(double iThrottle, double iBrake, double iSteer, bool iReverse = false, bool iDrift = false);
   void stop();
-  void stopDrive();
   void setSteerAngle(units::angle::degree_t iAngle);
   frc2::CommandPtr getTestSteerCommand();
   void zeroFL();
   void zeroFR();
   frc2::CommandPtr getZeroFLCommand();
   frc2::CommandPtr getZeroFRCommand();
-  frc2::CommandPtr getCalibrateRatioCommand();
 
   void Periodic() override;
 
@@ -37,6 +37,11 @@ class SubCarDrive : public frc2::SubsystemBase {
   void updateConfigsFromDashboard();
   void updateTelemetry();
   void syncSteerToCANcoder();
+  void applyMagnetConfig(ctre::phoenix6::hardware::CANcoder* iEncoder, units::angle::turn_t iOffset);
+  void applyDriveConfig(ctre::phoenix6::hardware::TalonFX* iMotor, bool iInverted);
+  void applySteerConfig(ctre::phoenix6::hardware::TalonFX* iMotor, bool iInverted);
+  void zeroSteer(ctre::phoenix6::hardware::CANcoder* iEncoder, ctre::phoenix6::hardware::TalonFX* iSteer,
+                 units::angle::turn_t& ioMagnetOffset, std::string_view iKey);
 
   ctre::phoenix6::hardware::TalonFX* mFLDrive;
   ctre::phoenix6::hardware::TalonFX* mFLSteer;
@@ -51,10 +56,10 @@ class SubCarDrive : public frc2::SubsystemBase {
   ctre::phoenix6::controls::DutyCycleOut mDriveDutyCycleControl{0.0};
   ctre::phoenix6::controls::PositionVoltage mSteerPositionControl{0_tr};
 
-  double mP;
-  double mI;
-  double mD;
-  double mS;
+  double mSteerP{CarDriveConstants::kSteerP};
+  double mSteerI{CarDriveConstants::kSteerI};
+  double mSteerD{CarDriveConstants::kSteerD};
+  double mSteerS{CarDriveConstants::kSteerS};
 
   units::angle::degree_t mTargetSteerAngle{0.0_deg};
   units::angle::degree_t mTargetSteerAngleFL{0.0_deg};
@@ -62,37 +67,23 @@ class SubCarDrive : public frc2::SubsystemBase {
   double mTargetSpeedFL{0.0};
   double mTargetSpeedFR{0.0};
 
-  double mFLMagnetOffset;
-  double mFRMagnetOffset;
+  units::angle::turn_t mFLMagnetOffset{CarDriveConstants::kFLMagnetOffset};
+  units::angle::turn_t mFRMagnetOffset{CarDriveConstants::kFRMagnetOffset};
 
-  bool mFLDriveInverted;
-  bool mFRDriveInverted;
-  bool mFLSteerInverted;
-  bool mFRSteerInverted;
+  bool mFLDriveInverted{CarDriveConstants::kFLDriveInverted};
+  bool mFRDriveInverted{CarDriveConstants::kFRDriveInverted};
+  bool mFLSteerInverted{CarDriveConstants::kFLSteerInverted};
+  bool mFRSteerInverted{CarDriveConstants::kFRSteerInverted};
 
-  double mSteerGearRatio;
-  units::angle::degree_t mMaxSteerAngle;
-  double mSpeedScale;
+  double mSteerGearRatio{CarDriveConstants::kSteerGearRatio};
+  units::angle::degree_t mMaxSteerAngle{CarDriveConstants::kMaxSteerAngle};
+  double mSpeedScale{CarDriveConstants::kSpeedScale};
 
-  units::length::inch_t mTrackWidth;
-  units::length::inch_t mWheelBase;
-  units::length::inch_t mWheelRadius;
+  units::meter_t mTrackWidth{CarDriveConstants::kTrackWidth};
+  units::meter_t mWheelBase{CarDriveConstants::kWheelBase};
 
-  double mDriveGearRatio;
-  double mTractionSlipThreshold;
-  double mTractionKp;
-  double mYawSlipThreshold;
-  double mYawStabilityKp;
-  double mDriftTorqueVectorScale;
-  bool mTractionControlEnabled{true};
+  double mDriftTorqueVectorScale{CarDriveConstants::kDriftTorqueVectorScale};
 
-  bool mIsSlipping{false};
   bool mDriftActive{false};
   int mTelemetryCounter{0};
-
-  double mFilteredWheelAccelFL{0.0};
-  double mFilteredWheelAccelFR{0.0};
-  double mPrevWheelSpeedFL{0.0};
-  double mPrevWheelSpeedFR{0.0};
-  double mFilteredImuAx{0.0};
 };

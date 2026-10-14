@@ -18,7 +18,6 @@ void RobotContainer::ConfigureBindings() {
   }));
 
   mDriverController.A().WhileTrue(mCarDrive.getTestSteerCommand());
-  mDriverController.Y().OnTrue(mCarDrive.getCalibrateRatioCommand());
   mDriverController.POVLeft().OnTrue(mCarDrive.getZeroFLCommand());
   mDriverController.POVRight().OnTrue(mCarDrive.getZeroFRCommand());
 }
