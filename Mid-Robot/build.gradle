@@ -6,10 +6,6 @@ plugins {
 
 repositories {
     mavenLocal()
-    maven {
-        name = "StanRobotixLibLocal"
-        url = "${rootDir}/../../StanRobotixLib/build/repos/releases"
-    }
 }
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
