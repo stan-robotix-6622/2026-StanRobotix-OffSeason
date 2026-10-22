@@ -4,7 +4,7 @@
 #include <frc2/command/button/CommandXboxController.h>
 
 #include "Constants.h"
-#include "subsystems/SubCarDrive.h"
+#include "subsystems/DriveTrain.h"
 
 class RobotContainer {
  public:
@@ -13,9 +13,8 @@ class RobotContainer {
   frc2::CommandPtr GetAutonomousCommand();
 
  private:
-  frc2::CommandXboxController mDriverController{OperatorConstants::kDriverControllerPort};
-
-  SubCarDrive mCarDrive;
-
   void ConfigureBindings();
+
+  frc2::CommandXboxController mDriverController{OperatorConstants::kDriverControllerPort};
+  DriveTrain mDriveTrain;
 };
