@@ -5,10 +5,11 @@
 #include "commands/DriveCommand.h"
 
 
-DriveCommand::DriveCommand(DriveTrain *iDriveCommand, frc2::CommandXboxController* iXboxController)
+DriveCommand::DriveCommand(DriveTrain *iDriveCommand, frc2::CommandXboxController* iXboxController, double iTargetDistance)
 {
  mDriveCommand = iDriveCommand;
  mXboxController = iXboxController;
+ mTargetDistance = iTargetDistance;
  AddRequirements(iDriveCommand);
  
 
@@ -17,13 +18,13 @@ DriveCommand::DriveCommand(DriveTrain *iDriveCommand, frc2::CommandXboxControlle
 // Called when the command is initially scheduled.
 void DriveCommand::Initialize()
 {
-	mPIDController->SetSetpoint(0);
+	mPIDController->SetSetpoint(mTargetDistance);
 }
 
 // Called repeatedly when this Command is scheduled to run
 void DriveCommand::Execute() 
 {
-
+  
 }
 
 // Called once the command ends or is interrupted.

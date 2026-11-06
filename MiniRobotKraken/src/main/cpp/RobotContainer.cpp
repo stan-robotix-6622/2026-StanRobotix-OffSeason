@@ -33,6 +33,7 @@ void RobotContainer::ConfigureBindings() {
 
  mDriveTrain->SetDefaultCommand(frc2::RunCommand(
     [this] {
+<<<<<<< HEAD
      if (abs(mXboxController->GetLeftX()) > 0.1 || abs(mXboxController->GetRightY()) > 0.1) {
        mDriveTrain->Drive(mXboxController->GetRightY(), mXboxController->GetLeftX());
      }
@@ -43,6 +44,17 @@ void RobotContainer::ConfigureBindings() {
  ));
 
 
+=======
+      if (abs(mXboxController->GetLeftX()) > 0.1 || abs(mXboxController->GetRightY()) > 0.1) {
+        mDriveTrain->Drive(mXboxController->GetRightY(), mXboxController->GetLeftX());
+      }
+
+      else {
+        mDriveTrain->Drive(0, 0);
+      }
+    }, {mDriveTrain}
+  ));
+>>>>>>> 1981151652aa4bb23806005ff76cc07305ddd370
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {

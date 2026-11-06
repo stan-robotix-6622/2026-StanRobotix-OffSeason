@@ -4,6 +4,7 @@
 
 #include "subsystems/DriveTrain.h"
 #include "Constants.h"
+#include "DriveTrain.h"
 
 
 DriveTrain::DriveTrain() {
@@ -36,6 +37,4 @@ void DriveTrain::Drive(double Drive, double Turn)
 	mRightEncoder->GetAbsolutePosition();
 	//mLeftEncoder =std::clamp(mLeftEncoder,DriveTrainConstants::kEncoderMinAbsoluteValue,DriveTrainConstants::kEncoderMaxAbsoluteValue);
 }
-
-
 

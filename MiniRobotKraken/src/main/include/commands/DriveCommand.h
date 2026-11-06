@@ -25,7 +25,7 @@ class DriveCommand
   /* You should consider using the more terse Command factories API instead
    * https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands
    */
-	explicit DriveCommand(DriveTrain* iDriveCommand, frc2::CommandXboxController* iXboxController);
+	explicit DriveCommand(DriveTrain* iDriveCommand, frc2::CommandXboxController* iXboxController, double iTargetDistance);
 
   void Initialize() override;
 
@@ -41,5 +41,10 @@ class DriveCommand
 	frc::PIDController* mPIDController;
   frc2::CommandXboxController* mXboxController;
 	DriveTrain* mDriveCommand;
+<<<<<<< HEAD
  
+=======
+  double mTargetDistance;
+
+>>>>>>> 1981151652aa4bb23806005ff76cc07305ddd370
 };
