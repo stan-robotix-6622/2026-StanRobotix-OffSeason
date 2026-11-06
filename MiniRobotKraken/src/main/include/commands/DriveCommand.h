@@ -41,10 +41,5 @@ class DriveCommand
 	frc::PIDController* mPIDController;
   frc2::CommandXboxController* mXboxController;
 	DriveTrain* mDriveCommand;
-<<<<<<< HEAD
  
-=======
-  double mTargetDistance;
-
->>>>>>> 1981151652aa4bb23806005ff76cc07305ddd370
 };
