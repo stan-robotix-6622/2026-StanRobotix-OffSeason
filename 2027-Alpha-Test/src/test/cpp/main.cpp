@@ -1,7 +1,7 @@
 #include <string_view>
 
 #include <catch2/catch_session.hpp>
-#include <wpi/wpi/hal/HAL.h>
+#include <wpi/hal/HAL.h>
 
 namespace {
 
